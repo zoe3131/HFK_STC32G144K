@@ -1,0 +1,225 @@
+C251 COMPILER V5.60.0,  Motor                                                              17/05/26  20:54:31  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE Motor
+OBJECT MODULE PLACED IN .\out_file\Motor.obj
+COMPILER INVOKED BY: D:\Keil\C251\BIN\C251.EXE ..\code\Motor.c LARGE FLOAT64 ROM(HUGE) WARNINGLEVEL(3) OPTIMIZE(2,SIZE) 
+                    -BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_device;..\..\libraries\zf_drive
+                    -r;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_components\seekfree_assistant) DEBUG P
+                    -RINT(.\out_file\Motor.lst) TABS(2) OBJECT(.\out_file\Motor.obj) 
+
+stmt  level    source
+
+    1          //
+    2          // Created by 31663 on 2026/3/27.
+    3          //
+    4          #include "Motor.h"
+*** WARNING C323 IN LINE 12 OF ..\code\Zebra.h: newline expected, extra characters found
+    5          
+    6          #define pressPwmL PWMF_CH3_PA5
+    7          #define pressPwmR PWMF_CH4_PA7
+    8          #define motorDirR IO_P50
+    9          #define motorPwmR PWMD_CH2_P51
+   10          #define motorDirL IO_P52
+   11          #define motorPwmL PWMD_CH4_P53
+   12          
+   13          int16 encoderL, encoderR, setSpeed = 0, handle = 0, duty = 0;
+   14          static uint32 K;
+   15          const int16 tani[31];
+   16          extern int16 RUN_MODE;
+   17          extern uint8 display, borderIn, mustStop;
+   18          static uint8 DEVICE_H = 30;
+   19          static int16 R, c1, c2, c3, c4, c5, c6;
+   20          int8 smoothStop;
+   21          
+   22          typedef struct {
+   23              int16 Kp;
+   24              int16 Ki;
+   25              int16 Kd;
+   26              int16 attitude_coeff;
+   27              uint8 which;
+   28              int16 last_error;
+   29              int16 llast_error;
+   30              int16 base;
+   31              int16 max_out;
+   32          } PID_t;
+   33          
+   34          PID_t steerPid, motorLPID, motorRPID;
+   35          
+   36          void PIDInit(PID_t *pid, uint8 which, int16 Kp, int16 Ki, int16 Kd, int16 attitude_coeff,
+   37                        int16 max_out) {
+   38   1          pid->Kp = Kp;
+   39   1          pid->Ki = Ki;
+   40   1          pid->Kd = Kd;
+   41   1          pid->last_error = 0;
+   42   1          pid->llast_error = 0;
+   43   1          pid->base = 0;
+   44   1          pid->which = which;
+   45   1          pid->max_out = max_out;
+   46   1          pid->attitude_coeff = attitude_coeff;
+   47   1      }
+   48          
+   49          int16 steerPIDCalculate(PID_t *pid, int16 error, int16 attitude_data) {
+   50   1          int32 p_term, d_term, att_term;
+   51   1          int16 pid_output;
+   52   1          p_term = (int32) pid->Kp * error;
+   53   1          d_term = (int32) pid->Kd * (error - pid->last_error);
+   54   1          att_term = (int32) pid->attitude_coeff * attitude_data;
+   55   1          pid->last_error = error;
+C251 COMPILER V5.60.0,  Motor                                                              17/05/26  20:54:31  PAGE 2   
+
+   56   1          pid_output = (p_term + d_term + att_term) / 100;
+   57   1          return func_limit(pid_output, pid->max_out);
+   58   1      }
+   59          
+   60          int16 motorPIDCalculate(PID_t *pid, int16 target, int16 actual) {
+   61   1          int32 err, delta_err, delta2_err, delta_u;
+   62   1      //    if (actual - target > 100) { //BangBang~
+   63   1      //        gpio_set_level((gpio_pin_enum) pid->which ? motorDirR : motorDirL, 0);
+   64   1      //        return c2;
+   65   1      //    }
+   66   1          err = target - actual;
+   67   1          delta_err = err - pid->last_error;
+   68   1          delta2_err = delta_err - (pid->last_error - pid->llast_error);
+   69   1          delta_u = (int32) pid->Kp * delta_err +
+   70   1                       (int32) pid->Ki * err +
+   71   1                       (int32) pid->Kd * delta2_err;
+   72   1          pid->llast_error = pid->last_error;
+   73   1          pid->last_error = err;
+   74   1          pid->base += delta_u / 100;
+   75   1          pid->base = func_limit(pid->base, pid->max_out);
+   76   1          gpio_set_level((gpio_pin_enum) pid->which ? motorDirR : motorDirL, pid->base >= 0);
+   77   1          return func_abs(pid->base);
+   78   1      }
+   79          
+   80          static void pitHandler() {
+   81   1          encoderR = -encoder_get_count(PWMA_ENCODER) * 2;
+   82   1          encoderL = encoder_get_count(PWMC_ENCODER) * 2;
+   83   1          encoder_clear_count(PWMA_ENCODER);
+   84   1          encoder_clear_count(PWMC_ENCODER);
+   85   1          pwm_set_duty(PWME_CH4P_PA6, 3060 + steerPIDCalculate(&steerPid, duty, imu660rb_gyro_z));
+   86   1          if (smoothStop || mustStop) {
+   87   2              pwm_set_duty(motorPwmR, 0);
+   88   2              pwm_set_duty(motorPwmL, 0);
+   89   2      //        pwm_set_duty(pressPwmL, 0);
+   90   2      //        pwm_set_duty(pressPwmR, 0);
+   91   2          } else {
+   92   2              pwm_set_duty(motorPwmR, motorPIDCalculate(&motorRPID, setSpeed + (!R ? 0 : setSpeed * 8 / R), enc
+             -oderR));
+   93   2              pwm_set_duty(motorPwmL, motorPIDCalculate(&motorLPID, setSpeed - (!R ? 0 : setSpeed * 8 / R), enc
+             -oderL));
+   94   2      //        pwm_set_duty(pressPwmL, 750);
+   95   2      //        pwm_set_duty(pressPwmR, 750);
+   96   2          }
+   97   1      }
+   98          
+   99          void alongLine(Point roadLine[], int16 count, int16 aimPos) {
+  100   1          int16 pos, dx, dy;
+  101   1          int8 d;
+  102   1          if (count <= 5) return;
+  103   1          pos = func_limit_ab(aimPos, 5, count - 1);
+  104   1          dx = MT9V03X_H - (roadLine[pos].x + roadLine[pos - 1].x + roadLine[pos - 2].x) / 3 + DEVICE_H;
+  105   1          dy = 91 - (roadLine[pos].y + roadLine[pos - 1].y + roadLine[pos - 2].y) / 3;
+  106   1          d = atan2_int(2 * DEVICE_H * dy, dx * dx + dy * dy);
+  107   1          if (!display) ips200_draw_point(roadLine[pos].y, roadLine[pos].x + MT9V03X_H + 40, RGB565_RED);
+  108   1      //    pos = func_limit_ab(c2, 5, count - 1);
+  109   1      //    dx = MT9V03X_H - roadLine[pos].x;
+  110   1      //    dy = 94 - roadLine[pos].y;
+  111   1      //    K = !dy ? 0 : 20 * dx / dy;
+  112   1      //    if (!display) ips200_draw_point(roadLine[pos].y, roadLine[pos].x + MT9V03X_H + 40, RGB565_RED);
+  113   1          //ips200_show_int16(0, 20, K);
+  114   1          // if (RUN_MODE != RAMP && c5) {
+  115   1          //     dy = 94 - roadLine[c5].y;
+  116   1          //     //ips200_show_int16(0, 40, dy);
+  117   1          //     if ((d <= 0 && dy <= 0) || (d >= 0 && dy >= 0)) d += dy;
+  118   1          // }
+  119   1          setServoDuty(d);
+C251 COMPILER V5.60.0,  Motor                                                              17/05/26  20:54:31  PAGE 3   
+
+  120   1      }
+  121          
+  122          void setServoDuty(int8 d) {
+  123   1          int16 t = tani[func_limit_ab(func_abs((int16) d * c1 / 100), 0, 30)];
+  124   1          if (!display) ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 20, d);
+  125   1          R = !t ? 0 : 20000 / t;
+  126   1          //if (func_abs(K) > func_abs(R)) K = R;
+  127   1          if (!handle)
+  128   1              setSpeed = !R ? c4 : func_limit(sqrt_int(func_abs(R) * (uint32) c3), c4);
+  129   1          if (d < 0) R = -R;
+  130   1          // ips200_show_int16(0, 0, encoderL);
+  131   1          // ips200_show_int16(0, 30, encoderR);
+  132   1          //ips200_show_int16(0, 0, R);
+  133   1          duty = (int16) d * 11;
+  134   1      }
+  135          
+  136          int8 getDynamicAimPos() {
+  137   1          int16 speed = encoderR + encoderL >> 1;
+  138   1          return c5;
+  139   1          //return 3 * speed / 10 - 57;
+  140   1          //x   y
+  141   1          //290 30
+  142   1          //280 27
+  143   1          //270 24
+  144   1          //260 21
+  145   1          //250 18
+  146   1          //240 15
+  147   1      }
+  148          
+  149          void motorInit(int16 p, int16 i, int16 d, int16 amm, int16 spd, int16 dh) {
+  150   1          c1 = p;
+  151   1          c2 = i;
+  152   1          c3 = d;
+  153   1          c4 = amm;
+  154   1          c5 = spd;
+  155   1          c6 = dh;
+  156   1          PIDInit(&steerPid, 3,
+  157   1                   c1, 0, c2, 3,
+  158   1                   333);
+  159   1          PIDInit(&motorLPID, 0,
+  160   1                  2500, 55, 100, 0,
+  161   1                  9500);
+  162   1          PIDInit(&motorRPID, 1,
+  163   1                  2500, 55, 100, 0,
+  164   1                  9500);
+  165   1          pwm_init(PWME_CH4P_PA6, servoFreq, 3060);
+  166   1          gpio_init(motorDirR, GPO, 1, GPO_PUSH_PULL);
+  167   1          gpio_init(motorDirL, GPO, 1, GPO_PUSH_PULL);
+  168   1          pwm_init(motorPwmR, 17000, 0);
+  169   1          pwm_init(motorPwmL, 17000, 0);
+  170   1      //    pwm_init(pressPwmR, 50, 750);
+  171   1      //    pwm_init(pressPwmL, 50, 750);
+  172   1          encoder_quad_init(PWMA_ENCODER, PWMA_ENCODER_CH1P_P60, PWMA_ENCODER_CH2P_P62);
+  173   1          encoder_quad_init(PWMC_ENCODER, PWMC_ENCODER_CH1P_P40, PWMC_ENCODER_CH2P_P42);
+  174   1          pit_ms_init(TIM1_PIT, 5, pitHandler);
+  175   1      }
+  176          
+  177          const int16 tani[31] = {0,
+  178                                  17,  35,  52,  70,  87,  105, 123, 141, 158, 176,
+  179                                  194, 213, 231, 249, 268, 287, 306, 325, 344, 364,
+  180                                  384, 404, 424, 445, 466, 488, 510, 532, 554, 577};
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =    ------     ------
+  ecode size           =      3033     ------
+C251 COMPILER V5.60.0,  Motor                                                              17/05/26  20:54:31  PAGE 4   
+
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =       174     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        89     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

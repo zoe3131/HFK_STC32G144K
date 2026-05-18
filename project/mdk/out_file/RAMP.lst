@@ -1,0 +1,85 @@
+C251 COMPILER V5.60.0,  RAMP                                                               17/05/26  10:00:51  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE RAMP
+OBJECT MODULE PLACED IN .\out_file\RAMP.obj
+COMPILER INVOKED BY: D:\Keil\C251\BIN\C251.EXE ..\code\RAMP.c LARGE FLOAT64 ROM(HUGE) WARNINGLEVEL(3) OPTIMIZE(2,SIZE) B
+                    -ROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_device;..\..\libraries\zf_driver
+                    -;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_components\seekfree_assistant) DEBUG PR
+                    -INT(.\out_file\RAMP.lst) TABS(2) OBJECT(.\out_file\RAMP.obj) 
+
+stmt  level    source
+
+    1          //
+    2          // Created by 31663 on 2026/4/22.
+    3          //
+    4          
+    5          #include "RAMP.h"
+*** WARNING C323 IN LINE 12 OF ..\code\Zebra.h: newline expected, extra characters found
+    6          
+    7          static uint8 canEnd = 0, readyEnd = 0;
+    8          extern int16 RUN_MODE, pitch;
+    9          
+   10          void runRamp() {
+   11   1          //(func_abs(LRoadCount - RRoadCount) < 5 && LRoadCount > 30 && LRoadCount < 40 && RBorder[30].y - LBo
+             -rder[30].y > 75 && RBorder[30].y > 124 && LBorder[30].y < 64)
+   12   1          Point LStart = getLStart(), RStart = getRStart(), LBorder[expRoadCount], RBorder[expRoadCount], tarPo
+             -s[6];
+   13   1          int16 LRoadCount = expRoadCount, RRoadCount = expRoadCount, i, j;
+   14   1          gpio_set_level(IO_P65, 1);
+   15   1          setSpeed = 200;
+   16   1          getLBorder(LBorder, LStart, &LRoadCount);
+   17   1          getRBorder(RBorder, RStart, &RRoadCount);
+   18   1          if (func_min(LRoadCount, RRoadCount) < 30) {
+   19   2              smoothStop = 1;
+   20   2              return;
+   21   2          } else smoothStop = 0;
+   22   1          for (i = 0; i < LRoadCount; i++)
+   23   1              if (LBorder[i].x == rampPos) break;
+   24   1          for (j = 0; j < RRoadCount; j++)
+   25   1              if (RBorder[j].x == rampPos) break;
+   26   1          if (LBorder[i].x != rampPos || RBorder[j].x != rampPos) return;
+   27   1          tarPos[5].x = rampPos;
+   28   1          tarPos[5].y = LBorder[i].y + RBorder[j].y >> 1;
+   29   1          getGodRoadLine(tarPos, 6);
+   30   1          alongLine(tarPos, 6, 5);
+   31   1          handle = 1;
+   32   1          setSpeed = -150;
+   33   1          if (dl1b_distance_mm < 400) {
+   34   2              if (readyEnd)
+   35   2                  canEnd = 1;
+   36   2          } else if (dl1b_distance_mm > 600) {
+   37   2              readyEnd = 1;
+   38   2              if (canEnd && pitch > -10 && pitch < 10) {
+   39   3                  gpio_set_level(IO_P65, 0);
+   40   3                  RUN_MODE = FORWARD;
+   41   3                  canEnd = handle = readyEnd = 0;
+   42   3              }
+   43   2          }
+   44   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =    ------     ------
+  ecode size           =       594     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =       706     ------
+C251 COMPILER V5.60.0,  RAMP                                                               17/05/26  10:00:51  PAGE 2   
+
+  xdata-const size     =    ------     ------
+  edata size           =    ------     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        12     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
