@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               17/05/26  20:04:04  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               21/05/26  11:00:40  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -66,7 +66,7 @@ stmt  level    source
    50          uint8 haveZebra();
    51          
    52          void main(void) {
-C251 COMPILER V5.60.0,  main                                                               17/05/26  20:04:04  PAGE 2   
+C251 COMPILER V5.60.0,  main                                                               21/05/26  11:00:40  PAGE 2   
 
    53   1          clock_init(SYSTEM_CLOCK_96M);      // 时钟配置及系统初始化<务必保留>
    54   1          debug_init();                            // 调试串口信息初始化
@@ -134,7 +134,7 @@ stmt  level    source
   111   4                      runLRound(LCorner, RCorner);
   112   4                  } else {
   113   4                      if (centerLineCount < 10 || stop) smoothStop = 1;
-C251 COMPILER V5.60.0,  main                                                               17/05/26  20:04:04  PAGE 3   
+C251 COMPILER V5.60.0,  main                                                               21/05/26  11:00:40  PAGE 3   
 
   114   4                      else {
   115   5                          smoothStop = 0;
@@ -202,7 +202,7 @@ stmt  level    source
   177   2                      borderIn = 1;
   178   2                      break;
   179   2                  }
-C251 COMPILER V5.60.0,  main                                                               17/05/26  20:04:04  PAGE 4   
+C251 COMPILER V5.60.0,  main                                                               21/05/26  11:00:40  PAGE 4   
 
   180   1          if (LCorner >= LRoadCount - 1) LCorner = 0;
   181   1          if (RCorner >= RRoadCount - 1) RCorner = 0;
@@ -270,7 +270,7 @@ stmt  level    source
   238   1          int16 i = 10, count = 0, j;
   239   1          int8 add = 0;
   240   1          for (j = 40; j <= 140; j += 3) {
-C251 COMPILER V5.60.0,  main                                                               17/05/26  20:04:04  PAGE 5   
+C251 COMPILER V5.60.0,  main                                                               21/05/26  11:00:40  PAGE 5   
 
   241   2              if (mt9v03x_image[i][j] < threshold) {
   242   3                  if (add) {

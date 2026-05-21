@@ -10,7 +10,7 @@
 #define motorDirL IO_P52
 #define motorPwmL PWMD_CH4_P53
 
-int16 encoderL, encoderR, setSpeed = 0, handle = 0, duty = 0;
+volatile int16 encoderL, encoderR, setSpeed = 0, handle = 0, duty = 0;
 static uint32 K;
 const int16 tani[31];
 extern int16 RUN_MODE;

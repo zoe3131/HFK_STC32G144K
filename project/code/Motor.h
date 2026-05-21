@@ -16,7 +16,7 @@
 #define ALONG_L 888
 #define ALONG_R 99
 
-extern int16 setSpeed, handle;
+volatile extern int16 setSpeed, handle;
 void motorInit(int16 p, int16 i, int16 d,int16 am, int16 sp, int16 dh);
 void setServoDuty(int8 duty);
 void alongLine(Point roadLine[], int16 count, int16 aimPos);

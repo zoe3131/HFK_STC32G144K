@@ -80,7 +80,7 @@ Point getRStart() {
     int16 i, l, r, m;
     Point ans;
     for (i = MT9V03X_H - halfBlock - 2; i >= halfH; i -= 3) {
-        l = i < 112 ? halfW : 135;
+        l = i < 97 ? halfW : 135;
         r = MT9V03X_W - halfBlock - 2;
         while (l < r) {
             m = (l + r + 1) >> 1;
@@ -305,7 +305,7 @@ int16 findCorner(Point roadLine[], int16 count) {
         dy1 = roadLine[i0].y - roadLine[i_5].y, dx2 = roadLine[i5].x - roadLine[i0].x,
         dy2 = roadLine[i5].y - roadLine[i0].y, len1_sq = dx1 * dx1 + dy1 * dy1,
         len2_sq = dx2 * dx2 + dy2 * dy2, len1, len2, dot, abs_dot;
-        if (len1_sq == 0 || len2_sq == 0) continue;
+        if (!len1_sq || !len2_sq) continue;
         len1 = sqrt_int(len1_sq);
         len2 = sqrt_int(len2_sq);
         dot = dx1 * dx2 + dy1 * dy2;

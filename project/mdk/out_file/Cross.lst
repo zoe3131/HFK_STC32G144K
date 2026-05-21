@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Cross                                                              17/05/26  20:16:02  PAGE 1   
+C251 COMPILER V5.60.0,  Cross                                                              21/05/26  12:09:27  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Cross
@@ -35,128 +35,137 @@ stmt  level    source
    22   2              j = start.y + 1;
    23   2              count = expRoadCount;
    24   2              getRBorder(line, start, &count);
-   25   2              if (count > 10) {
+   25   2              if (count > 15) {
    26   3                  m = MT9V03X_W - 1;
    27   3                  for (k = 0; k < count; k++)
-   28   3                      m = func_min(m, line[k].y);
-   29   3                  DQW = m;
-   30   3              }
-   31   2          }
-   32   1          while (i >= 0 && mt9v03x_image[i][j] <= crossThreshold) i -= 3;
-   33   1          j = DQW;
-   34   1          while (i >= 0 && mt9v03x_image[i][j] > crossThreshold) i--;
-   35   1          if (i <= halfBlock) {
-   36   2              pos.x = 0;
-   37   2              pos.y = 0;
-   38   2          } else {
-   39   2              pos.x = i + 1;
-   40   2              pos.y = j;
-   41   2          }
-   42   1          return pos;
-   43   1      }
-   44          
-   45          Point getCrossLStart() {
-   46   1          int16 data i = 90, data j = QW, k;
-   47   1          Point pos, start = getLStart();
-   48   1          if (start.y || start.x) {
-   49   2              i = start.x - 2;
-   50   2              j = start.y - 1;
-   51   2              count = expRoadCount;
-   52   2              getLBorder(line, start, &count);
-   53   2              if (count > 10) {
-   54   3                  m = 0;
-   55   3                  for (k = 0; k < count; k++)
-C251 COMPILER V5.60.0,  Cross                                                              17/05/26  20:16:02  PAGE 2   
+   28   3                      if (m >= line[k].y) m = line[k].y;
+   29   3                      else {
+   30   4                          i = line[k].x - 1;
+   31   4                          j = line[k].y + 1;
+   32   4                          break;
+   33   4                      }
+   34   3                  DQW = m;
+   35   3              }
+   36   2          }
+   37   1          while (i >= 0 && mt9v03x_image[i][j] <= crossThreshold) i -= 3;
+   38   1          j = DQW;
+   39   1          while (i >= 0 && mt9v03x_image[i][j] > crossThreshold) i--;
+   40   1          if (i < halfBlock) {
+   41   2              pos.x = 0;
+   42   2              pos.y = 0;
+   43   2          } else {
+   44   2              pos.x = i + 1;
+   45   2              pos.y = j;
+   46   2          }
+   47   1          return pos;
+   48   1      }
+   49          
+   50          Point getCrossLStart() {
+   51   1          int16 data i = 90, data j = QW, k;
+   52   1          Point pos, start = getLStart();
+   53   1          if (start.y || start.x) {
+   54   2              i = start.x - 2;
+   55   2              j = start.y - 1;
+C251 COMPILER V5.60.0,  Cross                                                              21/05/26  12:09:27  PAGE 2   
 
-   56   3                      m = func_max(m, line[k].y);
-   57   3                  QW = m;
-   58   3              }
-   59   2          }
-   60   1          while (i >= 0 && mt9v03x_image[i][j] <= crossThreshold) i -= 3;
-   61   1          j = QW;
-   62   1          while (i >= 0 && mt9v03x_image[i][j] > crossThreshold) i--;
-   63   1          if (i <= halfBlock) {
-   64   2              pos.x = 0;
-   65   2              pos.y = 0;
-   66   2          } else {
-   67   2              pos.x = i + 1;
-   68   2              pos.y = j;
+   56   2              count = expRoadCount;
+   57   2              getLBorder(line, start, &count);
+   58   2              if (count > 15) {
+   59   3                  m = 0;
+   60   3                  for (k = 0; k < count; k++)
+   61   3                      if (m <= line[k].y) m = line[k].y;
+   62   3                      else {
+   63   4                          i = line[k].x - 1;
+   64   4                          j = line[k].y - 1;
+   65   4                          break;
+   66   4                      }
+   67   3                  QW = m;
+   68   3              }
    69   2          }
-   70   1          return pos;
-   71   1      }
-   72          
-   73          void runCross() {
-   74   1          if (CROSS_MODE == CROSS_READY) {
-   75   2              gpio_set_level(IO_P65, 1);
-   76   2              if (!added) {
-   77   3                  added = 1;
-   78   3                  alongR = LRoadCount < RRoadCount;
-   79   3              }
-   80   2              if (centerLineCount < 10) {
-   81   3                  crossThreshold = threshold;
-   82   3                  CROSS_MODE = CROSS_IN;
-   83   3              }
-   84   2              alongLine(centerLine, centerLineCount, getDynamicAimPos());
-   85   2          } else if (CROSS_MODE == CROSS_IN) {
-   86   2              Point border[expRoadCount], farCenterLine[expRoadCount];
-   87   2              int16 roadCount = expRoadCount, farCenterLineCount, corner, i, j;
-   88   2              gpio_set_level(IO_P65, 0);
-   89   2              if (centerLineCount > 25 && canEnd) {
-   90   3                  canEnd = added = 0;
-   91   3                  handle = 0;
-   92   3                  CROSS_MODE = CROSS_READY;
-   93   3                  RUN_MODE = FORWARD;
-   94   3                  return;
-   95   3              }
-   96   2              if (alongR) {
-   97   3                  start = getCrossRStart();
-   98   3                  getRBorder(border, start, &roadCount);
-   99   3              } else {
-  100   3                  start = getCrossLStart();
-  101   3                  getLBorder(border, start, &roadCount);
-  102   3              }
-  103   2              getGodRoadLine(border, roadCount);
-  104   2              resampleRoad(border, &roadCount, 0, 3);
-  105   2              if (roadCount > 100) return;
-  106   2              corner = findCorner(border, roadCount);
-  107   2              filterRoad(border, roadCount);
-  108   2              farCenterLineCount = roadCount;
-  109   2              if (alongR)
-  110   2                  getCenterLineByRBorder(border, farCenterLine, farCenterLineCount);
-  111   2              else getCenterLineByLBorder(border, farCenterLine, farCenterLineCount);
-  112   2              if (!LRoadCount && !RRoadCount) canEnd = 1;
-  113   2              if (corner && farCenterLine[corner].x > 50) corner = func_min(corner + 3, farCenterLineCount);
-  114   2              else corner = 0;
-  115   2              farCenterLine[corner].x = MT9V03X_H - 1;
-  116   2              farCenterLine[corner].y = MT9V03X_W / 2 - 3;
-  117   2              resampleRoad(farCenterLine, &farCenterLineCount, corner, 2);
-  118   2              filterRoad(farCenterLine, farCenterLineCount);
-  119   2              alongLine(farCenterLine, farCenterLineCount, getDynamicAimPos());
-  120   2      
-  121   2              // ips200_displayimage03x(mt9v03x_image, MT9V03X_W, MT9V03X_H, 0, 0);
-C251 COMPILER V5.60.0,  Cross                                                              17/05/26  20:16:02  PAGE 3   
+   70   1          while (i >= 0 && mt9v03x_image[i][j] <= crossThreshold) i -= 3;
+   71   1          j = QW;
+   72   1          while (i >= 0 && mt9v03x_image[i][j] > crossThreshold) i--;
+   73   1          if (i < halfBlock) {
+   74   2              pos.x = 0;
+   75   2              pos.y = 0;
+   76   2          } else {
+   77   2              pos.x = i + 1;
+   78   2              pos.y = j;
+   79   2          }
+   80   1          return pos;
+   81   1      }
+   82          
+   83          void runCross() {
+   84   1          if (CROSS_MODE == CROSS_READY) {
+   85   2              gpio_set_level(IO_P65, 1);
+   86   2              if (!added) {
+   87   3                  added = 1;
+   88   3                  alongR = LRoadCount < RRoadCount;
+   89   3              }
+   90   2              if (centerLineCount < 12) {
+   91   3                  crossThreshold = threshold;
+   92   3                  CROSS_MODE = CROSS_IN;
+   93   3              }
+   94   2              alongLine(centerLine, centerLineCount, getDynamicAimPos());
+   95   2          } else if (CROSS_MODE == CROSS_IN) {
+   96   2              Point border[expRoadCount], farCenterLine[expRoadCount];
+   97   2              int16 roadCount = expRoadCount, farCenterLineCount, corner, i, j;
+   98   2              gpio_set_level(IO_P65, 0);
+   99   2              if (alongR) {
+  100   3                  start = getCrossRStart();
+  101   3                  getRBorder(border, start, &roadCount);
+  102   3              } else {
+  103   3                  start = getCrossLStart();
+  104   3                  getLBorder(border, start, &roadCount);
+  105   3              }
+  106   2              getGodRoadLine(border, roadCount);
+  107   2              resampleRoad(border, &roadCount, 0, 3);
+  108   2              if (roadCount > 100) return;
+  109   2              corner = findCorner(border, roadCount);
+  110   2              filterRoad(border, roadCount);
+  111   2              farCenterLineCount = roadCount;
+  112   2              if (alongR)
+  113   2                  getCenterLineByRBorder(border, farCenterLine, farCenterLineCount);
+  114   2              else getCenterLineByLBorder(border, farCenterLine, farCenterLineCount);
+  115   2              if (!LRoadCount && !RRoadCount) canEnd = 1;
+  116   2              if (corner && farCenterLine[corner].x > 50) corner = func_min(corner + 3, farCenterLineCount);
+  117   2              else corner = 0;
+  118   2              farCenterLine[corner].x = MT9V03X_H - 1;
+  119   2              farCenterLine[corner].y = MT9V03X_W / 2 - 3;
+  120   2              resampleRoad(farCenterLine, &farCenterLineCount, corner, 2);
+  121   2              filterRoad(farCenterLine, farCenterLineCount);
+C251 COMPILER V5.60.0,  Cross                                                              21/05/26  12:09:27  PAGE 3   
 
-  122   2              // ips200_draw_point(start.y, start.x, RGB565_RED);
-  123   2              // ips200_show_int16(0, MT9V03X_H + 1, corner);
-  124   2              // ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, farCenterLineCount);
-  125   2              // for (i = 0; i < MT9V03X_H; i++)
-  126   2              //     for (j = 0; j < MT9V03X_W; j++)
-  127   2              //         outputImage[i][j] = 0;
-  128   2              // for (i = 0; i < farCenterLineCount; i++)
-  129   2              //     outputImage[farCenterLine[i].x][farCenterLine[i].y] = 255;
-  130   2              // for (i = 0; i < roadCount; i++)
-  131   2              //     outputImage[border[i].x][border[i].y] = 255;
-  132   2              // ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
-  133   2          }
-  134   1      }
-*** WARNING C47 IN LINE 87 OF ..\code\Cross.c: 'i': unreferenced local variable
-*** WARNING C47 IN LINE 87 OF ..\code\Cross.c: 'j': unreferenced local variable
+  122   2              alongLine(farCenterLine, farCenterLineCount, getDynamicAimPos());
+  123   2              if (centerLineCount > 50 && canEnd) {
+  124   3                  canEnd = added = 0;
+  125   3                  handle = 0;
+  126   3                  CROSS_MODE = CROSS_READY;
+  127   3                  RUN_MODE = FORWARD;
+  128   3              }
+  129   2      
+  130   2              // ips200_displayimage03x(mt9v03x_image, MT9V03X_W, MT9V03X_H, 0, 0);
+  131   2              // ips200_draw_point(start.y, start.x, RGB565_RED);
+  132   2              // ips200_show_int16(0, MT9V03X_H + 1, corner);
+  133   2              // ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, farCenterLineCount);
+  134   2              // for (i = 0; i < MT9V03X_H; i++)
+  135   2              //     for (j = 0; j < MT9V03X_W; j++)
+  136   2              //         outputImage[i][j] = 0;
+  137   2              // for (i = 0; i < farCenterLineCount; i++)
+  138   2              //     outputImage[farCenterLine[i].x][farCenterLine[i].y] = 255;
+  139   2              // for (i = 0; i < roadCount; i++)
+  140   2              //     outputImage[border[i].x][border[i].y] = 255;
+  141   2              // ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
+  142   2          }
+  143   1      }
+*** WARNING C47 IN LINE 97 OF ..\code\Cross.c: 'i': unreferenced local variable
+*** WARNING C47 IN LINE 97 OF ..\code\Cross.c: 'j': unreferenced local variable
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      1545     ------
+  ecode size           =      1654     ------
   data size            =         8     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
