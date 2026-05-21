@@ -51,7 +51,7 @@ void runRRound(int16 LCorner, int16 RCorner) {
         alongLine(centerLine, centerLineCount, getDynamicAimPos());
         if (centerLineCount < 5) smoothStop = 1;
         else smoothStop = 0;
-        if (LCorner > 3 && centerLineCount < 15) {
+        if (LCorner > 3 && centerLineCount < 10 && centerLineCount) {
             centerLineDistance = 8;
             ROUND_MODE = ROUND_END;
             ALONG = ALONG_R;
