@@ -12,6 +12,11 @@ const static uint8 reflection[120][188][2], data halfBlock = block / 2, data hal
 Point LBorder[expRoadCount], RBorder[expRoadCount];
 int16 LBorderCount, RBorderCount;
 
+static uint8 getImageFilterSelf(uint8 i, uint8 j) {
+    if (i > 97 && j > 45 && j < 143) return 255;
+    return mt9v03x_image[i][j];
+}
+
 uint8 isZebra(int16 pos, uint8 along) {
     uint8 i, j, d, c = 0, added = 0;
     if (along == ALONG_L) {
@@ -19,7 +24,7 @@ uint8 isZebra(int16 pos, uint8 along) {
         j = LBorder[pos].y;
         d = j + borderOffset[i];
         for (; j < d; j += 2)
-            if (mt9v03x_image[i][j] < threshold) {
+            if (getImageFilterSelf(i, j) < threshold) {
                 if (!added) {
                     added = 1;
                     c++;
@@ -30,14 +35,14 @@ uint8 isZebra(int16 pos, uint8 along) {
         j = RBorder[pos].y;
         d = j - borderOffset[i];
         for (; j > d; j -= 2)
-            if (mt9v03x_image[i][j] < threshold) {
+            if (getImageFilterSelf(i, j) < threshold) {
                 if (!added) {
                     added = 1;
                     c++;
                 }
             } else added = 0;
     }
-    return c >= 5;
+    return i > 97 ? c >= 2 : c >= 5;
 }
 
 uint8 getPointThreshold(uint8 x, uint8 y) {
@@ -82,7 +87,7 @@ Point getRStart() {
     int16 i, l, r, m;
     Point ans;
     for (i = MT9V03X_H - halfBlock - 2; i >= halfH; i -= 3) {
-        l = i < 97 ? halfW : 135;
+        l = i < 97 ? halfW : 143;
         r = MT9V03X_W - halfBlock - 2;
         while (l < r) {
             m = (l + r + 1) >> 1;

@@ -86,14 +86,14 @@ void main(void) {
             //ips200_show_int16(0, 15, imu660rb_gyro_x);
             //gpio_set_level(IO_P77, 1);
             loadRoad();
-//            if (RUN_MODE == ZEBRA || (RUN_MODE == FORWARD && have)) {
-//                RUN_MODE = ZEBRA;
-//                runZebra(have);
-//            } else
-            if (RUN_MODE == RAMP || (RUN_MODE == FORWARD && dl1b_distance_mm < 350 && dl1b_distance_mm > 100 && !borderIn)) {
-                RUN_MODE = RAMP;
-                runRamp();
+            if (RUN_MODE == ZEBRA || ((RUN_MODE == FORWARD || RUN_MODE == BLOCK) && have)) {
+                RUN_MODE = ZEBRA;
+                runZebra(have);
             }
+            // else if (RUN_MODE == RAMP || (RUN_MODE == FORWARD && dl1b_distance_mm < 350 && dl1b_distance_mm > 100 && !borderIn)) {
+            //     RUN_MODE = RAMP;
+            //     runRamp();
+            // }
             else if (RUN_MODE == BLOCK) {
                 runBlock(LCorner, RCorner);
             } else if (RUN_MODE == CROSS ||
@@ -231,14 +231,14 @@ uint8 haveZebra() {
     int16 pos;
     if (LBorderCount < RBorderCount) {
         pos = LBorderCount - 1;
-        while (LBorder[pos].x < 40)
-            pos--;
-        return isZebra(pos, ALONG_L);
+        while (LBorder[pos].x < ZEBRA_TRIGGER_POS)
+            pos -= 3;
+        return LBorder[pos].x > 97 ? 0 : isZebra(pos, ALONG_L);
     }
     pos = RBorderCount - 1;
-    while (RBorder[pos].x < 40)
-        pos--;
-    return isZebra(pos, ALONG_R);
+    while (RBorder[pos].x < ZEBRA_TRIGGER_POS)
+        pos -= 3;
+    return RBorder[pos].x > 97 ? 0 : isZebra(pos, ALONG_R);
 }
 
 void pitHandlerImu() {

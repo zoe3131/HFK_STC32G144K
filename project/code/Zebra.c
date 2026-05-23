@@ -9,19 +9,19 @@ extern int16 centerLineCount, RUN_MODE, LCorner, RCorner;
 uint8 canEnd, count, add;
 
 uint8 haveLine() {
-    int16 data i, data ct, data j, data ad;
-    for (i = MT9V03X_H - 1; i >= 0; i -= 5) {
-        ad = ct = 0;
-        for (j = 0; j <= MT9V03X_W - 1; j += 3) {
-            if (i > 85 && j > 45 && j < 135) continue;
-            if (mt9v03x_image[i][j] < threshold) {
-                if (ad) {
-                    ct++;
-                    if (ct > 4) return 1;
-                    ad = 0;
-                }
-            } else ad = 1;
-        }
+    int16 pos;
+    if (LBorderCount < RBorderCount) {
+        pos = LBorderCount - 1;
+        while (LBorder[pos].x < ZEBRA_TRIGGER_POS)
+            pos -= 3;
+        for (pos -= 10; pos >= 5; pos -= 10)
+            if (isZebra(pos, ALONG_L)) return 1;
+    } else {
+        pos = RBorderCount - 1;
+        while (RBorder[pos].x < ZEBRA_TRIGGER_POS)
+            pos -= 3;
+        for (pos -= 10; pos >= 5; pos -= 10)
+            if (isZebra(pos, ALONG_R)) return 1;
     }
     return 0;
 }

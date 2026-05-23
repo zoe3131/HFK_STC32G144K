@@ -5,7 +5,7 @@
 #ifndef SEEKFREE_STC32G144K_100PIN_OPENSOURCE_LIBRARY_MOTOR_H
 #define SEEKFREE_STC32G144K_100PIN_OPENSOURCE_LIBRARY_MOTOR_H
 #include "zf_common_headfile.h"
-#define servoFreq 200 //¶æ»úÆµÂÊ
+#define servoFreq 200
 #define FORWARD 114
 #define CROSS 514
 #define R_ROUND 1919
