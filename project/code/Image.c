@@ -4,39 +4,41 @@
 
 #include "Image.h"
 
-const static int8 data
-dirF[4][2] = {
-{
--2, 0},
-{
-0, 2},
-{
-2, 0},
-{
-0, -2}},
-dirL[4][2] = {
-{
--2, -2},
-{
--2, 2},
-{
-2,  2},
-{
-2,  -2}},
-dirR[4][2] = {
-{
--2, 2},
-{
-2,  2},
-{
-2,  -2},
-{
--2, -2}};
+const static int8 data dirF[4][2] = {{-2, 0},{0, 2},{2, 0},{0, -2}},
+    dirL[4][2] = {{-2, -2},{-2, 2},{2,  2},{2,  -2}},
+    dirR[4][2] = {{-2, 2},{2,  2},{2,  -2},{-2, -2}};
 uint8 LThreshold = expThreshold, RThreshold = expThreshold, threshold = expThreshold, centerLineDistance = 17;
-const static uint8 reflection[120][188][2], data
-halfBlock = block / 2, data
-halfH = MT9V03X_H / 2, data
-halfW = MT9V03X_W / 2;
+const static uint8 reflection[120][188][2], data halfBlock = block / 2, data halfH = MT9V03X_H / 2, data halfW = MT9V03X_W / 2;
+Point LBorder[expRoadCount], RBorder[expRoadCount];
+int16 LBorderCount, RBorderCount;
+
+uint8 isZebra(int16 pos, uint8 along) {
+    uint8 i, j, d, c = 0, added = 0;
+    if (along == ALONG_L) {
+        i = LBorder[pos].x;
+        j = LBorder[pos].y;
+        d = j + borderOffset[i];
+        for (; j < d; j += 2)
+            if (mt9v03x_image[i][j] < threshold) {
+                if (!added) {
+                    added = 1;
+                    c++;
+                }
+            } else added = 0;
+    } else {
+        i = RBorder[pos].x;
+        j = RBorder[pos].y;
+        d = j - borderOffset[i];
+        for (; j > d; j -= 2)
+            if (mt9v03x_image[i][j] < threshold) {
+                if (!added) {
+                    added = 1;
+                    c++;
+                }
+            } else added = 0;
+    }
+    return c >= 5;
+}
 
 uint8 getPointThreshold(uint8 x, uint8 y) {
     uint16 total = 0;
@@ -98,7 +100,7 @@ Point getRStart() {
     return ans;
 }
 
-void getLBorder(Point LBorder[], Point start, int16 *count) {
+void getLBorder(Point LRoad[], Point start, int16 *count) {
     uint8 data
     x = start.x, data
     y = start.y, data
@@ -126,24 +128,26 @@ void getLBorder(Point LBorder[], Point start, int16 *count) {
         } else if (mt9v03x_image[dirL[dir][0] + x][dirL[dir][1] + y] < localThreshold) {
             x += dirF[dir][0];
             y += dirF[dir][1];
-            LBorder[step].x = x;
-            LBorder[step].y = y;
+            LRoad[step].x = x;
+            LRoad[step].y = y;
             step++;
             turn = 0;
         } else {
             x += dirL[dir][0];
             y += dirL[dir][1];
-            LBorder[step].x = x;
-            LBorder[step].y = y;
+            LRoad[step].x = x;
+            LRoad[step].y = y;
             step++;
             turn = 0;
             dir = (dir + 3) % 4;
         }
     }
-    *count = step;
+    *count = LBorderCount = step;
+    for (step = 0; step < *count; step++)
+        LBorder[step] = LRoad[step];
 }
 
-void getRBorder(Point RBorder[], Point start, int16 *count) {
+void getRBorder(Point RRoad[], Point start, int16 *count) {
     uint8 data
     x = start.x, data
     y = start.y, data
@@ -172,21 +176,23 @@ void getRBorder(Point RBorder[], Point start, int16 *count) {
         } else if (mt9v03x_image[dirR[dir][0] + x][dirR[dir][1] + y] < localThreshold) {
             x += dirF[dir][0];
             y += dirF[dir][1];
-            RBorder[step].x = x;
-            RBorder[step].y = y;
+            RRoad[step].x = x;
+            RRoad[step].y = y;
             step++;
             turn = 0;
         } else {
             x += dirR[dir][0];
             y += dirR[dir][1];
-            RBorder[step].x = x;
-            RBorder[step].y = y;
+            RRoad[step].x = x;
+            RRoad[step].y = y;
             step++;
             turn = 0;
             dir = (dir + 1) % 4;
         }
     }
-    *count = step;
+    *count = RBorderCount = step;
+    for (step = 0; step < *count; step++)
+        RBorder[step] = RRoad[step];
 }
 
 void getCenterLineByLBorder(Point roadLine[], Point centerLine[], int16 count) {
@@ -301,7 +307,7 @@ int16 findCorner(Point roadLine[], int16 count) {
     int16 data i;
     for (i = 3; i < count - 2 && roadLine[i].x > 15; i++) {
         int32 i_5 = func_limit_ab(i - 5, 0, count - 1), i0 = func_limit_ab(i, 0, count - 1),
-        i5 = func_limit_ab(i + 5, 0, count - 1), dx1 = roadLine[i0].x - roadLine[i_5].x,
+        i5 = func_limit_ab(i + 2, 0, count - 1), dx1 = roadLine[i0].x - roadLine[i_5].x,
         dy1 = roadLine[i0].y - roadLine[i_5].y, dx2 = roadLine[i5].x - roadLine[i0].x,
         dy2 = roadLine[i5].y - roadLine[i0].y, len1_sq = dx1 * dx1 + dy1 * dy1,
         len2_sq = dx2 * dx2 + dy2 * dy2, len1, len2, dot, abs_dot;
@@ -2643,4 +2649,19 @@ const static uint8 reflection[120][188][2] = {
 118,108,118,108,118,108,118,109,118,109,118,109,118,109,118,110,118,110,118,110,
 118,110,118,111,118,111,118,111,118,111,118,112,118,112,118,112,118,112,118,112,
 118,113,118,113,118,113,118,113,118,114,118,114,118,114,118,114,118,115
+};
+
+const uint8 borderOffset[120] = {
+    24, 24, 25, 26, 27, 28, 29, 30, 31, 32,
+    33, 33, 34, 35, 36, 37, 38, 39, 40, 41,
+    42, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+    51, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+    60, 60, 61, 62, 63, 64, 65, 66, 67, 68,
+    69, 69, 70, 71, 72, 73, 74, 75, 76, 77,
+    78, 78, 79, 80, 81, 82, 83, 84, 85, 86,
+    87, 87, 88, 89, 90, 91, 92, 93, 94, 95,
+    96, 96, 97, 98, 99, 100, 101, 102, 103, 104,
+    105, 105, 106, 107, 108, 109, 110, 111, 112, 113,
+    114, 114, 115, 116, 117, 118, 119, 120, 121, 122,
+    123, 123, 124, 125, 126, 127, 128, 129, 130, 131
 };

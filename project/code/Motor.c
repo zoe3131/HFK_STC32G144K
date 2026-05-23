@@ -154,13 +154,13 @@ void motorInit(int16 p, int16 i, int16 d, int16 amm, int16 spd, int16 dh) {
     c5 = spd;
     c6 = dh;
     PIDInit(&steerPid, 3,
-             c1, 0, c2, 3,
+             c1, 0, c2, 0,
              333);
     PIDInit(&motorLPID, 0,
             2500, 55, 100, 0,
             9500);
     PIDInit(&motorRPID, 1,
-            2200, 40, 100, 0,
+            2500, 55, 100, 0,
             9500);
     pwm_init(PWME_CH4P_PA6, servoFreq, 3060);
     gpio_init(motorDirR, GPO, 1, GPO_PUSH_PULL);

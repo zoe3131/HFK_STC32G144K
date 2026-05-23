@@ -13,7 +13,7 @@
 #define ZEBRA 520
 #define RAMP 1314
 #define BLOCK 521
-#define ALONG_L 888
+#define ALONG_L 88
 #define ALONG_R 99
 
 volatile extern int16 setSpeed, handle;

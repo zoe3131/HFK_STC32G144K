@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Block                                                              21/05/26  11:00:39  PAGE 1   
+C251 COMPILER V5.60.0,  Block                                                              23/05/26  20:26:26  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Block
@@ -16,79 +16,59 @@ stmt  level    source
     4          
     5          #include "Block.h"
 *** WARNING C323 IN LINE 12 OF ..\code\Zebra.h: newline expected, extra characters found
-    6          static uint8 added = 0, reflect[120];
+    6          static uint8 added = 0;
     7          static int16 fixedLCorner, fixedRCorner;
-    8          extern int16 RUN_MODE, ALONG, centerLineCount, LRoadCount, RRoadCount;
-    9          extern Point centerLine[expRoadCount], LBorder[expRoadCount], RBorder[expRoadCount];
+    8          extern int16 RUN_MODE, ALONG, centerLineCount;
+    9          extern Point centerLine[expRoadCount];
    10          
    11          uint8 canEnd() {
-   12   1          Point start, border[expRoadCount];
-   13   1          int16 roadCount = expRoadCount, i;
-   14   1          if (fixedLCorner) {
-   15   2              start = getRStart();
-   16   2              getRBorder(border, start, &roadCount);
-   17   2              for (i = 0; i < roadCount; i += 10)
-   18   2                  if (mt9v03x_image[border[i].x][border[i].y - reflect[border[i].x]] < blockThreshold) return 0
-             -;
-   19   2          } else {
-   20   2              start = getLStart();
-   21   2              getLBorder(border, start, &roadCount);
-   22   2              for (i = 0; i < roadCount; i += 10)
-   23   2                  if (mt9v03x_image[border[i].x][border[i].y + reflect[border[i].x]] < blockThreshold) return 0
-             -;
-   24   2          }
-   25   1          return 1;
-   26   1      }
-   27          
-   28          void runBlock(int16 LCorner, int16 RCorner) {
-   29   1          gpio_set_level(IO_P65, 1);
-   30   1          if (!added) {
-   31   2              fixedLCorner = LCorner;
-   32   2              fixedRCorner = RCorner;
-   33   2              added = 1;
-   34   2          }
-   35   1          ALONG = fixedLCorner ? ALONG_R : ALONG_L;
-   36   1          if (centerLineCount < 10)
-   37   1              smoothStop = 1;
-   38   1          else {
-   39   2              smoothStop = 0;
-   40   2              alongLine(centerLine, centerLineCount, 20);
-   41   2          }
-   42   1          if (canEnd()) {
-   43   2              added = 0;
-   44   2              gpio_set_level(IO_P65, 0);
-   45   2              RUN_MODE = FORWARD;
-   46   2              centerLineDistance = 18;
-   47   2          }
-   48   1      }
-   49          
-   50          static uint8 reflect[120] = {
-   51              24, 25, 26, 27, 28, 29, 30, 31, 31, 32,
-   52              33, 34, 35, 36, 37, 38, 39, 40, 41, 41,
-   53              42, 43, 44, 45, 46, 47, 48, 49, 50, 51,
-C251 COMPILER V5.60.0,  Block                                                              21/05/26  11:00:39  PAGE 2   
-
-   54              52, 52, 53, 54, 55, 56, 57, 58, 59, 60,
-   55              61, 62, 62, 63, 64, 65, 66, 67, 68, 69,
-   56              70, 71, 72, 72, 73, 74, 75, 76, 77, 78,
-   57              79, 80, 81, 82, 82, 83, 84, 85, 86, 87,
-   58              88, 89, 90, 91, 92, 92, 93, 94, 95, 96,
-   59              97, 98, 99, 100, 101, 102, 102, 103, 104, 105,
-   60              106, 107, 108, 109, 110, 111, 112, 112, 113, 114,
-   61              115, 116, 117, 118, 119, 120, 121, 122, 122, 123,
-   62              124, 125, 126, 127, 128, 129, 130, 131, 132, 132
-   63          };
+   12   1          int16 i;
+   13   1          if (fixedLCorner) {
+   14   2              for (i = 0; i < RBorderCount; i += 10)
+   15   2                  if (mt9v03x_image[RBorder[i].x][RBorder[i].y - borderOffset[RBorder[i].x]] < blockThreshold) 
+             -return 0;
+   16   2          } else {
+   17   2              for (i = 0; i < LBorderCount; i += 10)
+   18   2                  if (mt9v03x_image[LBorder[i].x][LBorder[i].y + borderOffset[LBorder[i].x]] < blockThreshold) 
+             -return 0;
+   19   2          }
+   20   1          return 1;
+   21   1      }
+   22          
+   23          void runBlock(int16 LCorner, int16 RCorner) {
+   24   1          gpio_set_level(IO_P65, 1);
+   25   1          if (!added) {
+   26   2              fixedLCorner = LCorner;
+   27   2              fixedRCorner = RCorner;
+   28   2              added = 1;
+   29   2          }
+   30   1          ALONG = fixedLCorner ? ALONG_R : ALONG_L;
+   31   1          if (centerLineCount < 10)
+   32   1              smoothStop = 1;
+   33   1          else {
+   34   2              smoothStop = 0;
+   35   2              alongLine(centerLine, centerLineCount, 20);
+   36   2          }
+   37   1          if (canEnd()) {
+   38   2              added = 0;
+   39   2              gpio_set_level(IO_P65, 0);
+   40   2              RUN_MODE = FORWARD;
+   41   2              centerLineDistance = 18;
+   42   2          }
+   43   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       602     ------
+  ecode size           =       492     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =       475     ------
+  xdata size           =        11     ------
   xdata-const size     =    ------     ------
+C251 COMPILER V5.60.0,  Block                                                              23/05/26  20:26:26  PAGE 2   
+
   edata size           =    ------     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------
@@ -97,7 +77,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =       131     ------
+  hconst size          =         6     ------
 End of Module Information.
 
 

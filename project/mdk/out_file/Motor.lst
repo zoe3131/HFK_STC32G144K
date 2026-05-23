@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Motor                                                              21/05/26  17:58:56  PAGE 1   
+C251 COMPILER V5.60.0,  Motor                                                              23/05/26  20:26:25  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Motor
@@ -66,7 +66,7 @@ stmt  level    source
    53   1          d_term = (int32) pid->Kd * (error - pid->last_error);
    54   1          att_term = (int32) pid->attitude_coeff * attitude_data;
    55   1          pid->last_error = error;
-C251 COMPILER V5.60.0,  Motor                                                              21/05/26  17:58:56  PAGE 2   
+C251 COMPILER V5.60.0,  Motor                                                              23/05/26  20:26:25  PAGE 2   
 
    56   1          pid_output = (p_term + d_term + att_term) / 100;
    57   1          return func_limit(pid_output, pid->max_out);
@@ -134,7 +134,7 @@ stmt  level    source
   117   1          //     if ((d <= 0 && dy <= 0) || (d >= 0 && dy >= 0)) d += dy;
   118   1          // }
   119   1          setServoDuty(d);
-C251 COMPILER V5.60.0,  Motor                                                              21/05/26  17:58:56  PAGE 3   
+C251 COMPILER V5.60.0,  Motor                                                              23/05/26  20:26:25  PAGE 3   
 
   120   1      }
   121          
@@ -173,13 +173,13 @@ stmt  level    source
   154   1          c5 = spd;
   155   1          c6 = dh;
   156   1          PIDInit(&steerPid, 3,
-  157   1                   c1, 0, c2, 3,
+  157   1                   c1, 0, c2, 0,
   158   1                   333);
   159   1          PIDInit(&motorLPID, 0,
   160   1                  2500, 55, 100, 0,
   161   1                  9500);
   162   1          PIDInit(&motorRPID, 1,
-  163   1                  2200, 40, 100, 0,
+  163   1                  2500, 55, 100, 0,
   164   1                  9500);
   165   1          pwm_init(PWME_CH4P_PA6, servoFreq, 3060);
   166   1          gpio_init(motorDirR, GPO, 1, GPO_PUSH_PULL);
@@ -202,8 +202,8 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      3049     ------
-C251 COMPILER V5.60.0,  Motor                                                              21/05/26  17:58:56  PAGE 4   
+  ecode size           =      3047     ------
+C251 COMPILER V5.60.0,  Motor                                                              23/05/26  20:26:25  PAGE 4   
 
   data size            =    ------     ------
   idata size           =    ------     ------

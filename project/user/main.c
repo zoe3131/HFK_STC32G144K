@@ -31,15 +31,14 @@
 * 修改记录
 * 日期              作者           备注
 * 2025-11-20        大W            first version
+* 2026-4            lscyzq         init
 ********************************************************************************************************************/
 #include "zf_common_headfile.h"
 
-#define WIFI_SSID "REDMI K80 Pro"
-#define WIFI_PASSWD "abhgy789"
-int16 LCorner, RCorner, s2,centerLineCount, RUN_MODE = FORWARD, pitch = 0, ALONG = ALONG_R, LRoadCount = expRoadCount, RRoadCount = expRoadCount;
+int16 LCorner, RCorner, s2,centerLineCount, RUN_MODE = FORWARD, pitch = 0, LRoadCount = expRoadCount, RRoadCount = expRoadCount;
 static int16 p, i, d, s1, am, cnm;
-uint8 borderIn, display, mustStop, crossDis;
-Point centerLine[expRoadCount], LBorder[expRoadCount], RBorder[expRoadCount];
+uint8 borderIn, display, mustStop, crossDis, ALONG = ALONG_R;
+Point centerLine[expRoadCount], LRoad[expRoadCount], RRoad[expRoadCount];
 extern uint8 outputImage[MT9V03X_H][MT9V03X_W];
 static uint8 have, data_buffer[32];
 
@@ -50,13 +49,12 @@ void loadRoad();
 uint8 haveZebra();
 
 void main(void) {
-    //许锐是SB
-    clock_init(SYSTEM_CLOCK_96M);      // 时钟配置及系统初始化<务必保留>
-    debug_init();                            // 调试串口信息初始化
+    clock_init(SYSTEM_CLOCK_96M);
+    debug_init();
     ips200_init();
     while (mt9v03x_init());
     while (imu660rb_init());
-    while (dl1b_init());
+    //while (dl1b_init());
     while (wireless_uart_init());
     gpio_init(IO_PB1, GPI, 1, GPI_PULL_UP);
     gpio_init(IO_P64, GPO, 1, GPO_PUSH_PULL);
@@ -77,13 +75,12 @@ void main(void) {
         }
         system_delay_ms(50);
     }
-    system_delay_ms(3000);
-    seekfree_assistant_interface_init(SEEKFREE_ASSISTANT_DEBUG_UART);
-    seekfree_assistant_camera_information_config(SEEKFREE_ASSISTANT_MT9V03X, outputImage, MT9V03X_W, MT9V03X_H);
+    // seekfree_assistant_interface_init(SEEKFREE_ASSISTANT_DEBUG_UART);
+    // seekfree_assistant_camera_information_config(SEEKFREE_ASSISTANT_MT9V03X, outputImage, MT9V03X_W, MT9V03X_H);
     while (1) {
         if (mt9v03x_finish_flag) {
-            memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
-            seekfree_assistant_camera_send();
+            // memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
+            // seekfree_assistant_camera_send();
             if (!display) displayBorderLineImage();
             have = haveZebra();
             //ips200_show_int16(0, 15, imu660rb_gyro_x);
@@ -97,10 +94,9 @@ void main(void) {
                 RUN_MODE = RAMP;
                 runRamp();
             }
-            // else if (RUN_MODE == BLOCK) {
-            //     runBlock(LCorner, RCorner);
-            // }
-            else if (RUN_MODE == CROSS ||
+            else if (RUN_MODE == BLOCK) {
+                runBlock(LCorner, RCorner);
+            } else if (RUN_MODE == CROSS ||
                        (RUN_MODE == FORWARD && ((RCorner && RRoadCount > 2) || (LCorner && LRoadCount > 2)) && LRoadCount < 12 &&
                         RRoadCount < 12)) {
                 RUN_MODE = CROSS;
@@ -145,13 +141,6 @@ void main(void) {
 //            } else dised = 0;
             mt9v03x_finish_flag = 0;
         }
-        if (wireless_uart_read_buffer(data_buffer, 32)) {
-            sscanf(data_buffer, "%d,%d,%d,%d,%d,%d,%d", &p, &i, &d, &am, &s1, &s2, &cnm);
-            motorInit(p, i, d, am, s1, s2);
-//            if (mustStop) {
-//                mustStop = 0;
-//            } else mustStop = 1;
-        }
     }
 }
 
@@ -159,32 +148,32 @@ void loadRoad() {
     int16 i, j, pos;
     Point LStart = getLStart(), RStart = getRStart();
     LRoadCount = expRoadCount, RRoadCount = expRoadCount;
-    getLBorder(LBorder, LStart, &LRoadCount);
-    getRBorder(RBorder, RStart, &RRoadCount);
-    getGodRoadLine(LBorder, LRoadCount);
-    getGodRoadLine(RBorder, RRoadCount);
-    filterRoad(LBorder, LRoadCount);
-    filterRoad(RBorder, RRoadCount);
-    resampleRoad(LBorder, &LRoadCount, 0, 3);
-    resampleRoad(RBorder, &RRoadCount, 0, 3);
-    LCorner = findCorner(LBorder, LRoadCount);
-    RCorner = findCorner(RBorder, RRoadCount);
+    getLBorder(LRoad, LStart, &LRoadCount);
+    getRBorder(RRoad, RStart, &RRoadCount);
+    getGodRoadLine(LRoad, LRoadCount);
+    getGodRoadLine(RRoad, RRoadCount);
+    filterRoad(LRoad, LRoadCount);
+    filterRoad(RRoad, RRoadCount);
+    resampleRoad(LRoad, &LRoadCount, 0, 3);
+    resampleRoad(RRoad, &RRoadCount, 0, 3);
+    LCorner = findCorner(LRoad, LRoadCount);
+    RCorner = findCorner(RRoad, RRoadCount);
     borderIn = 0;
-    for (i = LRoadCount - 2; i >= 0 && LBorder[i].y > 92; i -= 2)
-        if (LBorder[i].x > cnm) {
+    for (i = LRoadCount - 2; i >= 0 && LRoad[i].y > 92; i -= 2)
+        if (LRoad[i].x > cnm) {
             borderIn = 1;
             break;
         }
     if (!borderIn)
-        for (i = RRoadCount - 2; i >= 0 && RBorder[i].y < 92; i -= 2)
-            if (RBorder[i].x > cnm) {
+        for (i = RRoadCount - 2; i >= 0 && RRoad[i].y < 92; i -= 2)
+            if (RRoad[i].x > cnm) {
                 borderIn = 1;
                 break;
             }
     if (LCorner >= LRoadCount - 1) LCorner = 0;
     if (RCorner >= RRoadCount - 1) RCorner = 0;
     if (LCorner) {
-        if (LCorner < 20 && RUN_MODE == FORWARD && LBorder[func_limit_ab(LCorner + 5, 0, LRoadCount - 1)].y - LBorder[LCorner].y > 4) {
+        if (LCorner < 20 && RUN_MODE == FORWARD && LRoad[func_limit_ab(LCorner + 5, 0, LRoadCount - 1)].y - LRoad[LCorner].y > 4) {
             gpio_set_level(IO_P65, 0);
             RUN_MODE = BLOCK;
             ALONG = ALONG_R;
@@ -193,7 +182,7 @@ void loadRoad() {
         LRoadCount = LCorner;
     }
     if (RCorner) {
-        if (RCorner < 20 && RUN_MODE == FORWARD && RBorder[RCorner].y - RBorder[func_limit_ab(RCorner + 5, 0, RRoadCount - 1)].y > 4) {
+        if (RCorner < 20 && RUN_MODE == FORWARD && RRoad[RCorner].y - RRoad[func_limit_ab(RCorner + 5, 0, RRoadCount - 1)].y > 4) {
             gpio_set_level(IO_P65, 0);
             RUN_MODE = BLOCK;
             ALONG = ALONG_L;
@@ -202,10 +191,10 @@ void loadRoad() {
         RRoadCount = RCorner;
     }
     if (ALONG == ALONG_L) {
-        getCenterLineByLBorder(LBorder, centerLine, LRoadCount);
+        getCenterLineByLBorder(LRoad, centerLine, LRoadCount);
         centerLineCount = LRoadCount;
     } else {
-        getCenterLineByRBorder(RBorder, centerLine, RRoadCount);
+        getCenterLineByRBorder(RRoad, centerLine, RRoadCount);
         centerLineCount = RRoadCount;
     }
     for (i = 1; i < centerLineCount; i++)
@@ -225,12 +214,12 @@ void loadRoad() {
         for (i = 0; i < centerLineCount; i++)
             outputImage[centerLine[i].x][centerLine[i].y] = 255;
         for (i = 0; i < LRoadCount; i++)
-            outputImage[LBorder[i].x][LBorder[i].y] = 255;
+            outputImage[LRoad[i].x][LRoad[i].y] = 255;
         for (i = 0; i < RRoadCount; i++)
-            outputImage[RBorder[i].x][RBorder[i].y] = 255;
+            outputImage[RRoad[i].x][RRoad[i].y] = 255;
         ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
-        ips200_show_int16(0, MT9V03X_H + 20, LBorder[LCorner].x);
-        ips200_show_int16(MT9V03X_W, MT9V03X_H + 20, RBorder[RCorner].x);
+        ips200_show_int16(0, MT9V03X_H + 20, LRoad[LCorner].x);
+        ips200_show_int16(MT9V03X_W, MT9V03X_H + 20, RRoad[RCorner].x);
         ips200_show_int16(0, MT9V03X_H + 1, LRoadCount);
         ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 1, centerLineCount);
         ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, RRoadCount);
@@ -239,30 +228,17 @@ void loadRoad() {
 }
 
 uint8 haveZebra() {
-    int16 i = 10, count = 0, j;
-    int8 add = 0;
-    for (j = 40; j <= 140; j += 3) {
-        if (mt9v03x_image[i][j] < threshold) {
-            if (add) {
-                count++;
-                if (count > 5) return 1;
-                add = 0;
-            }
-        } else add = 1;
+    int16 pos;
+    if (LBorderCount < RBorderCount) {
+        pos = LBorderCount - 1;
+        while (LBorder[pos].x < 40)
+            pos--;
+        return isZebra(pos, ALONG_L);
     }
-    i = 20;
-    count = 0;
-    add = 0;
-    for (j = 30; j <= 150; j += 3) {
-        if (mt9v03x_image[i][j] < threshold) {
-            if (add) {
-                count++;
-                if (count > 5) return 1;
-                add = 0;
-            }
-        } else add = 1;
-    }
-    return 0;
+    pos = RBorderCount - 1;
+    while (RBorder[pos].x < 40)
+        pos--;
+    return isZebra(pos, ALONG_R);
 }
 
 void pitHandlerImu() {
@@ -275,6 +251,6 @@ void pitHandlerTof() {
 }
 
 void pitInit() {
-    pit_ms_init(TIM6_PIT, 11, pitHandlerTof);
+    //pit_ms_init(TIM6_PIT, 10, pitHandlerTof);
     pit_ms_init(TIM0_PIT, 5, pitHandlerImu);
 }

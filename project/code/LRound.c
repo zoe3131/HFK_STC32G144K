@@ -11,9 +11,9 @@
 #define ROUND_EXIT 5
 
 static uint8 ROUND_MODE = ROUND_READY, canStart = 0, canIn = 0, canFinish = 0;
-extern int16 centerLineCount, RUN_MODE, RRoadCount, LRoadCount, ALONG;
-extern uint8 mustStop;
-extern Point centerLine[expRoadCount], RBorder[expRoadCount];
+extern int16 centerLineCount, RUN_MODE, RRoadCount, LRoadCount;
+extern uint8 mustStop, ALONG;
+extern Point centerLine[expRoadCount], RRoad[expRoadCount];
 
 void runLRound(int16 LCorner, int16 RCorner) {
     if (ROUND_MODE == ROUND_READY) {
@@ -62,7 +62,7 @@ void runLRound(int16 LCorner, int16 RCorner) {
             alongLine(centerLine, centerLineCount, 17);
         else
             setServoDuty(28);
-        if (!RCorner && RRoadCount > 25 && RBorder[RRoadCount - 1].y < 133) {
+        if (!RCorner && RRoadCount > 25 && RRoad[RRoadCount - 1].y < 133) {
             centerLineDistance = 17;
             ROUND_MODE = ROUND_EXIT;
             ALONG = ALONG_R;

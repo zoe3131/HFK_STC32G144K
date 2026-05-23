@@ -11,8 +11,8 @@
 #define expRoadCount 170      //边线期望长度
 #define expThreshold 150
 
-void getLBorder(Point LBorder[], Point start, int16 *count);
-void getRBorder(Point RBorder[], Point start, int16 *count);
+void getLBorder(Point LRoad[], Point start, int16 *count);
+void getRBorder(Point RRoad[], Point start, int16 *count);
 void getCenterLineByLBorder(Point roadLine[], Point centerLine[], int16 count);
 void getCenterLineByRBorder(Point roadLine[], Point centerLine[], int16 count);
 void filterRoad(Point rodeLine[], int16 count);
@@ -21,9 +21,14 @@ void resampleRoad(Point roadLine[], int16 *count, int16 startPos, uint8 dis);
 Point getLStart();
 Point getRStart();
 int16 findCorner(Point roadLine[], int16 count);
+uint8 isZebra(int16 pos, uint8 along);
 extern uint8 threshold, centerLineDistance;
+extern const uint8 borderOffset[120];
+extern int16 LBorderCount, RBorderCount;
+extern Point LBorder[expRoadCount], RBorder[expRoadCount];
 void displayBinarizationImage();
 void displayBorderLineImage();
 void displayGodImage();
 void displayGodRoadLineImage();
+
 #endif //SEEKFREE_STC32G144K_100PIN_OPENSOURCE_LIBRARY_IMAGE_H

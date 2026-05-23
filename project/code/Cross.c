@@ -8,11 +8,11 @@
 #define CROSS_IN 2
 extern uint8 outputImage[MT9V03X_H][MT9V03X_W], mustStop, crossDis;
 static uint8 halfBlock = block / 2, QW = 45, DQW = 143, m;
-static int8 CROSS_MODE = CROSS_READY, canEnd = 0, added = 0;
-static int16 alongR, crossThreshold, count;
+static int8 CROSS_MODE = CROSS_READY, canEnd = 0;
+static int16 alongR, crossThreshold;
 extern int16 centerLineCount, RUN_MODE, LRoadCount, RRoadCount, LCorner, RCorner;
-extern Point centerLine[expRoadCount], LBorder[expRoadCount], RBorder[expRoadCount];
-static Point line[expRoadCount], start;
+extern Point centerLine[expRoadCount], LRoad[expRoadCount], RRoad[expRoadCount];
+static Point start;
 
 Point getCrossRStart() {
     int16 data i = 90, data j = DQW, k;
@@ -20,15 +20,13 @@ Point getCrossRStart() {
     if (startT.y || startT.x) {
         i = startT.x - 2;
         j = startT.y + 1;
-        count = expRoadCount;
-        getRBorder(line, startT, &count);
-        if (count > 15) {
+        if (RBorderCount > 15) {
             m = MT9V03X_W - 1;
-            for (k = 0; k < count; k++)
-                if (m >= line[k].y) m = line[k].y;
+            for (k = 0; k < RBorderCount; k++)
+                if (m >= RBorder[k].y) m = RBorder[k].y;
                 else {
-                    i = line[k].x - 2;
-                    j = line[k].y;
+                    i = RBorder[k].x - 2;
+                    j = RBorder[k].y;
                     break;
                 }
             DQW = m;
@@ -53,15 +51,13 @@ Point getCrossLStart() {
     if (startT.y || startT.x) {
         i = startT.x - 2;
         j = startT.y - 1;
-        count = expRoadCount;
-        getLBorder(line, startT, &count);
-        if (count > 15) {
+        if (LBorderCount > 15) {
             m = 0;
-            for (k = 0; k < count; k++)
-                if (m <= line[k].y) m = line[k].y;
+            for (k = 0; k < LBorderCount; k++)
+                if (m <= LBorder[k].y) m = LBorder[k].y;
                 else {
-                    i = line[k].x - 2;
-                    j = line[k].y;
+                    i = LBorder[k].x - 2;
+                    j = LBorder[k].y;
                     break;
                 }
             QW = m;
@@ -88,12 +84,9 @@ void runCross() {
         //     return;
         // }
         gpio_set_level(IO_P65, 1);
-        if (!added) {
-            added = 1;
-            alongR = LRoadCount < RRoadCount;
-        }
         if (centerLineCount < 10) {
             crossThreshold = threshold;
+            alongR = LBorderCount < RBorderCount;
             CROSS_MODE = CROSS_IN;
         }
         alongLine(centerLine, centerLineCount, getDynamicAimPos());
@@ -125,7 +118,7 @@ void runCross() {
         filterRoad(farCenterLine, farCenterLineCount);
         alongLine(farCenterLine, farCenterLineCount, 25);
         if (centerLineCount > 20 && canEnd) {
-            canEnd = added = 0;
+            canEnd = 0;
             CROSS_MODE = CROSS_READY;
             RUN_MODE = FORWARD;
             gpio_set_level(IO_P65, 0);

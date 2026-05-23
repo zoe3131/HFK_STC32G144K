@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  LRound                                                             21/05/26  11:00:39  PAGE 1   
+C251 COMPILER V5.60.0,  LRound                                                             23/05/26  20:26:26  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE LRound
@@ -24,9 +24,9 @@ stmt  level    source
    11          #define ROUND_EXIT 5
    12          
    13          static uint8 ROUND_MODE = ROUND_READY, canStart = 0, canIn = 0, canFinish = 0;
-   14          extern int16 centerLineCount, RUN_MODE, RRoadCount, LRoadCount, ALONG;
-   15          extern uint8 mustStop;
-   16          extern Point centerLine[expRoadCount], RBorder[expRoadCount];
+   14          extern int16 centerLineCount, RUN_MODE, RRoadCount, LRoadCount;
+   15          extern uint8 mustStop, ALONG;
+   16          extern Point centerLine[expRoadCount], RRoad[expRoadCount];
    17          
    18          void runLRound(int16 LCorner, int16 RCorner) {
    19   1          if (ROUND_MODE == ROUND_READY) {
@@ -66,7 +66,7 @@ stmt  level    source
    53   2              else smoothStop = 0;
    54   2              if (RCorner > 3 && centerLineCount < 10 && centerLineCount) {
    55   3                  centerLineDistance = 8;
-C251 COMPILER V5.60.0,  LRound                                                             21/05/26  11:00:39  PAGE 2   
+C251 COMPILER V5.60.0,  LRound                                                             23/05/26  20:26:26  PAGE 2   
 
    56   3                  ROUND_MODE = ROUND_END;
    57   3                  ALONG = ALONG_L;
@@ -77,7 +77,7 @@ stmt  level    source
    62   2                  alongLine(centerLine, centerLineCount, 17);
    63   2              else
    64   2                  setServoDuty(28);
-   65   2              if (!RCorner && RRoadCount > 25 && RBorder[RRoadCount - 1].y < 133) {
+   65   2              if (!RCorner && RRoadCount > 25 && RRoad[RRoadCount - 1].y < 133) {
    66   3                  centerLineDistance = 17;
    67   3                  ROUND_MODE = ROUND_EXIT;
    68   3                  ALONG = ALONG_R;
@@ -103,7 +103,7 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       776     ------
+  ecode size           =       739     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
