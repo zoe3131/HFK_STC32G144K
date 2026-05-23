@@ -14,6 +14,7 @@ void runRamp() {
     gpio_set_level(IO_P65, 1);
     setSpeed = 200;
     getLBorder(LBorder, LStart, &LRoadCount);
+
     getRBorder(RBorder, RStart, &RRoadCount);
     if (func_min(LRoadCount, RRoadCount) < 30) {
         smoothStop = 1;
@@ -28,6 +29,7 @@ void runRamp() {
         tarPos[i].x = rampPos;
         tarPos[i].y = LBorder[i].y + RBorder[j].y >> 1;
     }
+    
     getGodRoadLine(tarPos, 6);
     alongLine(tarPos, 6, 5);
     handle = 1;
