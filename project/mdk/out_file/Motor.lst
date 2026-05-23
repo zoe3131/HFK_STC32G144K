@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Motor                                                              21/05/26  11:00:39  PAGE 1   
+C251 COMPILER V5.60.0,  Motor                                                              21/05/26  17:58:56  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Motor
@@ -18,10 +18,10 @@ stmt  level    source
     5          
     6          #define pressPwmL PWMF_CH3_PA5
     7          #define pressPwmR PWMF_CH4_PA7
-    8          #define motorDirR IO_P50
-    9          #define motorPwmR PWMD_CH2_P51
-   10          #define motorDirL IO_P52
-   11          #define motorPwmL PWMD_CH4_P53
+    8          #define motorDirR IO_P77
+    9          #define motorPwmR PWMB_CH3_P76
+   10          #define motorDirL IO_P75
+   11          #define motorPwmL PWMB_CH1_P74
    12          
    13          volatile int16 encoderL, encoderR, setSpeed = 0, handle = 0, duty = 0;
    14          static uint32 K;
@@ -66,7 +66,7 @@ stmt  level    source
    53   1          d_term = (int32) pid->Kd * (error - pid->last_error);
    54   1          att_term = (int32) pid->attitude_coeff * attitude_data;
    55   1          pid->last_error = error;
-C251 COMPILER V5.60.0,  Motor                                                              21/05/26  11:00:39  PAGE 2   
+C251 COMPILER V5.60.0,  Motor                                                              21/05/26  17:58:56  PAGE 2   
 
    56   1          pid_output = (p_term + d_term + att_term) / 100;
    57   1          return func_limit(pid_output, pid->max_out);
@@ -134,7 +134,7 @@ stmt  level    source
   117   1          //     if ((d <= 0 && dy <= 0) || (d >= 0 && dy >= 0)) d += dy;
   118   1          // }
   119   1          setServoDuty(d);
-C251 COMPILER V5.60.0,  Motor                                                              21/05/26  11:00:39  PAGE 3   
+C251 COMPILER V5.60.0,  Motor                                                              21/05/26  17:58:56  PAGE 3   
 
   120   1      }
   121          
@@ -154,7 +154,7 @@ stmt  level    source
   135          
   136          int8 getDynamicAimPos() {
   137   1          int16 speed = encoderR + encoderL >> 1;
-  138   1          return c5;
+  138   1          return speed / 10 + c5;
   139   1          //return 3 * speed / 10 - 57;
   140   1          //x   y
   141   1          //290 30
@@ -179,7 +179,7 @@ stmt  level    source
   160   1                  2500, 55, 100, 0,
   161   1                  9500);
   162   1          PIDInit(&motorRPID, 1,
-  163   1                  2500, 55, 100, 0,
+  163   1                  2200, 40, 100, 0,
   164   1                  9500);
   165   1          pwm_init(PWME_CH4P_PA6, servoFreq, 3060);
   166   1          gpio_init(motorDirR, GPO, 1, GPO_PUSH_PULL);
@@ -202,8 +202,8 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      3033     ------
-C251 COMPILER V5.60.0,  Motor                                                              21/05/26  11:00:39  PAGE 4   
+  ecode size           =      3049     ------
+C251 COMPILER V5.60.0,  Motor                                                              21/05/26  17:58:56  PAGE 4   
 
   data size            =    ------     ------
   idata size           =    ------     ------

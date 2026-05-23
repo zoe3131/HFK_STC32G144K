@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Cross                                                              21/05/26  12:09:27  PAGE 1   
+C251 COMPILER V5.60.0,  Cross                                                              21/05/26  17:23:05  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Cross
@@ -19,29 +19,29 @@ stmt  level    source
     6          
     7          #define CROSS_READY 1
     8          #define CROSS_IN 2
-    9          extern uint8 outputImage[MT9V03X_H][MT9V03X_W], display, mustStop;
+    9          extern uint8 outputImage[MT9V03X_H][MT9V03X_W], mustStop, crossDis;
    10          static uint8 halfBlock = block / 2, QW = 45, DQW = 143, m;
    11          static int8 CROSS_MODE = CROSS_READY, canEnd = 0, added = 0;
    12          static int16 alongR, crossThreshold, count;
-   13          extern int16 centerLineCount, RUN_MODE, LRoadCount, RRoadCount;
-   14          extern Point centerLine[expRoadCount];
+   13          extern int16 centerLineCount, RUN_MODE, LRoadCount, RRoadCount, LCorner, RCorner;
+   14          extern Point centerLine[expRoadCount], LBorder[expRoadCount], RBorder[expRoadCount];
    15          static Point line[expRoadCount], start;
    16          
    17          Point getCrossRStart() {
    18   1          int16 data i = 90, data j = DQW, k;
-   19   1          Point pos, start = getRStart();
-   20   1          if (start.y || start.x) {
-   21   2              i = start.x - 2;
-   22   2              j = start.y + 1;
+   19   1          Point pos, startT = getRStart();
+   20   1          if (startT.y || startT.x) {
+   21   2              i = startT.x - 2;
+   22   2              j = startT.y + 1;
    23   2              count = expRoadCount;
-   24   2              getRBorder(line, start, &count);
+   24   2              getRBorder(line, startT, &count);
    25   2              if (count > 15) {
    26   3                  m = MT9V03X_W - 1;
    27   3                  for (k = 0; k < count; k++)
    28   3                      if (m >= line[k].y) m = line[k].y;
    29   3                      else {
-   30   4                          i = line[k].x - 1;
-   31   4                          j = line[k].y + 1;
+   30   4                          i = line[k].x - 2;
+   31   4                          j = line[k].y;
    32   4                          break;
    33   4                      }
    34   3                  DQW = m;
@@ -62,21 +62,21 @@ stmt  level    source
    49          
    50          Point getCrossLStart() {
    51   1          int16 data i = 90, data j = QW, k;
-   52   1          Point pos, start = getLStart();
-   53   1          if (start.y || start.x) {
-   54   2              i = start.x - 2;
-   55   2              j = start.y - 1;
-C251 COMPILER V5.60.0,  Cross                                                              21/05/26  12:09:27  PAGE 2   
+   52   1          Point pos, startT = getLStart();
+   53   1          if (startT.y || startT.x) {
+   54   2              i = startT.x - 2;
+   55   2              j = startT.y - 1;
+C251 COMPILER V5.60.0,  Cross                                                              21/05/26  17:23:05  PAGE 2   
 
    56   2              count = expRoadCount;
-   57   2              getLBorder(line, start, &count);
+   57   2              getLBorder(line, startT, &count);
    58   2              if (count > 15) {
    59   3                  m = 0;
    60   3                  for (k = 0; k < count; k++)
    61   3                      if (m <= line[k].y) m = line[k].y;
    62   3                      else {
-   63   4                          i = line[k].x - 1;
-   64   4                          j = line[k].y - 1;
+   63   4                          i = line[k].x - 2;
+   64   4                          j = line[k].y;
    65   4                          break;
    66   4                      }
    67   3                  QW = m;
@@ -96,80 +96,92 @@ stmt  level    source
    81   1      }
    82          
    83          void runCross() {
-   84   1          if (CROSS_MODE == CROSS_READY) {
-   85   2              gpio_set_level(IO_P65, 1);
-   86   2              if (!added) {
-   87   3                  added = 1;
-   88   3                  alongR = LRoadCount < RRoadCount;
-   89   3              }
-   90   2              if (centerLineCount < 12) {
-   91   3                  crossThreshold = threshold;
-   92   3                  CROSS_MODE = CROSS_IN;
-   93   3              }
-   94   2              alongLine(centerLine, centerLineCount, getDynamicAimPos());
-   95   2          } else if (CROSS_MODE == CROSS_IN) {
-   96   2              Point border[expRoadCount], farCenterLine[expRoadCount];
-   97   2              int16 roadCount = expRoadCount, farCenterLineCount, corner, i, j;
-   98   2              gpio_set_level(IO_P65, 0);
-   99   2              if (alongR) {
-  100   3                  start = getCrossRStart();
-  101   3                  getRBorder(border, start, &roadCount);
-  102   3              } else {
-  103   3                  start = getCrossLStart();
-  104   3                  getLBorder(border, start, &roadCount);
-  105   3              }
-  106   2              getGodRoadLine(border, roadCount);
-  107   2              resampleRoad(border, &roadCount, 0, 3);
-  108   2              if (roadCount > 100) return;
-  109   2              corner = findCorner(border, roadCount);
-  110   2              filterRoad(border, roadCount);
-  111   2              farCenterLineCount = roadCount;
-  112   2              if (alongR)
-  113   2                  getCenterLineByRBorder(border, farCenterLine, farCenterLineCount);
-  114   2              else getCenterLineByLBorder(border, farCenterLine, farCenterLineCount);
-  115   2              if (!LRoadCount && !RRoadCount) canEnd = 1;
-  116   2              if (corner && farCenterLine[corner].x > 50) corner = func_min(corner + 3, farCenterLineCount);
-  117   2              else corner = 0;
-  118   2              farCenterLine[corner].x = MT9V03X_H - 1;
-  119   2              farCenterLine[corner].y = MT9V03X_W / 2 - 3;
-  120   2              resampleRoad(farCenterLine, &farCenterLineCount, corner, 2);
-  121   2              filterRoad(farCenterLine, farCenterLineCount);
-C251 COMPILER V5.60.0,  Cross                                                              21/05/26  12:09:27  PAGE 3   
+   84   1          smoothStop = 0;
+   85   1          if (CROSS_MODE == CROSS_READY) {
+   86   2              // if (centerLineCount > 40) {
+   87   2              //     RUN_MODE = FORWARD;
+   88   2              //     return;
+   89   2              // }
+   90   2              gpio_set_level(IO_P65, 1);
+   91   2              if (!added) {
+   92   3                  added = 1;
+   93   3                  alongR = LRoadCount < RRoadCount;
+   94   3              }
+   95   2              if (centerLineCount < 10) {
+   96   3                  crossThreshold = threshold;
+   97   3                  CROSS_MODE = CROSS_IN;
+   98   3              }
+   99   2              alongLine(centerLine, centerLineCount, getDynamicAimPos());
+  100   2          } else if (CROSS_MODE == CROSS_IN) {
+  101   2              Point border[expRoadCount], farCenterLine[expRoadCount];
+  102   2              int16 roadCount = expRoadCount, farCenterLineCount, corner, i, j;
+  103   2              if (alongR) {
+  104   3                  start = getCrossRStart();
+  105   3                  getRBorder(border, start, &roadCount);
+  106   3              } else {
+  107   3                  start = getCrossLStart();
+  108   3                  getLBorder(border, start, &roadCount);
+  109   3              }
+  110   2              getGodRoadLine(border, roadCount);
+  111   2              resampleRoad(border, &roadCount, 0, 3);
+  112   2              if (roadCount > 100) return;
+  113   2              corner = findCorner(border, roadCount);
+  114   2              filterRoad(border, roadCount);
+  115   2              farCenterLineCount = roadCount;
+  116   2              if (alongR)
+  117   2                  getCenterLineByRBorder(border, farCenterLine, farCenterLineCount);
+  118   2              else getCenterLineByLBorder(border, farCenterLine, farCenterLineCount);
+  119   2              if (!LRoadCount && !RRoadCount) canEnd = 1;
+  120   2              if (corner && farCenterLine[corner].x > 50) corner = func_min(corner + 3, farCenterLineCount);
+  121   2              else corner = 0;
+C251 COMPILER V5.60.0,  Cross                                                              21/05/26  17:23:05  PAGE 3   
 
-  122   2              alongLine(farCenterLine, farCenterLineCount, getDynamicAimPos());
-  123   2              if (centerLineCount > 50 && canEnd) {
-  124   3                  canEnd = added = 0;
-  125   3                  handle = 0;
-  126   3                  CROSS_MODE = CROSS_READY;
-  127   3                  RUN_MODE = FORWARD;
-  128   3              }
-  129   2      
-  130   2              // ips200_displayimage03x(mt9v03x_image, MT9V03X_W, MT9V03X_H, 0, 0);
-  131   2              // ips200_draw_point(start.y, start.x, RGB565_RED);
-  132   2              // ips200_show_int16(0, MT9V03X_H + 1, corner);
-  133   2              // ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, farCenterLineCount);
-  134   2              // for (i = 0; i < MT9V03X_H; i++)
-  135   2              //     for (j = 0; j < MT9V03X_W; j++)
-  136   2              //         outputImage[i][j] = 0;
-  137   2              // for (i = 0; i < farCenterLineCount; i++)
-  138   2              //     outputImage[farCenterLine[i].x][farCenterLine[i].y] = 255;
-  139   2              // for (i = 0; i < roadCount; i++)
-  140   2              //     outputImage[border[i].x][border[i].y] = 255;
-  141   2              // ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
-  142   2          }
-  143   1      }
-*** WARNING C47 IN LINE 97 OF ..\code\Cross.c: 'i': unreferenced local variable
-*** WARNING C47 IN LINE 97 OF ..\code\Cross.c: 'j': unreferenced local variable
+  122   2              farCenterLine[corner].x = MT9V03X_H - 1;
+  123   2              farCenterLine[corner].y = MT9V03X_W / 2 - 3;
+  124   2              resampleRoad(farCenterLine, &farCenterLineCount, corner, 2);
+  125   2              filterRoad(farCenterLine, farCenterLineCount);
+  126   2              alongLine(farCenterLine, farCenterLineCount, 25);
+  127   2              if (centerLineCount > 20 && canEnd) {
+  128   3                  canEnd = added = 0;
+  129   3                  CROSS_MODE = CROSS_READY;
+  130   3                  RUN_MODE = FORWARD;
+  131   3                  gpio_set_level(IO_P65, 0);
+  132   3                  return;
+  133   3              }
+  134   2              // if (LCorner > 9 && RCorner > 9 && canEnd) {
+  135   2              //     canEnd = added = 0;
+  136   2              //     CROSS_MODE = CROSS_READY;
+  137   2              // }
+  138   2              if (crossDis) {
+  139   3                  ips200_displayimage03x(mt9v03x_image, MT9V03X_W, MT9V03X_H, 0, 0);
+*** WARNING C98 IN LINE 139 OF ..\code\Cross.c: parameter 3: pointer to different objects
+*** WARNING C91 IN LINE 139 OF ..\code\Cross.c: '&': pointer to different objects
+  140   3                  ips200_draw_point(start.y, start.x, RGB565_RED);
+  141   3                  ips200_show_int16(0, MT9V03X_H + 1, corner);
+  142   3                  ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, farCenterLineCount);
+  143   3                  for (i = 0; i < MT9V03X_H; i++)
+  144   3                      for (j = 0; j < MT9V03X_W; j++)
+  145   3                          outputImage[i][j] = 0;
+  146   3                  for (i = 0; i < farCenterLineCount; i++)
+  147   3                      outputImage[farCenterLine[i].x][farCenterLine[i].y] = 255;
+  148   3                  for (i = 0; i < roadCount; i++)
+  149   3                      outputImage[border[i].x][border[i].y] = 255;
+  150   3                  ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
+*** WARNING C98 IN LINE 150 OF ..\code\Cross.c: parameter 3: pointer to different objects
+*** WARNING C91 IN LINE 150 OF ..\code\Cross.c: '&': pointer to different objects
+  151   3              }
+  152   2          }
+  153   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      1654     ------
+  ecode size           =      2127     ------
   data size            =         8     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =      1053     ------
+  xdata size           =      1057     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
@@ -183,4 +195,4 @@ Module Information          Static   Overlayable
 End of Module Information.
 
 
-C251 COMPILATION COMPLETE.  3 WARNING(S),  0 ERROR(S)
+C251 COMPILATION COMPLETE.  5 WARNING(S),  0 ERROR(S)

@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  RAMP                                                               21/05/26  11:00:40  PAGE 1   
+C251 COMPILER V5.60.0,  RAMP                                                               21/05/26  14:28:31  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE RAMP
@@ -39,36 +39,38 @@ stmt  level    source
    24   1          for (j = 0; j < RRoadCount; j++)
    25   1              if (RBorder[j].x == rampPos) break;
    26   1          if (LBorder[i].x != rampPos || RBorder[j].x != rampPos) return;
-   27   1          tarPos[5].x = rampPos;
-   28   1          tarPos[5].y = LBorder[i].y + RBorder[j].y >> 1;
-   29   1          getGodRoadLine(tarPos, 6);
-   30   1          alongLine(tarPos, 6, 5);
-   31   1          handle = 1;
-   32   1          setSpeed = -150;
-   33   1          if (dl1b_distance_mm < 400) {
-   34   2              if (readyEnd)
-   35   2                  canEnd = 1;
-   36   2          } else if (dl1b_distance_mm > 600) {
-   37   2              readyEnd = 1;
-   38   2              if (canEnd && pitch > -10 && pitch < 10) {
-   39   3                  gpio_set_level(IO_P65, 0);
-   40   3                  RUN_MODE = FORWARD;
-   41   3                  canEnd = handle = readyEnd = 0;
-   42   3              }
-   43   2          }
-   44   1      }
+   27   1          for (i = 0; i <= 5; i++) {
+   28   2              tarPos[i].x = rampPos;
+   29   2              tarPos[i].y = LBorder[i].y + RBorder[j].y >> 1;
+   30   2          }
+   31   1          getGodRoadLine(tarPos, 6);
+   32   1          alongLine(tarPos, 6, 5);
+   33   1          handle = 1;
+   34   1          setSpeed = 150;
+   35   1          if (dl1b_distance_mm < 400) {
+   36   2              if (readyEnd)
+   37   2                  canEnd = 1;
+   38   2          } else if (dl1b_distance_mm > 600) {
+   39   2              readyEnd = 1;
+   40   2              if (canEnd && pitch > -10 && pitch < 10) {
+   41   3                  gpio_set_level(IO_P65, 0);
+   42   3                  RUN_MODE = FORWARD;
+   43   3                  canEnd = handle = readyEnd = 0;
+   44   3              }
+   45   2          }
+   46   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       594     ------
+  ecode size           =       657     ------
   data size            =    ------     ------
   idata size           =    ------     ------
+C251 COMPILER V5.60.0,  RAMP                                                               21/05/26  14:28:31  PAGE 2   
+
   pdata size           =    ------     ------
   xdata size           =       706     ------
-C251 COMPILER V5.60.0,  RAMP                                                               21/05/26  11:00:40  PAGE 2   
-
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------

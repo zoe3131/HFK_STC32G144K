@@ -6,29 +6,29 @@
 
 #define CROSS_READY 1
 #define CROSS_IN 2
-extern uint8 outputImage[MT9V03X_H][MT9V03X_W], display, mustStop;
+extern uint8 outputImage[MT9V03X_H][MT9V03X_W], mustStop, crossDis;
 static uint8 halfBlock = block / 2, QW = 45, DQW = 143, m;
 static int8 CROSS_MODE = CROSS_READY, canEnd = 0, added = 0;
 static int16 alongR, crossThreshold, count;
-extern int16 centerLineCount, RUN_MODE, LRoadCount, RRoadCount;
-extern Point centerLine[expRoadCount];
+extern int16 centerLineCount, RUN_MODE, LRoadCount, RRoadCount, LCorner, RCorner;
+extern Point centerLine[expRoadCount], LBorder[expRoadCount], RBorder[expRoadCount];
 static Point line[expRoadCount], start;
 
 Point getCrossRStart() {
     int16 data i = 90, data j = DQW, k;
-    Point pos, start = getRStart();
-    if (start.y || start.x) {
-        i = start.x - 2;
-        j = start.y + 1;
+    Point pos, startT = getRStart();
+    if (startT.y || startT.x) {
+        i = startT.x - 2;
+        j = startT.y + 1;
         count = expRoadCount;
-        getRBorder(line, start, &count);
+        getRBorder(line, startT, &count);
         if (count > 15) {
             m = MT9V03X_W - 1;
             for (k = 0; k < count; k++)
                 if (m >= line[k].y) m = line[k].y;
                 else {
-                    i = line[k].x - 1;
-                    j = line[k].y + 1;
+                    i = line[k].x - 2;
+                    j = line[k].y;
                     break;
                 }
             DQW = m;
@@ -49,19 +49,19 @@ Point getCrossRStart() {
 
 Point getCrossLStart() {
     int16 data i = 90, data j = QW, k;
-    Point pos, start = getLStart();
-    if (start.y || start.x) {
-        i = start.x - 2;
-        j = start.y - 1;
+    Point pos, startT = getLStart();
+    if (startT.y || startT.x) {
+        i = startT.x - 2;
+        j = startT.y - 1;
         count = expRoadCount;
-        getLBorder(line, start, &count);
+        getLBorder(line, startT, &count);
         if (count > 15) {
             m = 0;
             for (k = 0; k < count; k++)
                 if (m <= line[k].y) m = line[k].y;
                 else {
-                    i = line[k].x - 1;
-                    j = line[k].y - 1;
+                    i = line[k].x - 2;
+                    j = line[k].y;
                     break;
                 }
             QW = m;
@@ -81,13 +81,18 @@ Point getCrossLStart() {
 }
 
 void runCross() {
+    smoothStop = 0;
     if (CROSS_MODE == CROSS_READY) {
+        // if (centerLineCount > 40) {
+        //     RUN_MODE = FORWARD;
+        //     return;
+        // }
         gpio_set_level(IO_P65, 1);
         if (!added) {
             added = 1;
             alongR = LRoadCount < RRoadCount;
         }
-        if (centerLineCount < 12) {
+        if (centerLineCount < 10) {
             crossThreshold = threshold;
             CROSS_MODE = CROSS_IN;
         }
@@ -95,7 +100,6 @@ void runCross() {
     } else if (CROSS_MODE == CROSS_IN) {
         Point border[expRoadCount], farCenterLine[expRoadCount];
         int16 roadCount = expRoadCount, farCenterLineCount, corner, i, j;
-        gpio_set_level(IO_P65, 0);
         if (alongR) {
             start = getCrossRStart();
             getRBorder(border, start, &roadCount);
@@ -119,25 +123,31 @@ void runCross() {
         farCenterLine[corner].y = MT9V03X_W / 2 - 3;
         resampleRoad(farCenterLine, &farCenterLineCount, corner, 2);
         filterRoad(farCenterLine, farCenterLineCount);
-        alongLine(farCenterLine, farCenterLineCount, getDynamicAimPos());
-        if (centerLineCount > 50 && canEnd) {
+        alongLine(farCenterLine, farCenterLineCount, 25);
+        if (centerLineCount > 20 && canEnd) {
             canEnd = added = 0;
-            handle = 0;
             CROSS_MODE = CROSS_READY;
             RUN_MODE = FORWARD;
+            gpio_set_level(IO_P65, 0);
+            return;
         }
-
-        // ips200_displayimage03x(mt9v03x_image, MT9V03X_W, MT9V03X_H, 0, 0);
-        // ips200_draw_point(start.y, start.x, RGB565_RED);
-        // ips200_show_int16(0, MT9V03X_H + 1, corner);
-        // ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, farCenterLineCount);
-        // for (i = 0; i < MT9V03X_H; i++)
-        //     for (j = 0; j < MT9V03X_W; j++)
-        //         outputImage[i][j] = 0;
-        // for (i = 0; i < farCenterLineCount; i++)
-        //     outputImage[farCenterLine[i].x][farCenterLine[i].y] = 255;
-        // for (i = 0; i < roadCount; i++)
-        //     outputImage[border[i].x][border[i].y] = 255;
-        // ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
+        // if (LCorner > 9 && RCorner > 9 && canEnd) {
+        //     canEnd = added = 0;
+        //     CROSS_MODE = CROSS_READY;
+        // }
+        if (crossDis) {
+            ips200_displayimage03x(mt9v03x_image, MT9V03X_W, MT9V03X_H, 0, 0);
+            ips200_draw_point(start.y, start.x, RGB565_RED);
+            ips200_show_int16(0, MT9V03X_H + 1, corner);
+            ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, farCenterLineCount);
+            for (i = 0; i < MT9V03X_H; i++)
+                for (j = 0; j < MT9V03X_W; j++)
+                    outputImage[i][j] = 0;
+            for (i = 0; i < farCenterLineCount; i++)
+                outputImage[farCenterLine[i].x][farCenterLine[i].y] = 255;
+            for (i = 0; i < roadCount; i++)
+                outputImage[border[i].x][border[i].y] = 255;
+            ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
+        }
     }
 }

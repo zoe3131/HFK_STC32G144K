@@ -38,10 +38,10 @@
 #define WIFI_PASSWD "abhgy789"
 int16 LCorner, RCorner, s2,centerLineCount, RUN_MODE = FORWARD, pitch = 0, ALONG = ALONG_R, LRoadCount = expRoadCount, RRoadCount = expRoadCount;
 static int16 p, i, d, s1, am, cnm;
-uint8 borderIn, display, mustStop;
+uint8 borderIn, display, mustStop, crossDis;
 Point centerLine[expRoadCount], LBorder[expRoadCount], RBorder[expRoadCount];
 extern uint8 outputImage[MT9V03X_H][MT9V03X_W];
-static uint8 stop, have, data_buffer[32];
+static uint8 have, data_buffer[32];
 
 void pitInit();
 
@@ -69,6 +69,7 @@ void main(void) {
         if (wireless_uart_read_buffer(data_buffer, 32)) {
             sscanf(data_buffer, "%d,%d,%d,%d,%d,%d,%d", &p, &i, &d, &am, &s1, &s2, &cnm);
             display = gpio_get_level(IO_PB1);
+            crossDis = gpio_get_level(IO_PB0);
             ips200_clear(RGB565_WHITE);
             motorInit(p, i, d, am, s1, s2);
             break;
@@ -94,9 +95,11 @@ void main(void) {
             if (RUN_MODE == RAMP || (RUN_MODE == FORWARD && dl1b_distance_mm < 350 && dl1b_distance_mm > 100 && !borderIn)) {
                 RUN_MODE = RAMP;
                 runRamp();
-            } else if (RUN_MODE == BLOCK) {
-                runBlock(LCorner, RCorner);
-            } else if (RUN_MODE == CROSS ||
+            }
+            // else if (RUN_MODE == BLOCK) {
+            //     runBlock(LCorner, RCorner);
+            // }
+            else if (RUN_MODE == CROSS ||
                        (RUN_MODE == FORWARD && ((RCorner && RRoadCount > 2) || (LCorner && LRoadCount > 2)) && LRoadCount < 12 &&
                         RRoadCount < 12)) {
                 RUN_MODE = CROSS;
@@ -110,7 +113,7 @@ void main(void) {
                 RUN_MODE = L_ROUND;
                 runLRound(LCorner, RCorner);
             } else {
-                if (centerLineCount < 10 || stop) smoothStop = 1;
+                if (centerLineCount < 10) smoothStop = 1;
                 else {
                     smoothStop = 0;
                     alongLine(centerLine, centerLineCount, getDynamicAimPos());
@@ -225,8 +228,8 @@ void loadRoad() {
         for (i = 0; i < RRoadCount; i++)
             outputImage[RBorder[i].x][RBorder[i].y] = 255;
         ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
-        ips200_show_int16(0, MT9V03X_H + 20, LCorner);
-        ips200_show_int16(MT9V03X_W, MT9V03X_H + 20, RCorner);
+        ips200_show_int16(0, MT9V03X_H + 20, LBorder[LCorner].x);
+        ips200_show_int16(MT9V03X_W, MT9V03X_H + 20, RBorder[RCorner].x);
         ips200_show_int16(0, MT9V03X_H + 1, LRoadCount);
         ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 1, centerLineCount);
         ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, RRoadCount);

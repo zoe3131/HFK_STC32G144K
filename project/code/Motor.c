@@ -5,10 +5,10 @@
 
 #define pressPwmL PWMF_CH3_PA5
 #define pressPwmR PWMF_CH4_PA7
-#define motorDirR IO_P50
-#define motorPwmR PWMD_CH2_P51
-#define motorDirL IO_P52
-#define motorPwmL PWMD_CH4_P53
+#define motorDirR IO_P77
+#define motorPwmR PWMB_CH3_P76
+#define motorDirL IO_P75
+#define motorPwmL PWMB_CH1_P74
 
 volatile int16 encoderL, encoderR, setSpeed = 0, handle = 0, duty = 0;
 static uint32 K;
@@ -135,7 +135,7 @@ void setServoDuty(int8 d) {
 
 int8 getDynamicAimPos() {
     int16 speed = encoderR + encoderL >> 1;
-    return c5;
+    return speed / 10 + c5;
     //return 3 * speed / 10 - 57;
     //x   y
     //290 30
@@ -160,7 +160,7 @@ void motorInit(int16 p, int16 i, int16 d, int16 amm, int16 spd, int16 dh) {
             2500, 55, 100, 0,
             9500);
     PIDInit(&motorRPID, 1,
-            2500, 55, 100, 0,
+            2200, 40, 100, 0,
             9500);
     pwm_init(PWME_CH4P_PA6, servoFreq, 3060);
     gpio_init(motorDirR, GPO, 1, GPO_PUSH_PULL);

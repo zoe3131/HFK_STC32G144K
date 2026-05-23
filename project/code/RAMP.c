@@ -24,12 +24,14 @@ void runRamp() {
     for (j = 0; j < RRoadCount; j++)
         if (RBorder[j].x == rampPos) break;
     if (LBorder[i].x != rampPos || RBorder[j].x != rampPos) return;
-    tarPos[5].x = rampPos;
-    tarPos[5].y = LBorder[i].y + RBorder[j].y >> 1;
+    for (i = 0; i <= 5; i++) {
+        tarPos[i].x = rampPos;
+        tarPos[i].y = LBorder[i].y + RBorder[j].y >> 1;
+    }
     getGodRoadLine(tarPos, 6);
     alongLine(tarPos, 6, 5);
     handle = 1;
-    setSpeed = -150;
+    setSpeed = 200;
     if (dl1b_distance_mm < 400) {
         if (readyEnd)
             canEnd = 1;
