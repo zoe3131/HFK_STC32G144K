@@ -22,12 +22,17 @@ uint8 canEnd() {
 
 void runBlock(int16 LCorner, int16 RCorner) {
     gpio_set_level(IO_P65, 1);
+    ips200_show_int8(0,0, ALONG);
+
+
     if (!added) {
         fixedLCorner = LCorner;
         fixedRCorner = RCorner;
         added = 1;
     }
     ALONG = fixedLCorner ? ALONG_R : ALONG_L;
+    ips200_show_int8(0, 20,ALONG);
+
     if (centerLineCount < 10)
         smoothStop = 1;
     else {
@@ -35,7 +40,7 @@ void runBlock(int16 LCorner, int16 RCorner) {
         alongLine(centerLine, centerLineCount, 20);
     }
     if (canEnd()) {
-        added = 0;
+        added = smoothStop = 0;
         gpio_set_level(IO_P65, 0);
         RUN_MODE = FORWARD;
         centerLineDistance = 18;

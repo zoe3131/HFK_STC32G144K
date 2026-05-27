@@ -6,7 +6,7 @@
 
 #define CROSS_READY 1
 #define CROSS_IN 2
-extern uint8 outputImage[MT9V03X_H][MT9V03X_W], mustStop, crossDis;
+extern uint8 outputImage[MT9V03X_H][MT9V03X_W], crossDis;
 static uint8 halfBlock = block / 2, QW = 45, DQW = 143, m;
 static int8 CROSS_MODE = CROSS_READY, canEnd = 0;
 static int16 alongR, crossThreshold;
@@ -79,10 +79,6 @@ Point getCrossLStart() {
 void runCross() {
     smoothStop = 0;
     if (CROSS_MODE == CROSS_READY) {
-        // if (centerLineCount > 40) {
-        //     RUN_MODE = FORWARD;
-        //     return;
-        // }
         gpio_set_level(IO_P65, 1);
         if (centerLineCount < 10) {
             crossThreshold = threshold;
@@ -102,7 +98,6 @@ void runCross() {
         }
         getGodRoadLine(border, roadCount);
         resampleRoad(border, &roadCount, 0, 3);
-        if (roadCount > 100) return;
         corner = findCorner(border, roadCount);
         filterRoad(border, roadCount);
         farCenterLineCount = roadCount;
@@ -124,10 +119,6 @@ void runCross() {
             gpio_set_level(IO_P65, 0);
             return;
         }
-        // if (LCorner > 9 && RCorner > 9 && canEnd) {
-        //     canEnd = added = 0;
-        //     CROSS_MODE = CROSS_READY;
-        // }
         if (crossDis) {
             ips200_displayimage03x(mt9v03x_image, MT9V03X_W, MT9V03X_H, 0, 0);
             ips200_draw_point(start.y, start.x, RGB565_RED);

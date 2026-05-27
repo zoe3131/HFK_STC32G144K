@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  RRound                                                             23/05/26  20:26:26  PAGE 1   
+C251 COMPILER V5.60.0,  RRound                                                             27/05/26  22:07:31  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE RRound
@@ -25,7 +25,7 @@ stmt  level    source
    12          
    13          static uint8 ROUND_MODE = ROUND_READY, canStart = 0, canIn = 0, canFinish = 0;
    14          extern int16 centerLineCount, RUN_MODE, RRoadCount, LRoadCount, s2, duty;
-   15          extern uint8 mustStop, ALONG;
+   15          extern uint8 ALONG;
    16          extern Point centerLine[expRoadCount], LRoad[expRoadCount];
    17          
    18          void runRRound(int16 LCorner, int16 RCorner) {
@@ -66,7 +66,7 @@ stmt  level    source
    53   2              else smoothStop = 0;
    54   2              if (LCorner > 3 && centerLineCount < 10 && centerLineCount) {
    55   3                  centerLineDistance = 8;
-C251 COMPILER V5.60.0,  RRound                                                             23/05/26  20:26:26  PAGE 2   
+C251 COMPILER V5.60.0,  RRound                                                             27/05/26  22:07:31  PAGE 2   
 
    56   3                  ROUND_MODE = ROUND_END;
    57   3                  ALONG = ALONG_R;

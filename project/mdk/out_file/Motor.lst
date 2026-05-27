@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Motor                                                              23/05/26  20:26:25  PAGE 1   
+C251 COMPILER V5.60.0,  Motor                                                              27/05/26  22:07:31  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Motor
@@ -59,14 +59,14 @@ stmt  level    source
    46   1          pid->attitude_coeff = attitude_coeff;
    47   1      }
    48          
-   49          int16 steerPIDCalculate(PID_t *pid, int16 error, int16 attitude_data) {
+   49          int16 steerPIDCalculate(PID_t *pid, int16 error) {
    50   1          int32 p_term, d_term, att_term;
    51   1          int16 pid_output;
    52   1          p_term = (int32) pid->Kp * error;
    53   1          d_term = (int32) pid->Kd * (error - pid->last_error);
-   54   1          att_term = (int32) pid->attitude_coeff * attitude_data;
+   54   1          att_term = (int32) pid->attitude_coeff * imu660rb_gyro_z;
    55   1          pid->last_error = error;
-C251 COMPILER V5.60.0,  Motor                                                              23/05/26  20:26:25  PAGE 2   
+C251 COMPILER V5.60.0,  Motor                                                              27/05/26  22:07:31  PAGE 2   
 
    56   1          pid_output = (p_term + d_term + att_term) / 100;
    57   1          return func_limit(pid_output, pid->max_out);
@@ -97,8 +97,8 @@ stmt  level    source
    82   1          encoderL = encoder_get_count(PWMC_ENCODER) * 2;
    83   1          encoder_clear_count(PWMA_ENCODER);
    84   1          encoder_clear_count(PWMC_ENCODER);
-   85   1          pwm_set_duty(PWME_CH4P_PA6, 3060 + steerPIDCalculate(&steerPid, duty, imu660rb_gyro_z));
-   86   1          if (smoothStop || mustStop) {
+   85   1          pwm_set_duty(PWME_CH4P_PA6, 3060 + steerPIDCalculate(&steerPid, duty));
+   86   1          if (smoothStop) {
    87   2              pwm_set_duty(motorPwmR, 0);
    88   2              pwm_set_duty(motorPwmL, 0);
    89   2      //        pwm_set_duty(pressPwmL, 0);
@@ -134,7 +134,7 @@ stmt  level    source
   117   1          //     if ((d <= 0 && dy <= 0) || (d >= 0 && dy >= 0)) d += dy;
   118   1          // }
   119   1          setServoDuty(d);
-C251 COMPILER V5.60.0,  Motor                                                              23/05/26  20:26:25  PAGE 3   
+C251 COMPILER V5.60.0,  Motor                                                              27/05/26  22:07:31  PAGE 3   
 
   120   1      }
   121          
@@ -173,7 +173,7 @@ stmt  level    source
   154   1          c5 = spd;
   155   1          c6 = dh;
   156   1          PIDInit(&steerPid, 3,
-  157   1                   c1, 0, c2, 0,
+  157   1                   c1, 0, c2, 2,
   158   1                   333);
   159   1          PIDInit(&motorLPID, 0,
   160   1                  2500, 55, 100, 0,
@@ -202,13 +202,13 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      3047     ------
-C251 COMPILER V5.60.0,  Motor                                                              23/05/26  20:26:25  PAGE 4   
+  ecode size           =      3031     ------
+C251 COMPILER V5.60.0,  Motor                                                              27/05/26  22:07:31  PAGE 4   
 
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =       174     ------
+  xdata size           =       172     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------

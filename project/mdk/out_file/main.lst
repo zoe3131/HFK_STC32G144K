@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               23/05/26  20:26:27  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               27/05/26  22:08:50  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -53,7 +53,7 @@ stmt  level    source
    38          int16 LCorner, RCorner, s2,centerLineCount, RUN_MODE = FORWARD, pitch = 0, LRoadCount = expRoadCount, RRo
              -adCount = expRoadCount;
    39          static int16 p, i, d, s1, am, cnm;
-   40          uint8 borderIn, display, mustStop, crossDis, ALONG = ALONG_R;
+   40          uint8 borderIn, display, mustStop, crossDis, ALONG = ALONG_R, dised;
    41          Point centerLine[expRoadCount], LRoad[expRoadCount], RRoad[expRoadCount];
    42          extern uint8 outputImage[MT9V03X_H][MT9V03X_W];
    43          static uint8 have, data_buffer[32];
@@ -66,13 +66,13 @@ stmt  level    source
    50          
    51          void main(void) {
    52   1          clock_init(SYSTEM_CLOCK_96M);
-C251 COMPILER V5.60.0,  main                                                               23/05/26  20:26:27  PAGE 2   
+C251 COMPILER V5.60.0,  main                                                               27/05/26  22:08:50  PAGE 2   
 
    53   1          debug_init();
    54   1          ips200_init();
    55   1          while (mt9v03x_init());
    56   1          while (imu660rb_init());
-   57   1          //while (dl1b_init());
+   57   1          while (dl1b_init());
    58   1          while (wireless_uart_init());
    59   1          gpio_init(IO_PB1, GPI, 1, GPI_PULL_UP);
    60   1          gpio_init(IO_P64, GPO, 1, GPO_PUSH_PULL);
@@ -101,216 +101,182 @@ stmt  level    source
    82   3                  // memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
    83   3                  // seekfree_assistant_camera_send();
    84   3                  if (!display) displayBorderLineImage();
-   85   3                  have = haveZebra();
-   86   3                  //ips200_show_int16(0, 15, imu660rb_gyro_x);
-   87   3                  //gpio_set_level(IO_P77, 1);
-   88   3                  loadRoad();
-   89   3      //            if (RUN_MODE == ZEBRA || (RUN_MODE == FORWARD && have)) {
-   90   3      //                RUN_MODE = ZEBRA;
-   91   3      //                runZebra(have);
-   92   3      //            } else
-   93   3                  if (RUN_MODE == RAMP || (RUN_MODE == FORWARD && dl1b_distance_mm < 350 && dl1b_distance_mm > 
-             -100 && !borderIn)) {
+   85   3                  ips200_show_int8(0,0,ALONG);
+   86   3                  //gpio_set_level(IO_P77, 1);
+   87   3                  loadRoad();
+   88   3                  have = haveZebra();
+   89   3                  if (RUN_MODE == ZEBRA || ((RUN_MODE == FORWARD || RUN_MODE == BLOCK) && have)) {
+   90   4                      RUN_MODE = ZEBRA;
+   91   4                      runZebra(have);
+   92   4                      wireless_uart_send_string("z\r\n");
+   93   4                  } else if (RUN_MODE == RAMP || (RUN_MODE == FORWARD && dl1b_distance_mm < 350 && dl1b_distanc
+             -e_mm > 100 && !borderIn)) {
    94   4                      RUN_MODE = RAMP;
    95   4                      runRamp();
-   96   4                  }
-   97   3                  else if (RUN_MODE == BLOCK) {
+   96   4                      wireless_uart_send_string("r\r\n");
+   97   4                  } else if (RUN_MODE == BLOCK) {
    98   4                      runBlock(LCorner, RCorner);
-   99   4                  } else if (RUN_MODE == CROSS ||
-  100   3                             (RUN_MODE == FORWARD && ((RCorner && RRoadCount > 2) || (LCorner && LRoadCount > 2
+   99   4                      wireless_uart_send_string("b\r\n");
+  100   4                  } else if (RUN_MODE == CROSS ||
+  101   3                             (RUN_MODE == FORWARD && ((RCorner && RRoadCount > 2) || (LCorner && LRoadCount > 2
              -)) && LRoadCount < 12 &&
-  101   3                              RRoadCount < 12)) {
-  102   4                      RUN_MODE = CROSS;
-  103   4                      runCross();
-  104   4                  } else if (RUN_MODE == R_ROUND ||
-  105   3                             (RUN_MODE == FORWARD && RCorner && LRoadCount > 30 && RRoadCount < 8 && RRoadCount
+  102   3                              RRoadCount < 12)) {
+  103   4                      RUN_MODE = CROSS;
+  104   4                      runCross();
+  105   4                      wireless_uart_send_string("c\r\n");
+  106   4                  } else if (RUN_MODE == R_ROUND ||
+  107   3                             (RUN_MODE == FORWARD && RCorner && LRoadCount > 30 && RRoadCount < 8 && RRoadCount
              - > 3)) {
-  106   4                      RUN_MODE = R_ROUND;
-  107   4                      runRRound(LCorner, RCorner);
-  108   4                  } else if (RUN_MODE == L_ROUND ||
-  109   3                             (RUN_MODE == FORWARD && LCorner && RRoadCount > 30 && LRoadCount < 8 && LRoadCount
+  108   4                      RUN_MODE = R_ROUND;
+  109   4                      runRRound(LCorner, RCorner);
+  110   4                      wireless_uart_send_string("rr\r\n");
+  111   4                  } else if (RUN_MODE == L_ROUND ||
+  112   3                             (RUN_MODE == FORWARD && LCorner && RRoadCount > 30 && LRoadCount < 8 && LRoadCount
              - > 3)) {
-  110   4                      RUN_MODE = L_ROUND;
-  111   4                      runLRound(LCorner, RCorner);
-  112   4                  } else {
-  113   4                      if (centerLineCount < 10) smoothStop = 1;
-C251 COMPILER V5.60.0,  main                                                               23/05/26  20:26:27  PAGE 3   
+  113   4                      RUN_MODE = L_ROUND;
+C251 COMPILER V5.60.0,  main                                                               27/05/26  22:08:50  PAGE 3   
 
-  114   4                      else {
-  115   5                          smoothStop = 0;
-  116   5                          alongLine(centerLine, centerLineCount, getDynamicAimPos());
-  117   5                      }
-  118   4                  }
-  119   3      //            if (RUN_MODE != FORWARD) {
-  120   3      //                if (!dised) {
-  121   3      //                    int16 i, j;
-  122   3      //                    dised = 1;
-  123   3      //                    displayBorderLineImage();
-  124   3      //                    for (i = 0; i < MT9V03X_H; i++)
-  125   3      //                        for (j = 0; j < MT9V03X_W; j++)
-  126   3      //                            outputImage[i][j] = 0;
-  127   3      //                    for (i = 0; i < centerLineCount; i++)
-  128   3      //                        outputImage[centerLine[i].x][centerLine[i].y] = 255;
-  129   3      //                    for (i = 0; i < LRoadCount; i++)
-  130   3      //                        outputImage[LBorder[i].x][LBorder[i].y] = 255;
-  131   3      //                    for (i = 0; i < RRoadCount; i++)
-  132   3      //                        outputImage[RBorder[i].x][RBorder[i].y] = 255;
-  133   3      //                    ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
-  134   3      //                    ips200_show_int16(0, MT9V03X_H + 20, LCorner);
-  135   3      //                    ips200_show_int16(MT9V03X_W, MT9V03X_H + 20, RCorner);
-  136   3      //                    ips200_show_int16(0, MT9V03X_H + 1, LRoadCount);
-  137   3      //                    ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 1, centerLineCount);
-  138   3      //                    ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, RRoadCount);
-  139   3      //                    ips200_show_int16(0, 300, RUN_MODE);
-  140   3      //                }
-  141   3      //            } else dised = 0;
-  142   3                  mt9v03x_finish_flag = 0;
-  143   3              }
-  144   2          }
-  145   1      }
-  146          
-  147          void loadRoad() {
-  148   1          int16 i, j, pos;
-  149   1          Point LStart = getLStart(), RStart = getRStart();
-  150   1          LRoadCount = expRoadCount, RRoadCount = expRoadCount;
-  151   1          getLBorder(LRoad, LStart, &LRoadCount);
-  152   1          getRBorder(RRoad, RStart, &RRoadCount);
-  153   1          getGodRoadLine(LRoad, LRoadCount);
-  154   1          getGodRoadLine(RRoad, RRoadCount);
-  155   1          filterRoad(LRoad, LRoadCount);
-  156   1          filterRoad(RRoad, RRoadCount);
-  157   1          resampleRoad(LRoad, &LRoadCount, 0, 3);
-  158   1          resampleRoad(RRoad, &RRoadCount, 0, 3);
-  159   1          LCorner = findCorner(LRoad, LRoadCount);
-  160   1          RCorner = findCorner(RRoad, RRoadCount);
-  161   1          borderIn = 0;
-  162   1          for (i = LRoadCount - 2; i >= 0 && LRoad[i].y > 92; i -= 2)
-  163   1              if (LRoad[i].x > cnm) {
-  164   2                  borderIn = 1;
-  165   2                  break;
-  166   2              }
-  167   1          if (!borderIn)
-  168   1              for (i = RRoadCount - 2; i >= 0 && RRoad[i].y < 92; i -= 2)
-  169   1                  if (RRoad[i].x > cnm) {
-  170   2                      borderIn = 1;
-  171   2                      break;
-  172   2                  }
-  173   1          if (LCorner >= LRoadCount - 1) LCorner = 0;
-  174   1          if (RCorner >= RRoadCount - 1) RCorner = 0;
-  175   1          if (LCorner) {
-  176   2              if (LCorner < 20 && RUN_MODE == FORWARD && LRoad[func_limit_ab(LCorner + 5, 0, LRoadCount - 1)].y
+  114   4                      runLRound(LCorner, RCorner);
+  115   4                      wireless_uart_send_string("lr\r\n");
+  116   4                  } else {
+  117   4                      if (centerLineCount < 10) smoothStop = 1;
+  118   4                      else {
+  119   5                          smoothStop = 0;
+  120   5                          alongLine(centerLine, centerLineCount, getDynamicAimPos());
+  121   5                      }
+  122   4                  }
+  123   3                  mt9v03x_finish_flag = 0;
+  124   3              }
+  125   2          }
+  126   1      }
+  127          
+  128          void loadRoad() {
+  129   1          int16 i, j, pos;
+  130   1          Point LStart = getLStart(), RStart = getRStart();
+  131   1          LRoadCount = expRoadCount, RRoadCount = expRoadCount;
+  132   1          getLBorder(LRoad, LStart, &LRoadCount);
+  133   1          getRBorder(RRoad, RStart, &RRoadCount);
+  134   1          getGodRoadLine(LRoad, LRoadCount);
+  135   1          getGodRoadLine(RRoad, RRoadCount);
+  136   1          filterRoad(LRoad, LRoadCount);
+  137   1          filterRoad(RRoad, RRoadCount);
+  138   1          resampleRoad(LRoad, &LRoadCount, 0, 3);
+  139   1          resampleRoad(RRoad, &RRoadCount, 0, 3);
+  140   1          LCorner = findCorner(LRoad, LRoadCount);
+  141   1          RCorner = findCorner(RRoad, RRoadCount);
+  142   1          borderIn = 0;
+  143   1          for (i = LRoadCount - 2; i >= 0 && LRoad[i].y > 92; i -= 2)
+  144   1              if (LRoad[i].x > cnm) {
+  145   2                  borderIn = 1;
+  146   2                  break;
+  147   2              }
+  148   1          if (!borderIn)
+  149   1              for (i = RRoadCount - 2; i >= 0 && RRoad[i].y < 92; i -= 2)
+  150   1                  if (RRoad[i].x > cnm) {
+  151   2                      borderIn = 1;
+  152   2                      break;
+  153   2                  }
+  154   1          if (LCorner >= LRoadCount - 1) LCorner = 0;
+  155   1          if (RCorner >= RRoadCount - 1) RCorner = 0;
+  156   1          if (LCorner) {
+  157   2              if (LCorner < 20 && RUN_MODE == FORWARD && LRoad[func_limit_ab(LCorner + 5, 0, LRoadCount - 1)].y
              - - LRoad[LCorner].y > 4) {
-  177   3                  gpio_set_level(IO_P65, 0);
-  178   3                  RUN_MODE = BLOCK;
-C251 COMPILER V5.60.0,  main                                                               23/05/26  20:26:27  PAGE 4   
-
-  179   3                  ALONG = ALONG_R;
-  180   3                  centerLineDistance = 9;
-  181   3              }
-  182   2              LRoadCount = LCorner;
-  183   2          }
-  184   1          if (RCorner) {
-  185   2              if (RCorner < 20 && RUN_MODE == FORWARD && RRoad[RCorner].y - RRoad[func_limit_ab(RCorner + 5, 0,
+  158   3                  gpio_set_level(IO_P65, 0);
+  159   3                  RUN_MODE = BLOCK;
+  160   3                  ALONG = ALONG_R;
+  161   3                  centerLineDistance = 9;
+  162   3              }
+  163   2              LRoadCount = LCorner;
+  164   2          }
+  165   1          if (RCorner) {
+  166   2              if (RCorner < 20 && RUN_MODE == FORWARD && RRoad[RCorner].y - RRoad[func_limit_ab(RCorner + 5, 0,
              - RRoadCount - 1)].y > 4) {
-  186   3                  gpio_set_level(IO_P65, 0);
-  187   3                  RUN_MODE = BLOCK;
-  188   3                  ALONG = ALONG_L;
-  189   3                  centerLineDistance = 9;
-  190   3              }
-  191   2              RRoadCount = RCorner;
-  192   2          }
-  193   1          if (ALONG == ALONG_L) {
-  194   2              getCenterLineByLBorder(LRoad, centerLine, LRoadCount);
-  195   2              centerLineCount = LRoadCount;
-  196   2          } else {
-  197   2              getCenterLineByRBorder(RRoad, centerLine, RRoadCount);
-  198   2              centerLineCount = RRoadCount;
-  199   2          }
-  200   1          for (i = 1; i < centerLineCount; i++)
-  201   1              if (centerLine[i].x < MT9V03X_H - 1) {
-  202   2                  i--;
-  203   2                  break;
-  204   2              }
-  205   1          centerLine[i].x = MT9V03X_H - 1;
-  206   1          centerLine[i].y = centerLine[i + 1].y;
-  207   1          filterRoad(centerLine, centerLineCount);
-  208   1          resampleRoad(centerLine, &centerLineCount, i, 2);
-  209   1          ALONG = LRoadCount > RRoadCount ? ALONG_L : ALONG_R;
-  210   1          if (!display) {
-  211   2              for (i = 0; i < MT9V03X_H; i++)
-  212   2                  for (j = 0; j < MT9V03X_W; j++)
-  213   2                      outputImage[i][j] = 0;
-  214   2              for (i = 0; i < centerLineCount; i++)
-  215   2                  outputImage[centerLine[i].x][centerLine[i].y] = 255;
-  216   2              for (i = 0; i < LRoadCount; i++)
-  217   2                  outputImage[LRoad[i].x][LRoad[i].y] = 255;
-  218   2              for (i = 0; i < RRoadCount; i++)
-  219   2                  outputImage[RRoad[i].x][RRoad[i].y] = 255;
-  220   2              ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
-*** WARNING C98 IN LINE 220 OF ..\user\main.c: parameter 3: pointer to different objects
-*** WARNING C91 IN LINE 220 OF ..\user\main.c: '&': pointer to different objects
-  221   2              ips200_show_int16(0, MT9V03X_H + 20, LRoad[LCorner].x);
-  222   2              ips200_show_int16(MT9V03X_W, MT9V03X_H + 20, RRoad[RCorner].x);
-  223   2              ips200_show_int16(0, MT9V03X_H + 1, LRoadCount);
-  224   2              ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 1, centerLineCount);
-  225   2              ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, RRoadCount);
-  226   2              ips200_show_int16(0, 300, RUN_MODE);
-  227   2          }
-  228   1      }
-*** WARNING C47 IN LINE 148 OF ..\user\main.c: 'pos': unreferenced local variable
-  229          
-  230          uint8 haveZebra() {
-  231   1          int16 i = 10, count = 0, j;
-  232   1          int8 add = 0;
-  233   1          for (j = 40; j <= 140; j += 3) {
-  234   2              if (mt9v03x_image[i][j] < threshold) {
-  235   3                  if (add) {
-  236   4                      count++;
-  237   4                      if (count > 5) return 1;
-  238   4                      add = 0;
-  239   4                  }
-  240   3              } else add = 1;
-C251 COMPILER V5.60.0,  main                                                               23/05/26  20:26:27  PAGE 5   
+  167   3                  gpio_set_level(IO_P65, 0);
+  168   3                  RUN_MODE = BLOCK;
+  169   3                  ALONG = ALONG_L;
+  170   3                  centerLineDistance = 9;
+  171   3              }
+  172   2              RRoadCount = RCorner;
+  173   2          }
+  174   1          if (ALONG == ALONG_L) {
+  175   2              getCenterLineByLBorder(LRoad, centerLine, LRoadCount);
+  176   2              centerLineCount = LRoadCount;
+  177   2          } else {
+C251 COMPILER V5.60.0,  main                                                               27/05/26  22:08:50  PAGE 4   
 
-  241   2          }
-  242   1          i = 20;
-  243   1          count = 0;
-  244   1          add = 0;
-  245   1          for (j = 30; j <= 150; j += 3) {
-  246   2              if (mt9v03x_image[i][j] < threshold) {
-  247   3                  if (add) {
-  248   4                      count++;
-  249   4                      if (count > 5) return 1;
-  250   4                      add = 0;
-  251   4                  }
-  252   3              } else add = 1;
-  253   2          }
-  254   1          return 0;
-  255   1      }
-  256          
-  257          void pitHandlerImu() {
-  258   1          imu660rb_get_acc();
-  259   1          imu660rb_get_gyro();
-  260   1      }
-  261          
-  262          void pitHandlerTof() {
-  263   1          dl1b_get_distance();
-  264   1      }
-  265          
-  266          void pitInit() {
-  267   1          //pit_ms_init(TIM6_PIT, 10, pitHandlerTof);
-  268   1          pit_ms_init(TIM0_PIT, 5, pitHandlerImu);
-  269   1      }
+  178   2              getCenterLineByRBorder(RRoad, centerLine, RRoadCount);
+  179   2              centerLineCount = RRoadCount;
+  180   2          }
+  181   1          for (i = 1; i < centerLineCount; i++)
+  182   1              if (centerLine[i].x < MT9V03X_H - 1) {
+  183   2                  i--;
+  184   2                  break;
+  185   2              }
+  186   1          centerLine[i].x = MT9V03X_H - 1;
+  187   1          centerLine[i].y = centerLine[i + 1].y;
+  188   1          filterRoad(centerLine, centerLineCount);
+  189   1          resampleRoad(centerLine, &centerLineCount, i, 2);
+  190   1          ALONG = LRoadCount > RRoadCount ? ALONG_L : ALONG_R;
+  191   1          if (!display) {
+  192   2              for (i = 0; i < MT9V03X_H; i++)
+  193   2                  for (j = 0; j < MT9V03X_W; j++)
+  194   2                      outputImage[i][j] = 0;
+  195   2              for (i = 0; i < centerLineCount; i++)
+  196   2                  outputImage[centerLine[i].x][centerLine[i].y] = 255;
+  197   2              for (i = 0; i < LRoadCount; i++)
+  198   2                  outputImage[LRoad[i].x][LRoad[i].y] = 255;
+  199   2              for (i = 0; i < RRoadCount; i++)
+  200   2                  outputImage[RRoad[i].x][RRoad[i].y] = 255;
+  201   2              ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
+*** WARNING C98 IN LINE 201 OF ..\user\main.c: parameter 3: pointer to different objects
+*** WARNING C91 IN LINE 201 OF ..\user\main.c: '&': pointer to different objects
+  202   2              ips200_show_int16(0, MT9V03X_H + 20, LRoad[LCorner].x);
+  203   2              ips200_show_int16(MT9V03X_W, MT9V03X_H + 20, RRoad[RCorner].x);
+  204   2              ips200_show_int16(0, MT9V03X_H + 1, LRoadCount);
+  205   2              ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 1, centerLineCount);
+  206   2              ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, RRoadCount);
+  207   2              ips200_show_int16(0, 300, RUN_MODE);
+  208   2          }
+  209   1      }
+*** WARNING C47 IN LINE 129 OF ..\user\main.c: 'pos': unreferenced local variable
+  210          
+  211          uint8 haveZebra() {
+  212   1          int16 pos = 0;
+  213   1          if (LBorderCount < RBorderCount) {
+  214   2              while (pos < LBorderCount && LBorder[pos].x > ZEBRA_TRIGGER_POS)
+  215   2                  pos += 3;
+  216   2              return !LBorderCount || LBorder[pos].x > 97 ? 0 : isZebra(pos, ALONG_L);
+  217   2          }
+  218   1          while (pos < RBorderCount && RBorder[pos].x > ZEBRA_TRIGGER_POS)
+  219   1              pos += 3;
+  220   1          return !RBorderCount || RBorder[pos].x > 97 ? 0 : isZebra(pos, ALONG_R);
+  221   1      }
+  222          
+  223          void pitHandlerImu() {
+  224   1          imu660rb_get_acc();
+  225   1          imu660rb_get_gyro();
+  226   1      }
+  227          
+  228          void pitHandlerTof() {
+  229   1          dl1b_get_distance();
+  230   1      }
+  231          
+  232          void pitInit() {
+  233   1          pit_ms_init(TIM6_PIT, 10, pitHandlerTof);
+  234   1          pit_ms_init(TIM0_PIT, 5, pitHandlerImu);
+  235   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      3187     ------
+  ecode size           =      3336     ------
+C251 COMPILER V5.60.0,  main                                                               27/05/26  22:08:50  PAGE 5   
+
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =      1101     ------
+  xdata size           =       677     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
@@ -320,7 +286,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =        63     ------
+  hconst size          =        89     ------
 End of Module Information.
 
 

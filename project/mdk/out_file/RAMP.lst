@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  RAMP                                                               23/05/26  20:26:27  PAGE 1   
+C251 COMPILER V5.60.0,  RAMP                                                               27/05/26  22:07:32  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE RAMP
@@ -21,61 +21,54 @@ stmt  level    source
     8          extern int16 RUN_MODE, pitch;
     9          
    10          void runRamp() {
-   11   1          //(func_abs(LRoadCount - RRoadCount) < 5 && LRoadCount > 30 && LRoadCount < 40 && RBorder[30].y - LBo
-             -rder[30].y > 75 && RBorder[30].y > 124 && LBorder[30].y < 64)
-   12   1          Point LStart = getLStart(), RStart = getRStart(), LBorder[expRoadCount], RBorder[expRoadCount], tarPo
-             -s[6];
-   13   1          int16 LRoadCount = expRoadCount, RRoadCount = expRoadCount, i, j;
-   14   1          gpio_set_level(IO_P65, 1);
-   15   1          setSpeed = 200;
-   16   1          getLBorder(LBorder, LStart, &LRoadCount);
-   17   1      
-   18   1          getRBorder(RBorder, RStart, &RRoadCount);
-   19   1          if (func_min(LRoadCount, RRoadCount) < 30) {
-   20   2              smoothStop = 1;
-   21   2              return;
-   22   2          } else smoothStop = 0;
-   23   1          for (i = 0; i < LRoadCount; i++)
-   24   1              if (LBorder[i].x == rampPos) break;
-   25   1          for (j = 0; j < RRoadCount; j++)
-   26   1              if (RBorder[j].x == rampPos) break;
-   27   1          if (LBorder[i].x != rampPos || RBorder[j].x != rampPos) return;
-   28   1          for (i = 0; i <= 5; i++) {
-   29   2              tarPos[i].x = rampPos;
-   30   2              tarPos[i].y = LBorder[i].y + RBorder[j].y >> 1;
-   31   2          }
-   32   1          
-   33   1          getGodRoadLine(tarPos, 6);
-   34   1          alongLine(tarPos, 6, 5);
-   35   1          handle = 1;
-   36   1          setSpeed = 200;
-   37   1          if (dl1b_distance_mm < 400) {
-   38   2              if (readyEnd)
-   39   2                  canEnd = 1;
-   40   2          } else if (dl1b_distance_mm > 600) {
-   41   2              readyEnd = 1;
-   42   2              if (canEnd && pitch > -10 && pitch < 10) {
-   43   3                  gpio_set_level(IO_P65, 0);
-   44   3                  RUN_MODE = FORWARD;
-   45   3                  canEnd = handle = readyEnd = 0;
-   46   3              }
-   47   2          }
-   48   1      }
+   11   1          Point tarPos[6];
+   12   1          int16 i, j;
+   13   1          gpio_set_level(IO_P65, 1);
+   14   1          if (func_min(LBorderCount, RBorderCount) < 30) {
+   15   2              smoothStop = 1;
+   16   2              return;
+   17   2          }
+   18   1          smoothStop = 0;
+   19   1          for (i = 0; i < LBorderCount; i++)
+   20   1              if (LBorder[i].x == rampPos) break;
+   21   1          for (j = 0; j < RBorderCount; j++)
+   22   1              if (RBorder[j].x == rampPos) break;
+   23   1          if (LBorder[i].x != rampPos || RBorder[j].x != rampPos) return;
+   24   1          for (i = 0; i <= 5; i++) {
+   25   2              tarPos[i].x = rampPos;
+   26   2              tarPos[i].y = LBorder[i].y + RBorder[j].y >> 1;
+   27   2          }
+   28   1          getGodRoadLine(tarPos, 6);
+   29   1          alongLine(tarPos, 6, 5);
+   30   1          handle = 1;
+   31   1          setSpeed = 200;
+   32   1          if (dl1b_distance_mm < 400) {
+   33   2              if (readyEnd)
+   34   2                  canEnd = 1;
+   35   2          } else if (dl1b_distance_mm > 600) {
+   36   2              readyEnd = 1;
+   37   2              if (canEnd && pitch > -10 && pitch < 10) {
+   38   3                  gpio_set_level(IO_P65, 0);
+   39   3                  RUN_MODE = FORWARD;
+   40   3                  canEnd = handle = readyEnd = 0;
+   41   3              }
+   42   2          }
+   43   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       657     ------
-C251 COMPILER V5.60.0,  RAMP                                                               23/05/26  20:26:27  PAGE 2   
-
+  ecode size           =       523     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =       706     ------
+  xdata size           =        18     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
+C251 COMPILER V5.60.0,  RAMP                                                               27/05/26  22:07:32  PAGE 2   
+
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------

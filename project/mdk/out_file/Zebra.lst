@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Zebra                                                              23/05/26  20:26:26  PAGE 1   
+C251 COMPILER V5.60.0,  Zebra                                                              27/05/26  22:07:31  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Zebra
@@ -20,57 +20,58 @@ stmt  level    source
     7          extern Point centerLine[expRoadCount];
     8          extern int16 centerLineCount, RUN_MODE, LCorner, RCorner;
     9          uint8 canEnd, count, add;
-   10          
-   11          uint8 haveLine() {
-   12   1          int16 data i, data ct, data j, data ad;
-   13   1          for (i = MT9V03X_H - 1; i >= 0; i -= 5) {
-   14   2              ad = ct = 0;
-   15   2              for (j = 0; j <= MT9V03X_W - 1; j += 3) {
-   16   3                  if (i > 85 && j > 45 && j < 135) continue;
-   17   3                  if (mt9v03x_image[i][j] < threshold) {
-   18   4                      if (ad) {
-   19   5                          ct++;
-   20   5                          if (ct > 4) return 1;
-   21   5                          ad = 0;
-   22   5                      }
-   23   4                  } else ad = 1;
-   24   3              }
-   25   2          }
+   10          extern uint8 outputImage[MT9V03X_H][MT9V03X_W];
+   11          
+   12          
+   13          uint8 haveLine() {
+   14   1          int16 pos = 0;
+   15   1          if (LBorderCount < RBorderCount) {
+   16   2              while (pos < LBorderCount && LBorder[pos].x > ZEBRA_TRIGGER_POS)
+   17   2                  pos += 3;
+   18   2              for (; pos > 0; pos -= 4)
+   19   2                  if (isZebra(pos, ALONG_L)) return 1;
+   20   2              return 0;
+   21   2          }
+   22   1          while (pos < RBorderCount && RBorder[pos].x > ZEBRA_TRIGGER_POS)
+   23   1              pos += 3;
+   24   1          for (; pos > 0; pos -= 4)
+   25   1              if (isZebra(pos, ALONG_R)) return 1;
    26   1          return 0;
    27   1      }
    28          
    29          void runZebra(uint8 have) {
    30   1          alongLine(centerLine, centerLineCount, getDynamicAimPos());
-   31   1          if (count == 3) {
+   31   1          if (count == 2) {
    32   2              stop:
    33   2              smoothStop = 0;
    34   2              handle = 1;
    35   2              setSpeed = 0;
-   36   2          } else {
-   37   2              if (add) {
-   38   3                  count++;
-   39   3                  if (count == 3) goto stop;
-   40   3                  add = 0;
-   41   3              }
-   42   2              if (!LCorner && !RCorner && !haveLine() && !have) {
-   43   3                  RUN_MODE = FORWARD;
-   44   3                  add = 1;
-   45   3                  canEnd = 0;
-   46   3              }
-   47   2          }
-   48   1      }
+   36   2              ips200_show_string(0, 0, "FINISH");
+   37   2          } else {
+   38   2              if (add) {
+   39   3                  count++;
+   40   3                  if (count == 3) goto stop;
+   41   3                  add = 0;
+   42   3              }
+   43   2              if (!LCorner && !RCorner && !haveLine() && !have) {
+   44   3                  RUN_MODE = FORWARD;
+   45   3                  add = 1;
+   46   3                  canEnd = 0;
+   47   3              }
+   48   2          }
+   49   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       309     ------
-  data size            =         8     ------
-  idata size           =    ------     ------
-C251 COMPILER V5.60.0,  Zebra                                                              23/05/26  20:26:26  PAGE 2   
+  ecode size           =       381     ------
+  data size            =    ------     ------
+C251 COMPILER V5.60.0,  Zebra                                                              27/05/26  22:07:31  PAGE 2   
 
+  idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =         4     ------
+  xdata size           =         6     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
@@ -80,7 +81,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =    ------     ------
+  hconst size          =         7     ------
 End of Module Information.
 
 

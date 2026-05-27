@@ -8,9 +8,9 @@
 
 #define block 5               //局域二值化边长
 #define cap 5                 //去噪
-#define expRoadCount 170      //边线期望长度
+#define expRoadCount 100      //边线期望长度
 #define expThreshold 150
-#define ZEBRA_TRIGGER_POS 40
+#define ZEBRA_TRIGGER_POS 50
 
 void getLBorder(Point LRoad[], Point start, int16 *count);
 void getRBorder(Point RRoad[], Point start, int16 *count);

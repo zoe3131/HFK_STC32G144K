@@ -22,7 +22,7 @@ uint8 isZebra(int16 pos, uint8 along) {
     if (along == ALONG_L) {
         i = LBorder[pos].x;
         j = LBorder[pos].y;
-        d = j + borderOffset[i];
+        d = func_min(j + borderOffset[i], MT9V03X_W - 1);
         for (; j < d; j += 2)
             if (getImageFilterSelf(i, j) < threshold) {
                 if (!added) {
@@ -33,7 +33,7 @@ uint8 isZebra(int16 pos, uint8 along) {
     } else {
         i = RBorder[pos].x;
         j = RBorder[pos].y;
-        d = j - borderOffset[i];
+        d = func_max(j - borderOffset[i], 0);
         for (; j > d; j -= 2)
             if (getImageFilterSelf(i, j) < threshold) {
                 if (!added) {
@@ -310,7 +310,7 @@ void resampleRoad(Point roadLine[], int16 *count, int16 startPos, uint8 dis) {
 
 int16 findCorner(Point roadLine[], int16 count) {
     int16 data i;
-    for (i = 3; i < count - 2 && roadLine[i].x > 15; i++) {
+    for (i = 3; i < count - 2 && roadLine[i].x > 20; i++) {
         int32 i_5 = func_limit_ab(i - 5, 0, count - 1), i0 = func_limit_ab(i, 0, count - 1),
         i5 = func_limit_ab(i + 2, 0, count - 1), dx1 = roadLine[i0].x - roadLine[i_5].x,
         dy1 = roadLine[i0].y - roadLine[i_5].y, dx2 = roadLine[i5].x - roadLine[i0].x,
@@ -321,7 +321,7 @@ int16 findCorner(Point roadLine[], int16 count) {
         len2 = sqrt_int(len2_sq);
         dot = dx1 * dx2 + dy1 * dy2;
         abs_dot = (dot >= 0) ? dot : -dot;
-        if (100 * abs_dot <= 38 * len1 * len2)
+        if (100 * abs_dot <= 50 * len1 * len2)
             return i;
     }
     return 0;

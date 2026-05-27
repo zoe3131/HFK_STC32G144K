@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.0)
-project(Seekfree_STC32G144K_100Pin_Opensource_Library C)
+project(HFK_STC32G144K C)
 
 set(CMAKE_C_STANDARD 11)
 

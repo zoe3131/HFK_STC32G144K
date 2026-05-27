@@ -37,7 +37,7 @@
 
 int16 LCorner, RCorner, s2,centerLineCount, RUN_MODE = FORWARD, pitch = 0, LRoadCount = expRoadCount, RRoadCount = expRoadCount;
 static int16 p, i, d, s1, am, cnm;
-uint8 borderIn, display, mustStop, crossDis, ALONG = ALONG_R;
+uint8 borderIn, display, mustStop, crossDis, ALONG = ALONG_R, dised;
 Point centerLine[expRoadCount], LRoad[expRoadCount], RRoad[expRoadCount];
 extern uint8 outputImage[MT9V03X_H][MT9V03X_W];
 static uint8 have, data_buffer[32];
@@ -54,7 +54,7 @@ void main(void) {
     ips200_init();
     while (mt9v03x_init());
     while (imu660rb_init());
-    //while (dl1b_init());
+    while (dl1b_init());
     while (wireless_uart_init());
     gpio_init(IO_PB1, GPI, 1, GPI_PULL_UP);
     gpio_init(IO_P64, GPO, 1, GPO_PUSH_PULL);
@@ -82,33 +82,36 @@ void main(void) {
             // memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
             // seekfree_assistant_camera_send();
             if (!display) displayBorderLineImage();
-            have = haveZebra();
-            //ips200_show_int16(0, 15, imu660rb_gyro_x);
             //gpio_set_level(IO_P77, 1);
             loadRoad();
+            have = haveZebra();
             if (RUN_MODE == ZEBRA || ((RUN_MODE == FORWARD || RUN_MODE == BLOCK) && have)) {
                 RUN_MODE = ZEBRA;
                 runZebra(have);
-            }
-            // else if (RUN_MODE == RAMP || (RUN_MODE == FORWARD && dl1b_distance_mm < 350 && dl1b_distance_mm > 100 && !borderIn)) {
-            //     RUN_MODE = RAMP;
-            //     runRamp();
-            // }
-            else if (RUN_MODE == BLOCK) {
+                wireless_uart_send_string("z\r\n");
+            } else if (RUN_MODE == RAMP || (RUN_MODE == FORWARD && dl1b_distance_mm < 350 && dl1b_distance_mm > 100 && !borderIn)) {
+                RUN_MODE = RAMP;
+                runRamp();
+                wireless_uart_send_string("r\r\n");
+            } else if (RUN_MODE == BLOCK) {
                 runBlock(LCorner, RCorner);
+                wireless_uart_send_string("b\r\n");
             } else if (RUN_MODE == CROSS ||
                        (RUN_MODE == FORWARD && ((RCorner && RRoadCount > 2) || (LCorner && LRoadCount > 2)) && LRoadCount < 12 &&
                         RRoadCount < 12)) {
                 RUN_MODE = CROSS;
                 runCross();
+                wireless_uart_send_string("c\r\n");
             } else if (RUN_MODE == R_ROUND ||
                        (RUN_MODE == FORWARD && RCorner && LRoadCount > 30 && RRoadCount < 8 && RRoadCount > 3)) {
                 RUN_MODE = R_ROUND;
                 runRRound(LCorner, RCorner);
+                wireless_uart_send_string("rr\r\n");
             } else if (RUN_MODE == L_ROUND ||
                        (RUN_MODE == FORWARD && LCorner && RRoadCount > 30 && LRoadCount < 8 && LRoadCount > 3)) {
                 RUN_MODE = L_ROUND;
                 runLRound(LCorner, RCorner);
+                wireless_uart_send_string("lr\r\n");
             } else {
                 if (centerLineCount < 10) smoothStop = 1;
                 else {
@@ -116,29 +119,6 @@ void main(void) {
                     alongLine(centerLine, centerLineCount, getDynamicAimPos());
                 }
             }
-//            if (RUN_MODE != FORWARD) {
-//                if (!dised) {
-//                    int16 i, j;
-//                    dised = 1;
-//                    displayBorderLineImage();
-//                    for (i = 0; i < MT9V03X_H; i++)
-//                        for (j = 0; j < MT9V03X_W; j++)
-//                            outputImage[i][j] = 0;
-//                    for (i = 0; i < centerLineCount; i++)
-//                        outputImage[centerLine[i].x][centerLine[i].y] = 255;
-//                    for (i = 0; i < LRoadCount; i++)
-//                        outputImage[LBorder[i].x][LBorder[i].y] = 255;
-//                    for (i = 0; i < RRoadCount; i++)
-//                        outputImage[RBorder[i].x][RBorder[i].y] = 255;
-//                    ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
-//                    ips200_show_int16(0, MT9V03X_H + 20, LCorner);
-//                    ips200_show_int16(MT9V03X_W, MT9V03X_H + 20, RCorner);
-//                    ips200_show_int16(0, MT9V03X_H + 1, LRoadCount);
-//                    ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 1, centerLineCount);
-//                    ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, RRoadCount);
-//                    ips200_show_int16(0, 300, RUN_MODE);
-//                }
-//            } else dised = 0;
             mt9v03x_finish_flag = 0;
         }
     }
@@ -174,7 +154,6 @@ void loadRoad() {
     if (RCorner >= RRoadCount - 1) RCorner = 0;
     if (LCorner) {
         if (LCorner < 20 && RUN_MODE == FORWARD && LRoad[func_limit_ab(LCorner + 5, 0, LRoadCount - 1)].y - LRoad[LCorner].y > 4) {
-            gpio_set_level(IO_P65, 0);
             RUN_MODE = BLOCK;
             ALONG = ALONG_R;
             centerLineDistance = 9;
@@ -183,7 +162,6 @@ void loadRoad() {
     }
     if (RCorner) {
         if (RCorner < 20 && RUN_MODE == FORWARD && RRoad[RCorner].y - RRoad[func_limit_ab(RCorner + 5, 0, RRoadCount - 1)].y > 4) {
-            gpio_set_level(IO_P65, 0);
             RUN_MODE = BLOCK;
             ALONG = ALONG_L;
             centerLineDistance = 9;
@@ -228,17 +206,17 @@ void loadRoad() {
 }
 
 uint8 haveZebra() {
-    int16 pos;
+    int16 pos = 0;
     if (LBorderCount < RBorderCount) {
-        pos = LBorderCount - 1;
-        while (LBorder[pos].x < ZEBRA_TRIGGER_POS)
-            pos -= 3;
-        return LBorder[pos].x > 97 ? 0 : isZebra(pos, ALONG_L);
+        while (pos < LBorderCount && LBorder[pos].x > ZEBRA_TRIGGER_POS)
+            pos += 3;
+        pos = func_min(pos, LBorderCount - 1);
+        return pos <= 0 || LBorder[pos].x > 97 ? 0 : isZebra(pos, ALONG_L);
     }
-    pos = RBorderCount - 1;
-    while (RBorder[pos].x < ZEBRA_TRIGGER_POS)
-        pos -= 3;
-    return RBorder[pos].x > 97 ? 0 : isZebra(pos, ALONG_R);
+    while (pos < RBorderCount && RBorder[pos].x > ZEBRA_TRIGGER_POS)
+        pos += 3;
+    pos = func_min(pos, RBorderCount - 1);
+    return pos <= 0 || RBorder[pos].x > 97 ? 0 : isZebra(pos, ALONG_R);
 }
 
 void pitHandlerImu() {
@@ -251,6 +229,6 @@ void pitHandlerTof() {
 }
 
 void pitInit() {
-    //pit_ms_init(TIM6_PIT, 10, pitHandlerTof);
+    pit_ms_init(TIM6_PIT, 10, pitHandlerTof);
     pit_ms_init(TIM0_PIT, 5, pitHandlerImu);
 }

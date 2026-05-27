@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Block                                                              23/05/26  20:26:26  PAGE 1   
+C251 COMPILER V5.60.0,  Block                                                              27/05/26  22:16:50  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Block
@@ -37,38 +37,41 @@ stmt  level    source
    22          
    23          void runBlock(int16 LCorner, int16 RCorner) {
    24   1          gpio_set_level(IO_P65, 1);
-   25   1          if (!added) {
-   26   2              fixedLCorner = LCorner;
-   27   2              fixedRCorner = RCorner;
-   28   2              added = 1;
-   29   2          }
-   30   1          ALONG = fixedLCorner ? ALONG_R : ALONG_L;
-   31   1          if (centerLineCount < 10)
-   32   1              smoothStop = 1;
-   33   1          else {
-   34   2              smoothStop = 0;
-   35   2              alongLine(centerLine, centerLineCount, 20);
-   36   2          }
-   37   1          if (canEnd()) {
-   38   2              added = 0;
-   39   2              gpio_set_level(IO_P65, 0);
-   40   2              RUN_MODE = FORWARD;
-   41   2              centerLineDistance = 18;
-   42   2          }
-   43   1      }
+   25   1          ips200_show_int8(0, 20,ALONG_R);
+   26   1          ips200_show_int8(0, 40,ALONG_L);
+   27   1      
+   28   1          if (!added) {
+   29   2              fixedLCorner = LCorner;
+   30   2              fixedRCorner = RCorner;
+   31   2              added = 1;
+   32   2          }
+   33   1          ALONG = fixedLCorner ? ALONG_R : ALONG_L;
+   34   1          if (centerLineCount < 10)
+   35   1              smoothStop = 1;
+   36   1          else {
+   37   2              smoothStop = 0;
+   38   2              alongLine(centerLine, centerLineCount, 20);
+   39   2          }
+   40   1          if (canEnd()) {
+   41   2              added = smoothStop = 0;
+   42   2              gpio_set_level(IO_P65, 0);
+   43   2              RUN_MODE = FORWARD;
+   44   2              centerLineDistance = 18;
+   45   2          }
+   46   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       492     ------
+  ecode size           =       521     ------
   data size            =    ------     ------
   idata size           =    ------     ------
+C251 COMPILER V5.60.0,  Block                                                              27/05/26  22:16:50  PAGE 2   
+
   pdata size           =    ------     ------
   xdata size           =        11     ------
   xdata-const size     =    ------     ------
-C251 COMPILER V5.60.0,  Block                                                              23/05/26  20:26:26  PAGE 2   
-
   edata size           =    ------     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------

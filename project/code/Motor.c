@@ -46,12 +46,12 @@ void PIDInit(PID_t *pid, uint8 which, int16 Kp, int16 Ki, int16 Kd, int16 attitu
     pid->attitude_coeff = attitude_coeff;
 }
 
-int16 steerPIDCalculate(PID_t *pid, int16 error, int16 attitude_data) {
+int16 steerPIDCalculate(PID_t *pid, int16 error) {
     int32 p_term, d_term, att_term;
     int16 pid_output;
     p_term = (int32) pid->Kp * error;
     d_term = (int32) pid->Kd * (error - pid->last_error);
-    att_term = (int32) pid->attitude_coeff * attitude_data;
+    att_term = (int32) pid->attitude_coeff * imu660rb_gyro_z;
     pid->last_error = error;
     pid_output = (p_term + d_term + att_term) / 100;
     return func_limit(pid_output, pid->max_out);
@@ -82,8 +82,8 @@ static void pitHandler() {
     encoderL = encoder_get_count(PWMC_ENCODER) * 2;
     encoder_clear_count(PWMA_ENCODER);
     encoder_clear_count(PWMC_ENCODER);
-    pwm_set_duty(PWME_CH4P_PA6, 3060 + steerPIDCalculate(&steerPid, duty, imu660rb_gyro_z));
-    if (smoothStop || mustStop) {
+    pwm_set_duty(PWME_CH4P_PA6, 3060 + steerPIDCalculate(&steerPid, duty));
+    if (smoothStop) {
         pwm_set_duty(motorPwmR, 0);
         pwm_set_duty(motorPwmL, 0);
 //        pwm_set_duty(pressPwmL, 0);
@@ -154,7 +154,7 @@ void motorInit(int16 p, int16 i, int16 d, int16 amm, int16 spd, int16 dh) {
     c5 = spd;
     c6 = dh;
     PIDInit(&steerPid, 3,
-             c1, 0, c2, 0,
+             c1, 0, c2, 2,
              333);
     PIDInit(&motorLPID, 0,
             2500, 55, 100, 0,
