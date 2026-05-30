@@ -1,5 +1,5 @@
 /*********************************************************************************************************************
-* STC32G144K Opensourec Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
+* STC32G144K Opensource Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
 * Copyright (c) 2025 SEEKFREE 逐飞科技
 *
 * 本文件是STC32G144K开源库的一部分
@@ -16,8 +16,8 @@
 * 如果没有，请参阅<https://www.gnu.org/licenses/>
 *
 * 额外注明：
-* 本开源库使用 GPL3.0 开源许可证协议 以上许可申明为译文版本
-* 许可申明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
+* 本开源库使用 GPL3.0 开源许可证协议 以上许可声明为译文版本
+* 许可声明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
 * 许可证副本在 libraries 文件夹下 即该文件夹下的 LICENSE 文件
 * 欢迎各位使用并传播本程序 但修改内容时必须保留逐飞科技的版权声明（即本声明）
 *
@@ -69,13 +69,13 @@
 #define MT9V03X_AUTO_EXP_DEF    ( 0  )                           	// 自动曝光设置     默认不开启自动曝光设置  范围 [0-63] 0为关闭
 																	//                  如果自动曝光开启  EXP_TIME命令设置自动曝光时间的上限
 																	//                  一般情况是不需要开启自动曝光设置 如果遇到光线非常不均匀的情况可以尝试设置自动曝光，增加图像稳定性
-#define MT9V03X_EXP_TIME_DEF    ( 300 )                           	// 曝光时间         摄像头收到后会自动计算出最大曝光时间，如果设置过大则设置为计算出来的最大曝光值
-#define MT9V03X_FPS_DEF         ( 170 )                           	// 图像帧率         摄像头收到后会自动计算出最大FPS，如果过大则设置为计算出来的最大FPS
-#define MT9V03X_LR_OFFSET_DEF   ( -2  )                           	// 图像左右偏移量   正值 右偏移   负值 左偏移  列为188 376 752时无法设置偏移
+#define MT9V03X_EXP_TIME_DEF    ( 512)                           	// 曝光时间         摄像头收到后会自动计算出最大曝光时间，如果设置过大则设置为计算出来的最大曝光值
+#define MT9V03X_FPS_DEF         ( 100 )                           	// 图像帧率         摄像头收到后会自动计算出最大FPS，如果过大则设置为计算出来的最大FPS
+#define MT9V03X_LR_OFFSET_DEF   ( 0  )                           	// 图像左右偏移量   正值 右偏移   负值 左偏移  列为188 376 752时无法设置偏移
 																	//                  摄像头收偏移数据后会自动计算最大偏移，如果超出则设置计算出来的最大偏移
 #define MT9V03X_UD_OFFSET_DEF   ( 0  )                           	// 图像上下偏移量   正值 上偏移   负值 下偏移  行为120 240 480时无法设置偏移
 																	//                  摄像头收偏移数据后会自动计算最大偏移，如果超出则设置计算出来的最大偏移
-#define MT9V03X_GAIN_DEF        ( 64 )                           	// 图像增益         范围 [16-64]  增益可以在曝光时间固定的情况下改变图像亮暗程度
+#define MT9V03X_GAIN_DEF        ( 32 )                           	// 图像增益         范围 [16-64]  增益可以在曝光时间固定的情况下改变图像亮暗程度
 
                                                 
 
@@ -112,7 +112,8 @@ typedef enum
 }mt9v03x_type_enum;
 
 extern vuint8 mt9v03x_finish_flag;
-extern uint8 mt9v03x_image[MT9V03X_H][MT9V03X_W];
+extern uint8  mt9v03x_image[MT9V03X_H][MT9V03X_W];
+
 
 void    mt9v03x_vsync_handler(void);
 void    mt9v03x_dma_handler(void);

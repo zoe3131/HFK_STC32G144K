@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  zf_driver_gpio                                                     24/05/26  12:55:22  PAGE 1   
+C251 COMPILER V5.60.0,  zf_driver_gpio                                                     30/05/26  21:19:23  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_driver_gpio
@@ -12,7 +12,7 @@ stmt  level    source
 
     1          /********************************************************************************************************
              -*************
-    2          * STC32G144K Opensourec Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
+    2          * STC32G144K Opensource Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
     3          * Copyright (c) 2025 SEEKFREE 逐飞科技
     4          *
     5          * 本文件是STC32G144K开源库的一部分
@@ -29,8 +29,8 @@ stmt  level    source
    16          * 如果没有，请参阅<https://www.gnu.org/licenses/>
    17          *
    18          * 额外注明：
-   19          * 本开源库使用 GPL3.0 开源许可证协议 以上许可申明为译文版本
-   20          * 许可申明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
+   19          * 本开源库使用 GPL3.0 开源许可证协议 以上许可声明为译文版本
+   20          * 许可声明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
    21          * 许可证副本在 libraries 文件夹下 即该文件夹下的 LICENSE 文件
    22          * 欢迎各位使用并传播本程序 但修改内容时必须保留逐飞科技的版权声明（即本声明）
    23          *
@@ -64,9 +64,9 @@ stmt  level    source
    48   1          uint8 pin_bit = pin & 0x0F;
    49   1          uint8 port_flag = pin & 0xF0;
    50   1      
-   51   1          // 统一高阻输入配置（PnM1置位，PnM0清零）
+   51   1          // 推挽输出配置（PnM0置位，PnM1清零）
    52   1          switch(port_flag)
-C251 COMPILER V5.60.0,  zf_driver_gpio                                                     24/05/26  12:55:22  PAGE 2   
+C251 COMPILER V5.60.0,  zf_driver_gpio                                                     30/05/26  21:19:23  PAGE 2   
 
    53   1          {
    54   2              case IO_P00: P0M1 &= ~(1 << pin_bit); P0M0 |= (1 << pin_bit); break;
@@ -95,12 +95,12 @@ stmt  level    source
    76          // 使用示例     
    77          //-------------------------------------------------------------------------------------------------------
              -------------
-   78          static void gpio_set_open_dtain(gpio_pin_enum pin)
+   78          static void gpio_set_open_drain(gpio_pin_enum pin)
    79          {
    80   1          uint8 pin_bit = pin & 0x0F;
    81   1          uint8 port_flag = pin & 0xF0;
    82   1      
-   83   1          // 统一高阻输入配置（PnM1置位，PnM0清零）
+   83   1          // 开漏输出配置（PnM0置位，PnM1置位）
    84   1          switch(port_flag)
    85   1          {
    86   2              case IO_P00: P0M1 |= (1 << pin_bit); P0M0 |= (1 << pin_bit); break;
@@ -134,7 +134,7 @@ stmt  level    source
   112   1          uint8 pin_bit = pin & 0x0F;
   113   1          uint8 port_flag = pin & 0xF0;
   114   1      
-C251 COMPILER V5.60.0,  zf_driver_gpio                                                     24/05/26  12:55:22  PAGE 3   
+C251 COMPILER V5.60.0,  zf_driver_gpio                                                     30/05/26  21:19:23  PAGE 3   
 
   115   1          // 统一高阻输入配置（PnM1置位，PnM0清零）
   116   1          switch(port_flag)
@@ -202,7 +202,7 @@ stmt  level    source
   178   4                      (*(unsigned char volatile far *)(0x7ef9d8 + ((pin >> 4) - 9))) &= ~(1 << (pin & 0x0F));
   179   4                  }
   180   3                  break;
-C251 COMPILER V5.60.0,  zf_driver_gpio                                                     24/05/26  12:55:22  PAGE 4   
+C251 COMPILER V5.60.0,  zf_driver_gpio                                                     30/05/26  21:19:23  PAGE 4   
 
   181   3              }
   182   2              
@@ -270,7 +270,7 @@ stmt  level    source
   244   3                  break;          // 无效引脚
   245   3              }
   246   2          }
-C251 COMPILER V5.60.0,  zf_driver_gpio                                                     24/05/26  12:55:22  PAGE 5   
+C251 COMPILER V5.60.0,  zf_driver_gpio                                                     30/05/26  21:19:23  PAGE 5   
 
   247   1      }
   248          
@@ -338,7 +338,7 @@ stmt  level    source
   308   2              case IO_P60: status = P6 & (1 << pin_bit); break;
   309   2              case IO_P70: status = P7 & (1 << pin_bit); break;
   310   2              
-C251 COMPILER V5.60.0,  zf_driver_gpio                                                     24/05/26  12:55:22  PAGE 6   
+C251 COMPILER V5.60.0,  zf_driver_gpio                                                     30/05/26  21:19:23  PAGE 6   
 
   311   2              case IO_P80: status = P8IN & (1 << pin_bit); break;
   312   2              case IO_P90: status = P9IN & (1 << pin_bit); break;
@@ -406,7 +406,7 @@ stmt  level    source
   369          // 函数简介     GPIO初始化
   370          // 参数说明     pin         选择的引脚
   371          // 参数说明     dir         引脚的方向   输出：GPO   输入：GPI
-C251 COMPILER V5.60.0,  zf_driver_gpio                                                     24/05/26  12:55:22  PAGE 7   
+C251 COMPILER V5.60.0,  zf_driver_gpio                                                     30/05/26  21:19:23  PAGE 7   
 
   372          // 参数说明     dat         引脚初始化时设置的电平状态，输出时有效
   373          // 参数说明     mode        引脚模式（上下拉/开漏等）
@@ -452,7 +452,7 @@ stmt  level    source
   412   3          }
   413   2          else if(mode == GPO_OPEN_DTAIN)
   414   2          {
-  415   3            gpio_set_open_dtain(pin);
+  415   3            gpio_set_open_drain(pin);
   416   3          }
   417   2              gpio_set_level(pin, dat);
   418   2        }
@@ -475,7 +475,7 @@ Module Information          Static   Overlayable
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------
-C251 COMPILER V5.60.0,  zf_driver_gpio                                                     24/05/26  12:55:22  PAGE 8   
+C251 COMPILER V5.60.0,  zf_driver_gpio                                                     30/05/26  21:19:23  PAGE 8   
 
   huge data size       =    ------     ------
   const size           =    ------     ------

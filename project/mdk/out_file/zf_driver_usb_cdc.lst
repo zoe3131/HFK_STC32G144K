@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  zf_driver_usb_cdc                                                  24/05/26  12:55:23  PAGE 1   
+C251 COMPILER V5.60.0,  zf_driver_usb_cdc                                                  30/05/26  21:19:24  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_driver_usb_cdc
@@ -12,7 +12,7 @@ stmt  level    source
 
     1          /********************************************************************************************************
              -*************
-    2          * STC32G144K Opensourec Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
+    2          * STC32G144K Opensource Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
     3          * Copyright (c) 2025 SEEKFREE 逐飞科技
     4          *
     5          * 本文件是STC32G144K开源库的一部分
@@ -29,8 +29,8 @@ stmt  level    source
    16          * 如果没有，请参阅<https://www.gnu.org/licenses/>
    17          *
    18          * 额外注明：
-   19          * 本开源库使用 GPL3.0 开源许可证协议 以上许可申明为译文版本
-   20          * 许可申明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
+   19          * 本开源库使用 GPL3.0 开源许可证协议 以上许可声明为译文版本
+   20          * 许可声明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
    21          * 许可证副本在 libraries 文件夹下 即该文件夹下的 LICENSE 文件
    22          * 欢迎各位使用并传播本程序 但修改内容时必须保留逐飞科技的版权声明（即本声明）
    23          *
@@ -66,7 +66,7 @@ stmt  level    source
    52          uint16 usb_cdc_write_buffer(const uint8 *buff, uint16 len)
    53          {
    54   1          int32 timeout = USB_TIME_OUT_COUNT;
-C251 COMPILER V5.60.0,  zf_driver_usb_cdc                                                  24/05/26  12:55:23  PAGE 2   
+C251 COMPILER V5.60.0,  zf_driver_usb_cdc                                                  30/05/26  21:19:24  PAGE 2   
 
    55   1          vuint8 tmp_len = 0;
    56   1          vuint8 idx = 0;
@@ -134,7 +134,7 @@ stmt  level    source
   118   1          usb_cdc_read_buffer_handler = handler;
   119   1      }
   120          //            if(UsbInBusy == 0)
-C251 COMPILER V5.60.0,  zf_driver_usb_cdc                                                  24/05/26  12:55:23  PAGE 3   
+C251 COMPILER V5.60.0,  zf_driver_usb_cdc                                                  30/05/26  21:19:24  PAGE 3   
 
   121          //            {
   122          //                UsbInBusy = 1;

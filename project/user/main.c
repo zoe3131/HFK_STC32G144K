@@ -64,6 +64,7 @@ void main(void) {
     pitInit();
     ips200_show_string(0, MT9V03X_H + 20, "READY");
     displayBorderLineImage();
+    // seekfree_assistant_interface_init(SEEKFREE_ASSISTANT_BLE6A20);
     while (1) {
         if (wireless_uart_read_buffer(data_buffer, 32)) {
             sscanf(data_buffer, "%d,%d,%d,%d,%d,%d,%d", &p, &i, &d, &am, &s1, &s2, &cnm);
@@ -78,6 +79,8 @@ void main(void) {
     // seekfree_assistant_interface_init(SEEKFREE_ASSISTANT_DEBUG_UART);
     // seekfree_assistant_camera_information_config(SEEKFREE_ASSISTANT_MT9V03X, outputImage, MT9V03X_W, MT9V03X_H);
     while (1) {
+        ips200_show_int16(0, 90, RUN_MODE);
+
         if (mt9v03x_finish_flag) {
             // memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
             // seekfree_assistant_camera_send();
@@ -89,7 +92,7 @@ void main(void) {
                 RUN_MODE = ZEBRA;
                 runZebra(have);
                 wireless_uart_send_string("z\r\n");
-            } else if (RUN_MODE == RAMP || (RUN_MODE == FORWARD && dl1b_distance_mm < 350 && dl1b_distance_mm > 100 && !borderIn)) {
+            } else if (RUN_MODE == RAMP || (RUN_MODE == FORWARD && dl1b_distance_mm < 400 && dl1b_distance_mm > 100 && !borderIn)) {
                 RUN_MODE = RAMP;
                 runRamp();
                 wireless_uart_send_string("r\r\n");
@@ -196,8 +199,8 @@ void loadRoad() {
         for (i = 0; i < RRoadCount; i++)
             outputImage[RRoad[i].x][RRoad[i].y] = 255;
         ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
-        ips200_show_int16(0, MT9V03X_H + 20, LRoad[LCorner].x);
-        ips200_show_int16(MT9V03X_W, MT9V03X_H + 20, RRoad[RCorner].x);
+        ips200_show_int16(0, MT9V03X_H + 20, LCorner);
+        ips200_show_int16(MT9V03X_W, MT9V03X_H + 20, RCorner);
         ips200_show_int16(0, MT9V03X_H + 1, LRoadCount);
         ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 1, centerLineCount);
         ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, RRoadCount);
@@ -211,12 +214,12 @@ uint8 haveZebra() {
         while (pos < LBorderCount && LBorder[pos].x > ZEBRA_TRIGGER_POS)
             pos += 3;
         pos = func_min(pos, LBorderCount - 1);
-        return pos <= 0 || LBorder[pos].x > 97 ? 0 : isZebra(pos, ALONG_L);
+        return pos <= 0 || LBorder[pos].x > 97 ? 0 : isZebra(pos, ALONG_L) || isZebra(func_max(pos - 10, 0), ALONG_L);
     }
     while (pos < RBorderCount && RBorder[pos].x > ZEBRA_TRIGGER_POS)
         pos += 3;
     pos = func_min(pos, RBorderCount - 1);
-    return pos <= 0 || RBorder[pos].x > 97 ? 0 : isZebra(pos, ALONG_R);
+    return pos <= 0 || RBorder[pos].x > 97 ? 0 : isZebra(pos, ALONG_R) || isZebra(func_max(pos - 10, 0), ALONG_R);
 }
 
 void pitHandlerImu() {

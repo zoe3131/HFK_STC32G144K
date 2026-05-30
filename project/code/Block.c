@@ -4,8 +4,9 @@
 
 #include "Block.h"
 static uint8 added = 0;
+extern uint8 ALONG;
 static int16 fixedLCorner, fixedRCorner;
-extern int16 RUN_MODE, ALONG, centerLineCount;
+extern int16 RUN_MODE, centerLineCount;
 extern Point centerLine[expRoadCount];
 
 uint8 canEnd() {
@@ -22,17 +23,12 @@ uint8 canEnd() {
 
 void runBlock(int16 LCorner, int16 RCorner) {
     gpio_set_level(IO_P65, 1);
-    ips200_show_int8(0,0, ALONG);
-
-
     if (!added) {
         fixedLCorner = LCorner;
         fixedRCorner = RCorner;
         added = 1;
     }
     ALONG = fixedLCorner ? ALONG_R : ALONG_L;
-    ips200_show_int8(0, 20,ALONG);
-
     if (centerLineCount < 10)
         smoothStop = 1;
     else {

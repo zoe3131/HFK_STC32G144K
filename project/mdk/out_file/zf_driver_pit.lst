@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  zf_driver_pit                                                      24/05/26  12:55:22  PAGE 1   
+C251 COMPILER V5.60.0,  zf_driver_pit                                                      30/05/26  21:19:24  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_driver_pit
@@ -12,7 +12,7 @@ stmt  level    source
 
     1          /********************************************************************************************************
              -*************
-    2          * STC32G144K Opensourec Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
+    2          * STC32G144K Opensource Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
     3          * Copyright (c) 2025 SEEKFREE 逐飞科技
     4          *
     5          * 本文件是STC32G144K开源库的一部分
@@ -29,8 +29,8 @@ stmt  level    source
    16          * 如果没有，请参阅<https://www.gnu.org/licenses/>
    17          *
    18          * 额外注明：
-   19          * 本开源库使用 GPL3.0 开源许可证协议 以上许可申明为译文版本
-   20          * 许可申明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
+   19          * 本开源库使用 GPL3.0 开源许可证协议 以上许可声明为译文版本
+   20          * 许可声明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
    21          * 许可证副本在 libraries 文件夹下 即该文件夹下的 LICENSE 文件
    22          * 欢迎各位使用并传播本程序 但修改内容时必须保留逐飞科技的版权声明（即本声明）
    23          *
@@ -66,7 +66,7 @@ stmt  level    source
    51          //  Sample usage:          pit_init(TIM_0, 10, pit_handler)
    52          //                         禁止使用该函数，请使用pit_ms_init或者pit_us_init
    53          //-------------------------------------------------------------------------------------------------------
-C251 COMPILER V5.60.0,  zf_driver_pit                                                      24/05/26  12:55:22  PAGE 2   
+C251 COMPILER V5.60.0,  zf_driver_pit                                                      30/05/26  21:19:24  PAGE 2   
 
              -------------
    54          void pit_init(pit_index_enum pit_n, uint32 period, callback_function pit_handler)
@@ -134,7 +134,7 @@ stmt  level    source
   116   4                      T8T7M &= ~0x20;
   117   4                      break;
   118   4                  }
-C251 COMPILER V5.60.0,  zf_driver_pit                                                      24/05/26  12:55:22  PAGE 3   
+C251 COMPILER V5.60.0,  zf_driver_pit                                                      30/05/26  21:19:24  PAGE 3   
 
   119   3                  case TIM9_PIT:
   120   3                  {
@@ -202,7 +202,7 @@ stmt  level    source
   182   4                  }
   183   3                  case TIM5_PIT:
   184   3                  {
-C251 COMPILER V5.60.0,  zf_driver_pit                                                      24/05/26  12:55:22  PAGE 4   
+C251 COMPILER V5.60.0,  zf_driver_pit                                                      30/05/26  21:19:24  PAGE 4   
 
   185   4                      T6T5M |= 0x02;
   186   4                      break;
@@ -270,7 +270,7 @@ stmt  level    source
   248   2              {
   249   3                  TM0PS = freq_div; // 设置分频值
   250   3                  TMOD &= 0xF0;     // 模式 0
-C251 COMPILER V5.60.0,  zf_driver_pit                                                      24/05/26  12:55:22  PAGE 5   
+C251 COMPILER V5.60.0,  zf_driver_pit                                                      30/05/26  21:19:24  PAGE 5   
 
   251   3                  TL0 = temp;
   252   3                  TH0 = temp >> 8;
@@ -338,7 +338,7 @@ stmt  level    source
   314   2              {
   315   3                  TM7PS = freq_div; // 设置分频值
   316   3                  T7L = temp;
-C251 COMPILER V5.60.0,  zf_driver_pit                                                      24/05/26  12:55:22  PAGE 6   
+C251 COMPILER V5.60.0,  zf_driver_pit                                                      30/05/26  21:19:24  PAGE 6   
 
   317   3                  T7H = temp >> 8;
   318   3                  T8T7M |= 0x08;    // 启动定时器
@@ -406,7 +406,7 @@ stmt  level    source
   380   3              }
   381   2          }
   382   1          
-C251 COMPILER V5.60.0,  zf_driver_pit                                                      24/05/26  12:55:22  PAGE 7   
+C251 COMPILER V5.60.0,  zf_driver_pit                                                      30/05/26  21:19:24  PAGE 7   
 
   383   1         tim_irq_handlers[pit_n] = pit_handler;
   384   1      }

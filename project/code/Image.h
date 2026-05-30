@@ -23,6 +23,7 @@ Point getLStart();
 Point getRStart();
 int16 findCorner(Point roadLine[], int16 count);
 uint8 isZebra(int16 pos, uint8 along);
+uint8 getImageFilterSelf(uint8 i, uint8 j);
 extern uint8 threshold, centerLineDistance;
 extern const uint8 borderOffset[120];
 extern int16 LBorderCount, RBorderCount;

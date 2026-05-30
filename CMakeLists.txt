@@ -126,4 +126,6 @@ add_executable(Seekfree_STC32G144K_100Pin_Opensource_Library
         project/code/Block.c
         project/code/Block.h
         project/code/RAMP.c
-        project/code/RAMP.h)
+        project/code/RAMP.h
+        project/code/Imu.c
+        project/code/Imu.h)

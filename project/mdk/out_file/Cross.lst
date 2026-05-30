@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Cross                                                              27/05/26  22:07:31  PAGE 1   
+C251 COMPILER V5.60.0,  Cross                                                              30/05/26  21:19:27  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Cross
@@ -33,7 +33,7 @@ stmt  level    source
    20   1          if (startT.y || startT.x) {
    21   2              i = startT.x - 2;
    22   2              j = startT.y + 1;
-   23   2              if (RBorderCount > 15) {
+   23   2              if (RRoadCount > 7) {
    24   3                  m = MT9V03X_W - 1;
    25   3                  for (k = 0; k < RBorderCount; k++)
    26   3                      if (m >= RBorder[k].y) m = RBorder[k].y;
@@ -45,9 +45,9 @@ stmt  level    source
    32   3                  DQW = m;
    33   3              }
    34   2          }
-   35   1          while (i >= 0 && mt9v03x_image[i][j] <= crossThreshold) i -= 3;
+   35   1          while (i >= 0 && getImageFilterSelf(i, j) <= crossThreshold) i -= 3;
    36   1          j = DQW;
-   37   1          while (i >= 0 && mt9v03x_image[i][j] > crossThreshold) i--;
+   37   1          while (i >= 0 && getImageFilterSelf(i, j) > crossThreshold) i--;
    38   1          if (i < halfBlock) {
    39   2              pos.x = 0;
    40   2              pos.y = 0;
@@ -64,9 +64,9 @@ stmt  level    source
    51   1          if (startT.y || startT.x) {
    52   2              i = startT.x - 2;
    53   2              j = startT.y - 1;
-   54   2              if (LBorderCount > 15) {
+   54   2              if (LRoadCount > 7) {
    55   3                  m = 0;
-C251 COMPILER V5.60.0,  Cross                                                              27/05/26  22:07:31  PAGE 2   
+C251 COMPILER V5.60.0,  Cross                                                              30/05/26  21:19:27  PAGE 2   
 
    56   3                  for (k = 0; k < LBorderCount; k++)
    57   3                      if (m <= LBorder[k].y) m = LBorder[k].y;
@@ -78,9 +78,9 @@ stmt  level    source
    63   3                  QW = m;
    64   3              }
    65   2          }
-   66   1          while (i >= 0 && mt9v03x_image[i][j] <= crossThreshold) i -= 3;
+   66   1          while (i >= 0 && getImageFilterSelf(i, j) <= crossThreshold) i -= 3;
    67   1          j = QW;
-   68   1          while (i >= 0 && mt9v03x_image[i][j] > crossThreshold) i--;
+   68   1          while (i >= 0 && getImageFilterSelf(i, j) > crossThreshold) i--;
    69   1          if (i < halfBlock) {
    70   2              pos.x = 0;
    71   2              pos.y = 0;
@@ -131,37 +131,39 @@ stmt  level    source
   116   3                  canEnd = 0;
   117   3                  CROSS_MODE = CROSS_READY;
   118   3                  RUN_MODE = FORWARD;
-  119   3                  gpio_set_level(IO_P65, 0);
-  120   3                  return;
-  121   3              }
-C251 COMPILER V5.60.0,  Cross                                                              27/05/26  22:07:31  PAGE 3   
+  119   3                  QW = 45;
+  120   3                  DQW = 143;
+  121   3                  gpio_set_level(IO_P65, 0);
+C251 COMPILER V5.60.0,  Cross                                                              30/05/26  21:19:27  PAGE 3   
 
-  122   2              if (crossDis) {
-  123   3                  ips200_displayimage03x(mt9v03x_image, MT9V03X_W, MT9V03X_H, 0, 0);
-*** WARNING C98 IN LINE 123 OF ..\code\Cross.c: parameter 3: pointer to different objects
-*** WARNING C91 IN LINE 123 OF ..\code\Cross.c: '&': pointer to different objects
-  124   3                  ips200_draw_point(start.y, start.x, RGB565_RED);
-  125   3                  ips200_show_int16(0, MT9V03X_H + 1, corner);
-  126   3                  ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, farCenterLineCount);
-  127   3                  for (i = 0; i < MT9V03X_H; i++)
-  128   3                      for (j = 0; j < MT9V03X_W; j++)
-  129   3                          outputImage[i][j] = 0;
-  130   3                  for (i = 0; i < farCenterLineCount; i++)
-  131   3                      outputImage[farCenterLine[i].x][farCenterLine[i].y] = 255;
-  132   3                  for (i = 0; i < roadCount; i++)
-  133   3                      outputImage[border[i].x][border[i].y] = 255;
-  134   3                  ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
-*** WARNING C98 IN LINE 134 OF ..\code\Cross.c: parameter 3: pointer to different objects
-*** WARNING C91 IN LINE 134 OF ..\code\Cross.c: '&': pointer to different objects
-  135   3              }
-  136   2          }
-  137   1      }
+  122   3                  return;
+  123   3              }
+  124   2              if (crossDis) {
+  125   3                  ips200_displayimage03x(mt9v03x_image, MT9V03X_W, MT9V03X_H, 0, 0);
+*** WARNING C98 IN LINE 125 OF ..\code\Cross.c: parameter 3: pointer to different objects
+*** WARNING C91 IN LINE 125 OF ..\code\Cross.c: '&': pointer to different objects
+  126   3                  ips200_draw_point(start.y, start.x, RGB565_RED);
+  127   3                  ips200_show_int16(0, MT9V03X_H + 1, corner);
+  128   3                  ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, farCenterLineCount);
+  129   3                  for (i = 0; i < MT9V03X_H; i++)
+  130   3                      for (j = 0; j < MT9V03X_W; j++)
+  131   3                          outputImage[i][j] = 0;
+  132   3                  for (i = 0; i < farCenterLineCount; i++)
+  133   3                      outputImage[farCenterLine[i].x][farCenterLine[i].y] = 255;
+  134   3                  for (i = 0; i < roadCount; i++)
+  135   3                      outputImage[border[i].x][border[i].y] = 255;
+  136   3                  ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
+*** WARNING C98 IN LINE 136 OF ..\code\Cross.c: parameter 3: pointer to different objects
+*** WARNING C91 IN LINE 136 OF ..\code\Cross.c: '&': pointer to different objects
+  137   3              }
+  138   2          }
+  139   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      1991     ------
+  ecode size           =      1951     ------
   data size            =         8     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------

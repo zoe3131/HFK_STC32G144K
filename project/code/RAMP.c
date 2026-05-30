@@ -28,13 +28,17 @@ void runRamp() {
     getGodRoadLine(tarPos, 6);
     alongLine(tarPos, 6, 5);
     handle = 1;
-    setSpeed = 200;
-    if (dl1b_distance_mm < 400) {
+    setSpeed = 180;
+    ips200_show_int16(0, 0, readyEnd);
+    ips200_show_int16(0, 20, canEnd);
+    ips200_show_int16(0, 40, dl1b_distance_mm);
+    if (dl1b_distance_mm < 500) {
         if (readyEnd)
             canEnd = 1;
-    } else if (dl1b_distance_mm > 600) {
-        readyEnd = 1;
-        if (canEnd && pitch > -10 && pitch < 10) {
+    } else if (dl1b_distance_mm > 450) {
+        if (dl1b_distance_mm == 8192) readyEnd = 1;
+        if (canEnd) {
+            wireless_uart_send_string("exit\r\n");
             gpio_set_level(IO_P65, 0);
             RUN_MODE = FORWARD;
             canEnd = handle = readyEnd = 0;

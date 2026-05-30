@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  usb_desc                                                           21/05/26  11:00:37  PAGE 1   
+C251 COMPILER V5.60.0,  usb_desc                                                           28/05/26  19:33:00  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE usb_desc
@@ -25,7 +25,7 @@ stmt  level    source
    13          #include "stc.h"
    14          #include "usb_desc.h"
    15          
-   16          char code DEVICEDESC[18] =
+   16          unsigned char code DEVICEDESC[18] =
    17          {
    18              0x12,                   //bLength(18);
    19              0x01,                   //bDescriptorType(Device);
@@ -43,7 +43,7 @@ stmt  level    source
    31              0x01,                   //bNumConfigurations(1);
    32          };
    33          
-   34          char code CONFIGDESC[67] =
+   34          unsigned char code CONFIGDESC[67] =
    35          {
    36              0x09,                   //bLength(9);
    37              0x02,                   //bDescriptorType(Configuration);
@@ -66,7 +66,7 @@ stmt  level    source
    54          
    55              0x05,                   //bLength(5);
    56              0x24,                   //bDescriptorType(CS_INTERFACE);
-C251 COMPILER V5.60.0,  usb_desc                                                           21/05/26  11:00:37  PAGE 2   
+C251 COMPILER V5.60.0,  usb_desc                                                           28/05/26  19:33:00  PAGE 2   
 
    57              0x00,                   //bDescriptorSubtype(Header Functional Descriptor);
    58              0x10,0x01,              //bcdCDC(1.10);
@@ -120,13 +120,13 @@ stmt  level    source
   106              0x00,                   //bInterval(Ignored);
   107          };
   108          
-  109          char code LANGIDDESC[4] =
+  109          unsigned  char code LANGIDDESC[4] =
   110          {
   111              0x04,0x03,
   112              0x09,0x04,
   113          };
   114          
-  115          char code MANUFACTDESC[8] =
+  115          unsigned  char code MANUFACTDESC[8] =
   116          {
   117              0x08,0x03,
   118              'S',0,
@@ -134,9 +134,9 @@ stmt  level    source
   120              'C',0,
   121          };
   122          
-C251 COMPILER V5.60.0,  usb_desc                                                           21/05/26  11:00:37  PAGE 3   
+C251 COMPILER V5.60.0,  usb_desc                                                           28/05/26  19:33:00  PAGE 3   
 
-  123          char code PRODUCTDESC[30] =
+  123          unsigned  char code PRODUCTDESC[30] =
   124          {
   125              0x1e,0x03,
   126              'S',0,
@@ -155,12 +155,12 @@ stmt  level    source
   139              'l',0,
   140          };
   141          
-  142          char code PACKET0[2] = 
+  142          unsigned  char code PACKET0[2] = 
   143          {
   144              0, 0,
   145          };
   146          
-  147          char code PACKET1[2] = 
+  147          unsigned  char code PACKET1[2] = 
   148          {
   149              1, 0,
   150          };

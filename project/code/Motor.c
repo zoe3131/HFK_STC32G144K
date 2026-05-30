@@ -10,7 +10,7 @@
 #define motorDirL IO_P75
 #define motorPwmL PWMB_CH1_P74
 
-volatile int16 encoderL, encoderR, setSpeed = 0, handle = 0, duty = 0;
+int16 encoderL, encoderR, setSpeed = 0, handle = 0, duty = 0;
 static uint32 K;
 const int16 tani[31];
 extern int16 RUN_MODE;
@@ -78,8 +78,8 @@ int16 motorPIDCalculate(PID_t *pid, int16 target, int16 actual) {
 }
 
 static void pitHandler() {
-    encoderR = -encoder_get_count(PWMA_ENCODER) * 2;
-    encoderL = encoder_get_count(PWMC_ENCODER) * 2;
+    encoderR = -encoder_get_count(PWMA_ENCODER) << 1;
+    encoderL = encoder_get_count(PWMC_ENCODER) << 1;
     encoder_clear_count(PWMA_ENCODER);
     encoder_clear_count(PWMC_ENCODER);
     pwm_set_duty(PWME_CH4P_PA6, 3060 + steerPIDCalculate(&steerPid, duty));
@@ -120,7 +120,7 @@ void alongLine(Point roadLine[], int16 count, int16 aimPos) {
 }
 
 void setServoDuty(int8 d) {
-    int16 t = tani[func_limit_ab(func_abs((int16) d * c1 / 100), 0, 30)];
+    int16 t = tani[func_limit_ab(func_abs((int16) d * 170 / 100), 0, 30)];
     if (!display) ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 20, d);
     R = !t ? 0 : 20000 / t;
     //if (func_abs(K) > func_abs(R)) K = R;
@@ -136,14 +136,6 @@ void setServoDuty(int8 d) {
 int8 getDynamicAimPos() {
     int16 speed = encoderR + encoderL >> 1;
     return speed / 10 + c5;
-    //return 3 * speed / 10 - 57;
-    //x   y
-    //290 30
-    //280 27
-    //270 24
-    //260 21
-    //250 18
-    //240 15
 }
 
 void motorInit(int16 p, int16 i, int16 d, int16 amm, int16 spd, int16 dh) {
@@ -154,7 +146,7 @@ void motorInit(int16 p, int16 i, int16 d, int16 amm, int16 spd, int16 dh) {
     c5 = spd;
     c6 = dh;
     PIDInit(&steerPid, 3,
-             c1, 0, c2, 2,
+             170, 0, 200, 2,
              333);
     PIDInit(&motorLPID, 0,
             2500, 55, 100, 0,

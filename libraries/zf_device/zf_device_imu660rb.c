@@ -1,10 +1,10 @@
 /*********************************************************************************************************************
-* STC32G Opensourec Library 即（STC32G 开源库）是一个基于官方 SDK 接口的第三方开源库
+* STC32G144K Opensource Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
 * Copyright (c) 2025 SEEKFREE 逐飞科技
 *
 * 本文件是STC32G144K开源库的一部分
 *
-* STC32G 开源库 是免费软件
+* STC32G144K 开源库 是免费软件
 * 您可以根据自由软件基金会发布的 GPL（GNU General Public License，即 GNU通用公共许可证）的条款
 * 即 GPL 的第3版（即 GPL3.0）或（您选择的）任何后来的版本，重新发布和/或修改它
 *
@@ -16,8 +16,8 @@
 * 如果没有，请参阅<https://www.gnu.org/licenses/>
 *
 * 额外注明：
-* 本开源库使用 GPL3.0 开源许可证协议 以上许可申明为译文版本
-* 许可申明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
+* 本开源库使用 GPL3.0 开源许可证协议 以上许可声明为译文版本
+* 许可声明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
 * 许可证副本在 libraries 文件夹下 即该文件夹下的 LICENSE 文件
 * 欢迎各位使用并传播本程序 但修改内容时必须保留逐飞科技的版权声明（即本声明）
 *
@@ -67,6 +67,7 @@
 
 int16 imu660rb_gyro_x = 0, imu660rb_gyro_y = 0, imu660rb_gyro_z = 0;            // 三轴陀螺仪数据   gyro (陀螺仪)
 int16 imu660rb_acc_x = 0, imu660rb_acc_y = 0, imu660rb_acc_z = 0;               // 三轴加速度计数据 acc  (accelerometer 加速度计)
+
 
 #if (IMU660RB_USE_INTERFACE==HARDWARE_SPI) 
 
@@ -328,9 +329,9 @@ void imu660rb_get_acc (void)
     uint8 dat[6];
 
     imu660rb_read_registers(IMU660RB_ACC_ADDRESS, dat, 6);
-    imu660rb_acc_x = ((int16)(((uint16)dat[1]<<8 | dat[0])) >> 1) + (imu660rb_acc_x >> 1);
-    imu660rb_acc_y = ((int16)(((uint16)dat[3]<<8 | dat[2])) >> 1) + (imu660rb_acc_y >> 1);
-    imu660rb_acc_z = ((int16)(((uint16)dat[5]<<8 | dat[4])) >> 1) + (imu660rb_acc_z >> 1);
+    imu660rb_acc_x = (int16)(((uint16)dat[1]<<8 | dat[0]));
+    imu660rb_acc_y = (int16)(((uint16)dat[3]<<8 | dat[2]));
+    imu660rb_acc_z = (int16)(((uint16)dat[5]<<8 | dat[4]));
 }
 //-------------------------------------------------------------------------------------------------------------------
 // 函数简介     获取 IMU660RB 陀螺仪数据
@@ -345,9 +346,9 @@ void imu660rb_get_gyro (void)
     uint8 dat[6];
 
     imu660rb_read_registers(IMU660RB_GYRO_ADDRESS, dat, 6);
-    imu660rb_gyro_x = ((int16)(((uint16)dat[1]<<8 | dat[0])) >> 1) + (imu660rb_gyro_x >> 1);
-    imu660rb_gyro_y = ((int16)(((uint16)dat[3]<<8 | dat[2])) >> 1) + (imu660rb_gyro_y >> 1);
-    imu660rb_gyro_z = ((int16)(((uint16)dat[5]<<8 | dat[4])) >> 1) + (imu660rb_gyro_z >> 1);
+    imu660rb_gyro_x = (int16)(((uint16)dat[1]<<8 | dat[0]));
+    imu660rb_gyro_y = (int16)(((uint16)dat[3]<<8 | dat[2]));
+    imu660rb_gyro_z = (int16)(((uint16)dat[5]<<8 | dat[4]));
 }
 
 //-------------------------------------------------------------------------------------------------------------------

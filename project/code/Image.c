@@ -12,7 +12,7 @@ const static uint8 reflection[120][188][2], data halfBlock = block / 2, data hal
 Point LBorder[expRoadCount], RBorder[expRoadCount];
 int16 LBorderCount, RBorderCount;
 
-static uint8 getImageFilterSelf(uint8 i, uint8 j) {
+uint8 getImageFilterSelf(uint8 i, uint8 j) {
     if (i > 97 && j > 45 && j < 143) return 255;
     return mt9v03x_image[i][j];
 }

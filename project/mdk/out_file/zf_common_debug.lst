@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  zf_common_debug                                                    24/05/26  12:55:22  PAGE 1   
+C251 COMPILER V5.60.0,  zf_common_debug                                                    30/05/26  21:19:22  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_common_debug
@@ -12,7 +12,7 @@ stmt  level    source
 
     1          /********************************************************************************************************
              -*************
-    2          * STC32G144K Opensourec Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
+    2          * STC32G144K Opensource Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
     3          * Copyright (c) 2025 SEEKFREE 逐飞科技
     4          *
     5          * 本文件是STC32G144K开源库的一部分
@@ -29,8 +29,8 @@ stmt  level    source
    16          * 如果没有，请参阅<https://www.gnu.org/licenses/>
    17          *
    18          * 额外注明：
-   19          * 本开源库使用 GPL3.0 开源许可证协议 以上许可申明为译文版本
-   20          * 许可申明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
+   19          * 本开源库使用 GPL3.0 开源许可证协议 以上许可声明为译文版本
+   20          * 许可声明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
    21          * 许可证副本在 libraries 文件夹下 即该文件夹下的 LICENSE 文件
    22          * 欢迎各位使用并传播本程序 但修改内容时必须保留逐飞科技的版权声明（即本声明）
    23          *
@@ -66,7 +66,7 @@ stmt  level    source
              -收中断
    52              uint8                       debug_uart_buffer[DEBUG_RING_BUFFER_LEN];           // 数据存放数组
    53          #endif
-C251 COMPILER V5.60.0,  zf_common_debug                                                    24/05/26  12:55:22  PAGE 2   
+C251 COMPILER V5.60.0,  zf_common_debug                                                    30/05/26  21:19:22  PAGE 2   
 
    54          
    55          fifo_struct                 debug_uart_fifo;
@@ -134,7 +134,7 @@ stmt  level    source
              -------------
   113          // 函数简介     debug 串口中断处理函数 isr.c 中对应串口中断服务函数调用
   114          // 参数说明     void
-C251 COMPILER V5.60.0,  zf_common_debug                                                    24/05/26  12:55:22  PAGE 3   
+C251 COMPILER V5.60.0,  zf_common_debug                                                    30/05/26  21:19:22  PAGE 3   
 
   115          // 返回参数     void
   116          // 使用示例     debug_interrupr_handler();
@@ -202,7 +202,7 @@ stmt  level    source
                            uart_write_byte(DEBUG_UART_INDEX, c);//把自己实现的串口打印一字节数据的函数替换到这里
                            return c;
                        #endif
-C251 COMPILER V5.60.0,  zf_common_debug                                                    24/05/26  12:55:22  PAGE 4   
+C251 COMPILER V5.60.0,  zf_common_debug                                                    30/05/26  21:19:22  PAGE 4   
 
   176   1      
   177   1          }
@@ -270,7 +270,7 @@ stmt  level    source
   233   1          #endif
   234   1      #else
                    uint8 uartx = DEBUG_UART_INDEX;
-C251 COMPILER V5.60.0,  zf_common_debug                                                    24/05/26  12:55:22  PAGE 5   
+C251 COMPILER V5.60.0,  zf_common_debug                                                    30/05/26  21:19:22  PAGE 5   
 
                    
                    uart_init(

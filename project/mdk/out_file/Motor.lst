@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Motor                                                              27/05/26  22:07:31  PAGE 1   
+C251 COMPILER V5.60.0,  Motor                                                              30/05/26  21:19:27  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Motor
@@ -23,7 +23,7 @@ stmt  level    source
    10          #define motorDirL IO_P75
    11          #define motorPwmL PWMB_CH1_P74
    12          
-   13          volatile int16 encoderL, encoderR, setSpeed = 0, handle = 0, duty = 0;
+   13          int16 encoderL, encoderR, setSpeed = 0, handle = 0, duty = 0;
    14          static uint32 K;
    15          const int16 tani[31];
    16          extern int16 RUN_MODE;
@@ -66,7 +66,7 @@ stmt  level    source
    53   1          d_term = (int32) pid->Kd * (error - pid->last_error);
    54   1          att_term = (int32) pid->attitude_coeff * imu660rb_gyro_z;
    55   1          pid->last_error = error;
-C251 COMPILER V5.60.0,  Motor                                                              27/05/26  22:07:31  PAGE 2   
+C251 COMPILER V5.60.0,  Motor                                                              30/05/26  21:19:27  PAGE 2   
 
    56   1          pid_output = (p_term + d_term + att_term) / 100;
    57   1          return func_limit(pid_output, pid->max_out);
@@ -93,8 +93,8 @@ stmt  level    source
    78   1      }
    79          
    80          static void pitHandler() {
-   81   1          encoderR = -encoder_get_count(PWMA_ENCODER) * 2;
-   82   1          encoderL = encoder_get_count(PWMC_ENCODER) * 2;
+   81   1          encoderR = -encoder_get_count(PWMA_ENCODER) << 1;
+   82   1          encoderL = encoder_get_count(PWMC_ENCODER) << 1;
    83   1          encoder_clear_count(PWMA_ENCODER);
    84   1          encoder_clear_count(PWMC_ENCODER);
    85   1          pwm_set_duty(PWME_CH4P_PA6, 3060 + steerPIDCalculate(&steerPid, duty));
@@ -134,12 +134,12 @@ stmt  level    source
   117   1          //     if ((d <= 0 && dy <= 0) || (d >= 0 && dy >= 0)) d += dy;
   118   1          // }
   119   1          setServoDuty(d);
-C251 COMPILER V5.60.0,  Motor                                                              27/05/26  22:07:31  PAGE 3   
+C251 COMPILER V5.60.0,  Motor                                                              30/05/26  21:19:27  PAGE 3   
 
   120   1      }
   121          
   122          void setServoDuty(int8 d) {
-  123   1          int16 t = tani[func_limit_ab(func_abs((int16) d * c1 / 100), 0, 30)];
+  123   1          int16 t = tani[func_limit_ab(func_abs((int16) d * 170 / 100), 0, 30)];
   124   1          if (!display) ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 20, d);
   125   1          R = !t ? 0 : 20000 / t;
   126   1          //if (func_abs(K) > func_abs(R)) K = R;
@@ -155,56 +155,46 @@ stmt  level    source
   136          int8 getDynamicAimPos() {
   137   1          int16 speed = encoderR + encoderL >> 1;
   138   1          return speed / 10 + c5;
-  139   1          //return 3 * speed / 10 - 57;
-  140   1          //x   y
-  141   1          //290 30
-  142   1          //280 27
-  143   1          //270 24
-  144   1          //260 21
-  145   1          //250 18
-  146   1          //240 15
-  147   1      }
-  148          
-  149          void motorInit(int16 p, int16 i, int16 d, int16 amm, int16 spd, int16 dh) {
-  150   1          c1 = p;
-  151   1          c2 = i;
-  152   1          c3 = d;
-  153   1          c4 = amm;
-  154   1          c5 = spd;
-  155   1          c6 = dh;
-  156   1          PIDInit(&steerPid, 3,
-  157   1                   c1, 0, c2, 2,
-  158   1                   333);
-  159   1          PIDInit(&motorLPID, 0,
-  160   1                  2500, 55, 100, 0,
-  161   1                  9500);
-  162   1          PIDInit(&motorRPID, 1,
-  163   1                  2500, 55, 100, 0,
-  164   1                  9500);
-  165   1          pwm_init(PWME_CH4P_PA6, servoFreq, 3060);
-  166   1          gpio_init(motorDirR, GPO, 1, GPO_PUSH_PULL);
-  167   1          gpio_init(motorDirL, GPO, 1, GPO_PUSH_PULL);
-  168   1          pwm_init(motorPwmR, 17000, 0);
-  169   1          pwm_init(motorPwmL, 17000, 0);
-  170   1      //    pwm_init(pressPwmR, 50, 750);
-  171   1      //    pwm_init(pressPwmL, 50, 750);
-  172   1          encoder_quad_init(PWMA_ENCODER, PWMA_ENCODER_CH1P_P60, PWMA_ENCODER_CH2P_P62);
-  173   1          encoder_quad_init(PWMC_ENCODER, PWMC_ENCODER_CH1P_P40, PWMC_ENCODER_CH2P_P42);
-  174   1          pit_ms_init(TIM1_PIT, 5, pitHandler);
-  175   1      }
-  176          
-  177          const int16 tani[31] = {0,
-  178                                  17,  35,  52,  70,  87,  105, 123, 141, 158, 176,
-  179                                  194, 213, 231, 249, 268, 287, 306, 325, 344, 364,
-  180                                  384, 404, 424, 445, 466, 488, 510, 532, 554, 577};
+  139   1      }
+  140          
+  141          void motorInit(int16 p, int16 i, int16 d, int16 amm, int16 spd, int16 dh) {
+  142   1          c1 = p;
+  143   1          c2 = i;
+  144   1          c3 = d;
+  145   1          c4 = amm;
+  146   1          c5 = spd;
+  147   1          c6 = dh;
+  148   1          PIDInit(&steerPid, 3,
+  149   1                   170, 0, 200, 2,
+  150   1                   333);
+  151   1          PIDInit(&motorLPID, 0,
+  152   1                  2500, 55, 100, 0,
+  153   1                  9500);
+  154   1          PIDInit(&motorRPID, 1,
+  155   1                  2500, 55, 100, 0,
+  156   1                  9500);
+  157   1          pwm_init(PWME_CH4P_PA6, servoFreq, 3060);
+  158   1          gpio_init(motorDirR, GPO, 1, GPO_PUSH_PULL);
+  159   1          gpio_init(motorDirL, GPO, 1, GPO_PUSH_PULL);
+  160   1          pwm_init(motorPwmR, 17000, 0);
+  161   1          pwm_init(motorPwmL, 17000, 0);
+  162   1      //    pwm_init(pressPwmR, 50, 750);
+  163   1      //    pwm_init(pressPwmL, 50, 750);
+  164   1          encoder_quad_init(PWMA_ENCODER, PWMA_ENCODER_CH1P_P60, PWMA_ENCODER_CH2P_P62);
+  165   1          encoder_quad_init(PWMC_ENCODER, PWMC_ENCODER_CH1P_P40, PWMC_ENCODER_CH2P_P42);
+  166   1          pit_ms_init(TIM1_PIT, 5, pitHandler);
+  167   1      }
+  168          
+  169          const int16 tani[31] = {0,
+  170                                  17,  35,  52,  70,  87,  105, 123, 141, 158, 176,
+  171                                  194, 213, 231, 249, 268, 287, 306, 325, 344, 364,
+  172                                  384, 404, 424, 445, 466, 488, 510, 532, 554, 577};
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      3031     ------
-C251 COMPILER V5.60.0,  Motor                                                              27/05/26  22:07:31  PAGE 4   
-
+  ecode size           =      3009     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
@@ -213,6 +203,8 @@ Module Information          Static   Overlayable
   edata size           =    ------     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------
+C251 COMPILER V5.60.0,  Motor                                                              30/05/26  21:19:27  PAGE 4   
+
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------

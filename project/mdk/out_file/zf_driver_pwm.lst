@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  zf_driver_pwm                                                      24/05/26  12:55:23  PAGE 1   
+C251 COMPILER V5.60.0,  zf_driver_pwm                                                      30/05/26  21:19:24  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_driver_pwm
@@ -12,12 +12,12 @@ stmt  level    source
 
     1          /********************************************************************************************************
              -*************
-    2          * STC32G Opensourec Library ¼´£¨STC32G ¿ªÔ´¿â£©ÊÇÒ»¸ö»ùÓÚ¹Ù·½ SDK ½Ó¿ÚµÄµÚÈý·½¿ªÔ´¿â
+    2          * STC32G144K Opensource Library ¼´£¨STC32G144K ¿ªÔ´¿â£©ÊÇÒ»¸ö»ùÓÚ¹Ù·½ SDK ½Ó¿ÚµÄµÚÈý·½¿ªÔ´¿â
     3          * Copyright (c) 2025 SEEKFREE Öð·É¿Æ¼¼
     4          *
     5          * ±¾ÎÄ¼þÊÇSTC32G144K¿ªÔ´¿âµÄÒ»²¿·Ö
     6          *
-    7          * STC32G ¿ªÔ´¿â ÊÇÃâ·ÑÈí¼þ
+    7          * STC32G144K ¿ªÔ´¿â ÊÇÃâ·ÑÈí¼þ
     8          * Äú¿ÉÒÔ¸ù¾Ý×ÔÓÉÈí¼þ»ù½ð»á·¢²¼µÄ GPL£¨GNU General Public License£¬¼´ GNUÍ¨ÓÃ¹«¹²Ðí¿ÉÖ¤£©µÄÌõ¿î
     9          * ¼´ GPL µÄµÚ3°æ£¨¼´ GPL3.0£©»ò£¨ÄúÑ¡ÔñµÄ£©ÈÎºÎºóÀ´µÄ°æ±¾£¬ÖØÐÂ·¢²¼ºÍ/»òÐÞ¸ÄËü
    10          *
@@ -29,8 +29,8 @@ stmt  level    source
    16          * Èç¹ûÃ»ÓÐ£¬Çë²ÎÔÄ<https://www.gnu.org/licenses/>
    17          *
    18          * ¶îÍâ×¢Ã÷£º
-   19          * ±¾¿ªÔ´¿âÊ¹ÓÃ GPL3.0 ¿ªÔ´Ðí¿ÉÖ¤Ð­Òé ÒÔÉÏÐí¿ÉÉêÃ÷ÎªÒëÎÄ°æ±¾
-   20          * Ðí¿ÉÉêÃ÷Ó¢ÎÄ°æÔÚ libraries/doc ÎÄ¼þ¼ÐÏÂµÄ GPL3_permission_statement.txt ÎÄ¼þÖÐ
+   19          * ±¾¿ªÔ´¿âÊ¹ÓÃ GPL3.0 ¿ªÔ´Ðí¿ÉÖ¤Ð­Òé ÒÔÉÏÐí¿ÉÉùÃ÷ÎªÒëÎÄ°æ±¾
+   20          * Ðí¿ÉÉùÃ÷Ó¢ÎÄ°æÔÚ libraries/doc ÎÄ¼þ¼ÐÏÂµÄ GPL3_permission_statement.txt ÎÄ¼þÖÐ
    21          * Ðí¿ÉÖ¤¸±±¾ÔÚ libraries ÎÄ¼þ¼ÐÏÂ ¼´¸ÃÎÄ¼þ¼ÐÏÂµÄ LICENSE ÎÄ¼þ
    22          * »¶Ó­¸÷Î»Ê¹ÓÃ²¢´«²¥±¾³ÌÐò µ«ÐÞ¸ÄÄÚÈÝÊ±±ØÐë±£ÁôÖð·É¿Æ¼¼µÄ°æÈ¨ÉùÃ÷£¨¼´±¾ÉùÃ÷£©
    23          *
@@ -66,7 +66,7 @@ stmt  level    source
    52              0x7ef6b2,
    53              0x7ef6b6,
    54          };
-C251 COMPILER V5.60.0,  zf_driver_pwm                                                      24/05/26  12:55:23  PAGE 2   
+C251 COMPILER V5.60.0,  zf_driver_pwm                                                      30/05/26  21:19:24  PAGE 2   
 
    55          
    56          // Êä³öÊ¹ÄÜ¼Ä´æÆ÷
@@ -134,7 +134,7 @@ stmt  level    source
   118              0x7ef6d5, 0x7ef6d7, 0x7ef6d9, 0x7ef6db,     // PWME
   119              0x7ef6f5, 0x7ef6f7, 0x7ef6f9, 0x7ef6fb,     // PWMF
   120          };
-C251 COMPILER V5.60.0,  zf_driver_pwm                                                      24/05/26  12:55:23  PAGE 3   
+C251 COMPILER V5.60.0,  zf_driver_pwm                                                      30/05/26  21:19:24  PAGE 3   
 
   121          
   122          // ¿ØÖÆ¼Ä´æÆ÷,¸ß8Î»µØÖ·  µÍ8Î»µØÖ· + 1¼´¿É
@@ -202,7 +202,7 @@ stmt  level    source
   181   1        // Èç¹ûÊÇÕâÒ»ÐÐ±¨´í ÄÇÄãµÃÈ¥¿´¿´×î´óÕ¼¿Õ±ÈÊÇÏÞ¶¨µÄ¶àÉÙ Õ¼¿Õ±ÈÐ´Èë´íÎó
   182   1          zf_assert(PWM_DUTY_MAX >= duty);
   183   1        
-C251 COMPILER V5.60.0,  zf_driver_pwm                                                      24/05/26  12:55:23  PAGE 4   
+C251 COMPILER V5.60.0,  zf_driver_pwm                                                      30/05/26  21:19:24  PAGE 4   
 
   184   1          //·ÖÆµ¼ÆËã£¬ÖÜÆÚ¼ÆËã£¬Õ¼¿Õ±È¼ÆËã
   185   1          freq_div = (system_clock / freq) >> 16;               // ¶àÉÙ·ÖÆµ
@@ -270,7 +270,7 @@ stmt  level    source
   243          // ²ÎÊýËµÃ÷     duty            PWMÕ¼¿Õ±È
   244          // ·µ»Ø²ÎÊý     void
   245          // Ê¹ÓÃÊ¾Àý     pwm_init(PWMB_CH2_P01, 50, 5000);   //³õÊ¼»¯PWMB Ê¹ÓÃÒý½ÅP01  Êä³öPWMÆµÂÊ50HZ   Õ¼¿Õ±ÈÎª°
-C251 COMPILER V5.60.0,  zf_driver_pwm                                                      24/05/26  12:55:23  PAGE 5   
+C251 COMPILER V5.60.0,  zf_driver_pwm                                                      30/05/26  21:19:24  PAGE 5   
 
              -Ù·ÖÖ® 5000/PWM_DUTY_MAX*100
   246          //                                        PWM_DUTY_MAXÔÚzf_driver_pwm.hÎÄ¼þÖÐ Ä¬ÈÏÎª10000
@@ -338,7 +338,7 @@ stmt  level    source
              -11 & 0x3)] + 1))), PWMX_CCRXL(pin));
                    
                        printf("PWMX_CCERX(pin) -> 0x%lX = 0x%X\r\n",  (((PWM_CCER_ADDR[(((pin >> 13 & 0x7) * 2) + ((pin 
-C251 COMPILER V5.60.0,  zf_driver_pwm                                                      24/05/26  12:55:23  PAGE 6   
+C251 COMPILER V5.60.0,  zf_driver_pwm                                                      30/05/26  21:19:24  PAGE 6   
 
              ->> 11 & 0x03) >> 1))]))), PWMX_CCERX(pin));
                        printf("PWMX_CCMRX(pin) -> 0x%lX = 0x%X\r\n",  (((PWM_CCMR_ADDR[((pin >> 13 & 0x7) * 4) + (pin >>

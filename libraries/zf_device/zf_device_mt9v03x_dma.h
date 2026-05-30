@@ -55,6 +55,6 @@ void mt9v03x_dma_handler(void);
 // 使用示例     mt9v03x_dma_init((uint8 *)&mt9v03x_image[0][0], MT9V03X_IMAGE_SIZE, 4, 3, 3);
 // 备注信息     
 //-------------------------------------------------------------------------------------------------------------------
-void mt9v03x_dma_init(unsigned char  *image_addr, uint32 image_size, unsigned char value, unsigned char isr_priority, unsigned char  dma_priority);
+void mt9v03x_dma_init(unsigned char  *image_addr, uint32 image_size,unsigned char value, unsigned char isr_priority, unsigned char  dma_priority);
 
 #endif

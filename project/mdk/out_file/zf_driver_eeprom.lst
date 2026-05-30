@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   24/05/26  12:55:22  PAGE 1   
+C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   30/05/26  21:19:23  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_driver_eeprom
@@ -12,7 +12,7 @@ stmt  level    source
 
     1          /********************************************************************************************************
              -*************
-    2          * STC32G144K Opensourec Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
+    2          * STC32G144K Opensource Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
     3          * Copyright (c) 2025 SEEKFREE 逐飞科技
     4          *
     5          * 本文件是STC32G144K开源库的一部分
@@ -29,8 +29,8 @@ stmt  level    source
    16          * 如果没有，请参阅<https://www.gnu.org/licenses/>
    17          *
    18          * 额外注明：
-   19          * 本开源库使用 GPL3.0 开源许可证协议 以上许可申明为译文版本
-   20          * 许可申明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
+   19          * 本开源库使用 GPL3.0 开源许可证协议 以上许可声明为译文版本
+   20          * 许可声明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
    21          * 许可证副本在 libraries 文件夹下 即该文件夹下的 LICENSE 文件
    22          * 欢迎各位使用并传播本程序 但修改内容时必须保留逐飞科技的版权声明（即本声明）
    23          *
@@ -66,7 +66,7 @@ stmt  level    source
    50   1      
    51   1          IAP_TRIG = 0x5A;
    52   1          IAP_TRIG = 0xA5;                    //先送5AH，再送A5H到IAP触发寄存器，每次都需要如此
-C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   24/05/26  12:55:22  PAGE 2   
+C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   30/05/26  21:19:23  PAGE 2   
 
    53   1          //送完A5H后，IAP命令立即被触发启动
    54   1          //CPU等待IAP完成后，才会继续执行程序。
@@ -134,7 +134,7 @@ stmt  level    source
   108   1          uint8 write_time;
   109   1          write_time = (system_clock / 1000000) ;
   110   1          IAP_TPS = write_time + 1;
-C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   24/05/26  12:55:22  PAGE 3   
+C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   30/05/26  21:19:23  PAGE 3   
 
   111   1      }
   112          
@@ -202,7 +202,7 @@ stmt  level    source
   169          // 返回参数     void
   170          // 备注信息
   171          // 使用示例     iap_read_buff(0x00, buff, 10);  // 向0地址读取一个数组，数组长度为10
-C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   24/05/26  12:55:22  PAGE 4   
+C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   30/05/26  21:19:23  PAGE 4   
 
   172          //-------------------------------------------------------------------------------------------------------
              -------------
@@ -270,7 +270,7 @@ stmt  level    source
   229          // 返回参数     void
   230          // 备注信息
   231          // 使用示例             extern_iap_write_bytes(0x0000,(uint8 *)"0123456789",10);
-C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   24/05/26  12:55:22  PAGE 5   
+C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   30/05/26  21:19:23  PAGE 5   
 
   232          //                将"0123456789"写入0x00-0x0A地址中;
   233          // 注意事项           不要跨扇区使用。

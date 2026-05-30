@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  zf_common_interrupt                                                21/05/26  11:00:33  PAGE 1   
+C251 COMPILER V5.60.0,  zf_common_interrupt                                                30/05/26  21:19:22  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_common_interrupt
@@ -13,7 +13,7 @@ stmt  level    source
 
     1          /********************************************************************************************************
              -*************
-    2          * STC32G144K Opensourec Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
+    2          * STC32G144K Opensource Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
     3          * Copyright (c) 2025 SEEKFREE 逐飞科技
     4          *
     5          * 本文件是STC32G144K开源库的一部分
@@ -30,8 +30,8 @@ stmt  level    source
    16          * 如果没有，请参阅<https://www.gnu.org/licenses/>
    17          *
    18          * 额外注明：
-   19          * 本开源库使用 GPL3.0 开源许可证协议 以上许可申明为译文版本
-   20          * 许可申明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
+   19          * 本开源库使用 GPL3.0 开源许可证协议 以上许可声明为译文版本
+   20          * 许可声明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
    21          * 许可证副本在 libraries 文件夹下 即该文件夹下的 LICENSE 文件
    22          * 欢迎各位使用并传播本程序 但修改内容时必须保留逐飞科技的版权声明（即本声明）
    23          *
@@ -66,7 +66,7 @@ stmt  level    source
    49   1        if((irqn >> 4) == 0)
    50   1        {
    51   2          IP  |= (priority & 0x01) << (irqn & 0x0F);
-C251 COMPILER V5.60.0,  zf_common_interrupt                                                21/05/26  11:00:33  PAGE 2   
+C251 COMPILER V5.60.0,  zf_common_interrupt                                                30/05/26  21:19:22  PAGE 2   
 
    52   2          IPH |= ((priority >> 1) & 0x01) << (irqn & 0x0F);
    53   2        }
@@ -103,48 +103,71 @@ stmt  level    source
    84   3            case UART8_DMA_IRQn: DMA_UR8R_CFG &= ~(3<<2); DMA_UR8R_CFG |= priority << 2;break;
    85   3      
    86   3            case LCM_DMA_IRQn:DMA_LCM_CFG &= ~(3<<2); DMA_LCM_CFG |= priority << 2;break;
-   87   3          }
-   88   2        }
-   89   1      }
-   90          
-   91          //-------------------------------------------------------------------------------------------------------
+   87   3            
+   88   3            case P0_INI_IRQ: //P0到P7共用2个字节控制中断优先级
+   89   3            case P1_INI_IRQ:
+   90   3            case P2_INI_IRQ: 
+   91   3            case P3_INI_IRQ: 
+   92   3            case P4_INI_IRQ: 
+   93   3            case P5_INI_IRQ: 
+   94   3            case P6_INI_IRQ: 
+   95   3            case P7_INI_IRQ: 
+   96   3              if(priority / 2){PINIPH |= (0x01 << (irqn & 0x0f));}
+   97   3              else{PINIPH &= ~(0x01 << (irqn & 0x0f));}
+   98   3              if(priority % 2){PINIPL |= (0x01 << (irqn & 0x0f));}
+   99   3              else{PINIPL |= (0x01 << (irqn & 0x0f));}
+  100   3              break;
+  101   3            case P8_INI_IRQ: //P8到PB共用2个字节控制中断优先级
+  102   3            case P9_INI_IRQ: 
+  103   3            case PA_INI_IRQ: 
+  104   3            case PB_INI_IRQ: 
+  105   3              if(priority / 2){PIN2IPH |= (0x01 << (irqn & 0x0f));}
+  106   3              else{PIN2IPH &= ~(0x01 << (irqn & 0x0f));}
+  107   3              if(priority % 2){PIN2IPL |= (0x01 << (irqn & 0x0f));}
+  108   3              else{PIN2IPL |= (0x01 << (irqn & 0x0f));}
+  109   3              break;
+  110   3          }
+  111   2        }
+  112   1      }
+  113          
+  114          //-------------------------------------------------------------------------------------------------------
              -------------
-   92          // 函数简介     关闭全局中断
-   93          // 参数说明     void            
-   94          // 返回参数     void
-   95          // 使用示例     
-   96          //             
-   97          // 备注信息        
-   98          //-------------------------------------------------------------------------------------------------------
-             -------------
-   99          void interrupt_global_disable(void)
-  100          {
-  101   1          EA = 0;
-  102   1      }
-  103          
-  104          //-------------------------------------------------------------------------------------------------------
-             -------------
-  105          // 函数简介     开启全局中断
-  106          // 参数说明     void            
-  107          // 返回参数     void
-  108          // 使用示例     
-  109          //             
-  110          // 备注信息        
-  111          //-------------------------------------------------------------------------------------------------------
-             -------------
-  112          void interrupt_global_enable(void)
-  113          {
-C251 COMPILER V5.60.0,  zf_common_interrupt                                                21/05/26  11:00:33  PAGE 3   
+  115          // 函数简介     关闭全局中断
+  116          // 参数说明     void            
+C251 COMPILER V5.60.0,  zf_common_interrupt                                                30/05/26  21:19:22  PAGE 3   
 
-  114   1          EA = 1;
-  115   1      }
-  116          
+  117          // 返回参数     void
+  118          // 使用示例     
+  119          //             
+  120          // 备注信息        
+  121          //-------------------------------------------------------------------------------------------------------
+             -------------
+  122          void interrupt_global_disable(void)
+  123          {
+  124   1          EA = 0;
+  125   1      }
+  126          
+  127          //-------------------------------------------------------------------------------------------------------
+             -------------
+  128          // 函数简介     开启全局中断
+  129          // 参数说明     void            
+  130          // 返回参数     void
+  131          // 使用示例     
+  132          //             
+  133          // 备注信息        
+  134          //-------------------------------------------------------------------------------------------------------
+             -------------
+  135          void interrupt_global_enable(void)
+  136          {
+  137   1          EA = 1;
+  138   1      }
+  139          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      1032     ------
+  ecode size           =      1474     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------

@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 24/05/26  12:55:23  PAGE 1   
+C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 30/05/26  21:19:24  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_driver_soft_iic
@@ -13,7 +13,7 @@ stmt  level    source
 
     1          /********************************************************************************************************
              -*************
-    2          * STC32G144K Opensourec Library ¼´£¨STC32G144K ¿ªÔ´¿â£©ÊÇÒ»¸ö»ùÓÚ¹Ù·½ SDK ½Ó¿ÚµÄµÚÈý·½¿ªÔ´¿â
+    2          * STC32G144K Opensource Library ¼´£¨STC32G144K ¿ªÔ´¿â£©ÊÇÒ»¸ö»ùÓÚ¹Ù·½ SDK ½Ó¿ÚµÄµÚÈý·½¿ªÔ´¿â
     3          * Copyright (c) 2025 SEEKFREE Öð·É¿Æ¼¼
     4          *
     5          * ±¾ÎÄ¼þÊÇSTC32G144K¿ªÔ´¿âµÄÒ»²¿·Ö
@@ -30,8 +30,8 @@ stmt  level    source
    16          * Èç¹ûÃ»ÓÐ£¬Çë²ÎÔÄ<https://www.gnu.org/licenses/>
    17          *
    18          * ¶îÍâ×¢Ã÷£º
-   19          * ±¾¿ªÔ´¿âÊ¹ÓÃ GPL3.0 ¿ªÔ´Ðí¿ÉÖ¤Ð­Òé ÒÔÉÏÐí¿ÉÉêÃ÷ÎªÒëÎÄ°æ±¾
-   20          * Ðí¿ÉÉêÃ÷Ó¢ÎÄ°æÔÚ libraries/doc ÎÄ¼þ¼ÐÏÂµÄ GPL3_permission_statement.txt ÎÄ¼þÖÐ
+   19          * ±¾¿ªÔ´¿âÊ¹ÓÃ GPL3.0 ¿ªÔ´Ðí¿ÉÖ¤Ð­Òé ÒÔÉÏÐí¿ÉÉùÃ÷ÎªÒëÎÄ°æ±¾
+   20          * Ðí¿ÉÉùÃ÷Ó¢ÎÄ°æÔÚ libraries/doc ÎÄ¼þ¼ÐÏÂµÄ GPL3_permission_statement.txt ÎÄ¼þÖÐ
    21          * Ðí¿ÉÖ¤¸±±¾ÔÚ libraries ÎÄ¼þ¼ÐÏÂ ¼´¸ÃÎÄ¼þ¼ÐÏÂµÄ LICENSE ÎÄ¼þ
    22          * »¶Ó­¸÷Î»Ê¹ÓÃ²¢´«²¥±¾³ÌÐò µ«ÐÞ¸ÄÄÚÈÝÊ±±ØÐë±£ÁôÖð·É¿Æ¼¼µÄ°æÈ¨ÉùÃ÷£¨¼´±¾ÉùÃ÷£©
    23          *
@@ -66,7 +66,7 @@ stmt  level    source
    49          // ±¸×¢ÐÅÏ¢     ÄÚ²¿µ÷ÓÃ
    50          //-------------------------------------------------------------------------------------------------------
              -------------
-C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 24/05/26  12:55:23  PAGE 2   
+C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 30/05/26  21:19:24  PAGE 2   
 
    51          void soft_iic_delay (vuint32 delay)
    52          {
@@ -134,7 +134,7 @@ stmt  level    source
   108   1          gpio_low(soft_iic_obj->scl_pin);                                            // SCL µÍµçÆ½
   109   1      
   110   1          if(ack)
-C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 24/05/26  12:55:23  PAGE 3   
+C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 30/05/26  21:19:24  PAGE 3   
 
   111   1          {
   112   2              gpio_high(soft_iic_obj->sda_pin);                                       // SDA À­¸ß
@@ -202,7 +202,7 @@ stmt  level    source
   170   1        uint8 temp = 0x80;
   171   1        
   172   1          zf_assert(soft_iic_obj != NULL);
-C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 24/05/26  12:55:23  PAGE 4   
+C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 30/05/26  21:19:24  PAGE 4   
 
   173   1      
   174   1          while(temp)
@@ -270,7 +270,7 @@ stmt  level    source
   232          void soft_iic_write_8bit (soft_iic_info_struct *soft_iic_obj, const uint8 dat)
   233          {
   234   1          zf_assert(soft_iic_obj != NULL);
-C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 24/05/26  12:55:23  PAGE 5   
+C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 30/05/26  21:19:24  PAGE 5   
 
   235   1          soft_iic_start(soft_iic_obj);
   236   1          soft_iic_send_data(soft_iic_obj, soft_iic_obj->addr << 1);
@@ -338,7 +338,7 @@ stmt  level    source
   292   1          zf_assert(soft_iic_obj != NULL);
   293   1          zf_assert(dat != NULL);
   294   1          soft_iic_start(soft_iic_obj);
-C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 24/05/26  12:55:23  PAGE 6   
+C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 30/05/26  21:19:24  PAGE 6   
 
   295   1          soft_iic_send_data(soft_iic_obj, soft_iic_obj->addr << 1);
   296   1          while(len --)
@@ -406,7 +406,7 @@ stmt  level    source
   351          // ²ÎÊýËµÃ÷     dat            ÒªÐ´ÈëµÄÊý¾Ý
   352          // ·µ»Ø²ÎÊý     void            
   353          // Ê¹ÓÃÊ¾Àý     soft_iic_write_16bit_register(soft_iic_obj, 0x0101, 0x0101);
-C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 24/05/26  12:55:23  PAGE 7   
+C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 30/05/26  21:19:24  PAGE 7   
 
   354          // ±¸×¢ÐÅÏ¢     
   355          //-------------------------------------------------------------------------------------------------------
@@ -474,7 +474,7 @@ stmt  level    source
   410   1      }
   411          
   412          //-------------------------------------------------------------------------------------------------------
-C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 24/05/26  12:55:23  PAGE 8   
+C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 30/05/26  21:19:24  PAGE 8   
 
              -------------
   413          // º¯Êý¼ò½é     Èí¼þ IIC ½Ó¿Ú´Ó´«¸ÐÆ÷¼Ä´æÆ÷¶ÁÈ¡ 8bit Êý×é
@@ -542,7 +542,7 @@ stmt  level    source
   470   1          while(len --)
   471   1          {
   472   2              *dat = soft_iic_read_data(soft_iic_obj, 0);
-C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 24/05/26  12:55:23  PAGE 9   
+C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 30/05/26  21:19:24  PAGE 9   
 
   473   2              *dat = ((*dat << 8)| soft_iic_read_data(soft_iic_obj, len == 0));
   474   2              dat ++;
@@ -610,7 +610,7 @@ stmt  level    source
   530          // ²ÎÊýËµÃ÷     register_name   ´«¸ÐÆ÷µÄ¼Ä´æÆ÷µØÖ·
   531          // ·µ»Ø²ÎÊý     uint16          ·µ»Ø¶ÁÈ¡µÄ 16bit Êý¾Ý
   532          // Ê¹ÓÃÊ¾Àý     soft_iic_read_16bit_register(soft_iic_obj, 0x0101);
-C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 24/05/26  12:55:23  PAGE 10  
+C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 30/05/26  21:19:24  PAGE 10  
 
   533          // ±¸×¢ÐÅÏ¢     
   534          //-------------------------------------------------------------------------------------------------------
@@ -678,7 +678,7 @@ stmt  level    source
              -------------
   591          void soft_iic_transfer_8bit_array (soft_iic_info_struct *soft_iic_obj, const uint8 *write_data, uint32 wr
              -ite_len, uint8 *read_data, uint32 read_len)
-C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 24/05/26  12:55:23  PAGE 11  
+C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 30/05/26  21:19:24  PAGE 11  
 
   592          {
   593   1          zf_assert(soft_iic_obj != NULL);
@@ -746,7 +746,7 @@ stmt  level    source
   652          //-------------------------------------------------------------------------------------------------------
              -------------
   653          // º¯Êý¼ò½é     Èí¼þ IIC ½Ó¿Ú SCCB Ä£Ê½Ïò´«¸ÐÆ÷¼Ä´æÆ÷Ð´ 8bit Êý¾Ý
-C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 24/05/26  12:55:23  PAGE 12  
+C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 30/05/26  21:19:24  PAGE 12  
 
   654          // ²ÎÊýËµÃ÷     *soft_iic_obj   Èí¼þ IIC Ö¸¶¨ÐÅÏ¢ ¿ÉÒÔ²ÎÕÕ zf_driver_soft_iic.h ÀïµÄ¸ñÊ½¿´¿´
   655          // ²ÎÊýËµÃ÷     register_name   ´«¸ÐÆ÷µÄ¼Ä´æÆ÷µØÖ·
@@ -814,7 +814,7 @@ stmt  level    source
              -¬Ò»¸öÒý½Å£¿
   710   1          soft_iic_obj->scl_pin = scl_pin;
   711   1          soft_iic_obj->sda_pin = sda_pin;
-C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 24/05/26  12:55:23  PAGE 13  
+C251 COMPILER V5.60.0,  zf_driver_soft_iic                                                 30/05/26  21:19:24  PAGE 13  
 
   712   1          soft_iic_obj->addr = addr;
   713   1          soft_iic_obj->delay = delay;

@@ -32,9 +32,7 @@ void runZebra(uint8 have) {
     alongLine(centerLine, centerLineCount, getDynamicAimPos());
     if (count == 2) {
         stop:
-        smoothStop = 0;
-        handle = 1;
-        setSpeed = 0;
+        smoothStop = 1;
         ips200_show_string(0, 0, "FINISH");
     } else {
         if (add) {

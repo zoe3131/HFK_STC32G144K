@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  zf_device_dl1b                                                     24/05/26  12:55:24  PAGE 1   
+C251 COMPILER V5.60.0,  zf_device_dl1b                                                     30/05/26  21:19:26  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_device_dl1b
@@ -12,12 +12,12 @@ stmt  level    source
 
     1          /********************************************************************************************************
              -*************
-    2          * STC32G Opensourec Library 即（STC32G 开源库）是一个基于官方 SDK 接口的第三方开源库
+    2          * STC32G144K Opensource Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
     3          * Copyright (c) 2025 SEEKFREE 逐飞科技
     4          *
     5          * 本文件是STC32G144K开源库的一部分
     6          *
-    7          * STC32G 开源库 是免费软件
+    7          * STC32G144K 开源库 是免费软件
     8          * 您可以根据自由软件基金会发布的 GPL（GNU General Public License，即 GNU通用公共许可证）的条款
     9          * 即 GPL 的第3版（即 GPL3.0）或（您选择的）任何后来的版本，重新发布和/或修改它
    10          *
@@ -29,8 +29,8 @@ stmt  level    source
    16          * 如果没有，请参阅<https://www.gnu.org/licenses/>
    17          *
    18          * 额外注明：
-   19          * 本开源库使用 GPL3.0 开源许可证协议 以上许可申明为译文版本
-   20          * 许可申明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
+   19          * 本开源库使用 GPL3.0 开源许可证协议 以上许可声明为译文版本
+   20          * 许可声明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
    21          * 许可证副本在 libraries 文件夹下 即该文件夹下的 LICENSE 文件
    22          * 欢迎各位使用并传播本程序 但修改内容时必须保留逐飞科技的版权声明（即本声明）
    23          *
@@ -66,7 +66,7 @@ stmt  level    source
    50          #include "zf_driver_exti.h"
    51          #include "zf_driver_soft_iic.h"
    52          
-C251 COMPILER V5.60.0,  zf_device_dl1b                                                     24/05/26  12:55:24  PAGE 2   
+C251 COMPILER V5.60.0,  zf_device_dl1b                                                     30/05/26  21:19:26  PAGE 2   
 
    53          #include "zf_device_dl1b.h"
    54          #include "zf_device_config.h"
@@ -134,11 +134,10 @@ stmt  level    source
   112   5                          dl1b_finsh_flag = 0;
   113   5                      }
   114   4                      else
-C251 COMPILER V5.60.0,  zf_device_dl1b                                                     24/05/26  12:55:24  PAGE 3   
+C251 COMPILER V5.60.0,  zf_device_dl1b                                                     30/05/26  21:19:26  PAGE 3   
 
   115   4                      {
-  116   5                          dl1b_distance_mm = dl1b_distance_mm == 8192 ? dl1b_distance_temp : (dl1b_distance_tem
-             -p >> 1) + (dl1b_distance_mm >> 1);
+  116   5                          dl1b_distance_mm = dl1b_distance_temp;
   117   5                          dl1b_finsh_flag = 1;
   118   5                      }
   119   4                  }
@@ -202,9 +201,9 @@ stmt  level    source
   173   2          
   174   2      #if DL1B_XS_ENABLE
   175   2              system_delay_ms(50);
-C251 COMPILER V5.60.0,  zf_device_dl1b                                                     24/05/26  12:55:24  PAGE 4   
-
   176   2              gpio_low(DL1B_XS_PIN);
+C251 COMPILER V5.60.0,  zf_device_dl1b                                                     30/05/26  21:19:26  PAGE 4   
+
   177   2              system_delay_ms(10);
   178   2              gpio_high(DL1B_XS_PIN);
   179   2              system_delay_ms(50);
@@ -250,29 +249,32 @@ stmt  level    source
   219   2              dl1b_init_flag = 1;
   220   2              
   221   2          #if DL1B_INT_ENABLE
-                       exti_init(DL1B_INT_PIN, EXTI_TRIGGER_FALLING);
+                       exit_init(DL1B_INT_PIN, FALLING_EDGE);
                        dl1b_int_handler();
                        dl1b_finsh_flag = 0;
+                       
+                       gpio_int_irq_handlers[((DL1B_INT_PIN & 0X0F00) >> 8)][(DL1B_INT_PIN & 0X000F)] = dl1b_int_handler
+             -;//设置中断回调函数
                    #endif
-  226   2              set_tof_type(TOF_DL1B, dl1b_int_handler);
-  227   2          }
-  228   1          while(0);
-  229   1         
-  230   1          return return_state;
-  231   1      }
+  228   2      
+  229   2          }
+  230   1          while(0);
+  231   1         
+  232   1          return return_state;
+  233   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      1072     ------
+  ecode size           =      1024     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
+C251 COMPILER V5.60.0,  zf_device_dl1b                                                     30/05/26  21:19:26  PAGE 5   
+
   xdata size           =       158     ------
   xdata-const size     =    ------     ------
-C251 COMPILER V5.60.0,  zf_device_dl1b                                                     24/05/26  12:55:24  PAGE 5   
-
   edata size           =    ------     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------

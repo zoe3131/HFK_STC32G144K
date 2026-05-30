@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  zf_device_type                                                     24/05/26  12:55:23  PAGE 1   
+C251 COMPILER V5.60.0,  zf_device_type                                                     30/05/26  21:19:24  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_device_type
@@ -12,7 +12,7 @@ stmt  level    source
 
     1          /********************************************************************************************************
              -*************
-    2          * STC32G144K Opensourec Library ¼´£¨STC32G144K ¿ªÔ´¿â£©ÊÇÒ»¸ö»ùÓÚ¹Ù·½ SDK ½Ó¿ÚµÄµÚÈı·½¿ªÔ´¿â
+    2          * STC32G144K Opensource Library ¼´£¨STC32G144K ¿ªÔ´¿â£©ÊÇÒ»¸ö»ùÓÚ¹Ù·½ SDK ½Ó¿ÚµÄµÚÈı·½¿ªÔ´¿â
     3          * Copyright (c) 2025 SEEKFREE Öğ·É¿Æ¼¼
     4          *
     5          * ±¾ÎÄ¼şÊÇSTC32G144K¿ªÔ´¿âµÄÒ»²¿·Ö
@@ -29,8 +29,8 @@ stmt  level    source
    16          * Èç¹ûÃ»ÓĞ£¬Çë²ÎÔÄ<https://www.gnu.org/licenses/>
    17          *
    18          * ¶îÍâ×¢Ã÷£º
-   19          * ±¾¿ªÔ´¿âÊ¹ÓÃ GPL3.0 ¿ªÔ´Ğí¿ÉÖ¤Ğ­Òé ÒÔÉÏĞí¿ÉÉêÃ÷ÎªÒëÎÄ°æ±¾
-   20          * Ğí¿ÉÉêÃ÷Ó¢ÎÄ°æÔÚ libraries/doc ÎÄ¼ş¼ĞÏÂµÄ GPL3_permission_statement.txt ÎÄ¼şÖĞ
+   19          * ±¾¿ªÔ´¿âÊ¹ÓÃ GPL3.0 ¿ªÔ´Ğí¿ÉÖ¤Ğ­Òé ÒÔÉÏĞí¿ÉÉùÃ÷ÎªÒëÎÄ°æ±¾
+   20          * Ğí¿ÉÉùÃ÷Ó¢ÎÄ°æÔÚ libraries/doc ÎÄ¼ş¼ĞÏÂµÄ GPL3_permission_statement.txt ÎÄ¼şÖĞ
    21          * Ğí¿ÉÖ¤¸±±¾ÔÚ libraries ÎÄ¼ş¼ĞÏÂ ¼´¸ÃÎÄ¼ş¼ĞÏÂµÄ LICENSE ÎÄ¼ş
    22          * »¶Ó­¸÷Î»Ê¹ÓÃ²¢´«²¥±¾³ÌĞò µ«ĞŞ¸ÄÄÚÈİÊ±±ØĞë±£ÁôÖğ·É¿Æ¼¼µÄ°æÈ¨ÉùÃ÷£¨¼´±¾ÉùÃ÷£©
    23          *
@@ -66,7 +66,7 @@ stmt  level    source
              -¯ÊıÖ¸Õë£¬¸ù¾İ³õÊ¼»¯Ê±ÉèÖÃµÄº¯Êı½øĞĞÌø×ª
    48          
    49          tof_type_enum       tof_type                        = NO_TOF;
-C251 COMPILER V5.60.0,  zf_device_type                                                     24/05/26  12:55:23  PAGE 2   
+C251 COMPILER V5.60.0,  zf_device_type                                                     30/05/26  21:19:24  PAGE 2   
 
    50          callback_function   tof_module_exti_handler         = type_default_callback;        // ToF Ä£¿é INT ¸üĞÂÖ
              -Ğ¶Ï
@@ -134,7 +134,7 @@ stmt  level    source
   103          //-------------------------------------------------------------------------------------------------------
              -------------
   104          // º¯Êı¼ò½é     ÉèÖÃ ToF Ä£¿éÀàĞÍ
-C251 COMPILER V5.60.0,  zf_device_type                                                     24/05/26  12:55:23  PAGE 3   
+C251 COMPILER V5.60.0,  zf_device_type                                                     30/05/26  21:19:24  PAGE 3   
 
   105          // ²ÎÊıËµÃ÷     type_set        Ñ¡¶¨µÄ ToF Ä£¿éÀàĞÍ
   106          // ²ÎÊıËµÃ÷     exti_callback   Éè±¸µÄÍâ²¿ÖĞ¶Ï»Øµ÷º¯Êı

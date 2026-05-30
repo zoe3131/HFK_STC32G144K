@@ -20,7 +20,7 @@ Point getCrossRStart() {
     if (startT.y || startT.x) {
         i = startT.x - 2;
         j = startT.y + 1;
-        if (RBorderCount > 15) {
+        if (RRoadCount > 7) {
             m = MT9V03X_W - 1;
             for (k = 0; k < RBorderCount; k++)
                 if (m >= RBorder[k].y) m = RBorder[k].y;
@@ -32,9 +32,9 @@ Point getCrossRStart() {
             DQW = m;
         }
     }
-    while (i >= 0 && mt9v03x_image[i][j] <= crossThreshold) i -= 3;
+    while (i >= 0 && getImageFilterSelf(i, j) <= crossThreshold) i -= 3;
     j = DQW;
-    while (i >= 0 && mt9v03x_image[i][j] > crossThreshold) i--;
+    while (i >= 0 && getImageFilterSelf(i, j) > crossThreshold) i--;
     if (i < halfBlock) {
         pos.x = 0;
         pos.y = 0;
@@ -51,7 +51,7 @@ Point getCrossLStart() {
     if (startT.y || startT.x) {
         i = startT.x - 2;
         j = startT.y - 1;
-        if (LBorderCount > 15) {
+        if (LRoadCount > 7) {
             m = 0;
             for (k = 0; k < LBorderCount; k++)
                 if (m <= LBorder[k].y) m = LBorder[k].y;
@@ -63,9 +63,9 @@ Point getCrossLStart() {
             QW = m;
         }
     }
-    while (i >= 0 && mt9v03x_image[i][j] <= crossThreshold) i -= 3;
+    while (i >= 0 && getImageFilterSelf(i, j) <= crossThreshold) i -= 3;
     j = QW;
-    while (i >= 0 && mt9v03x_image[i][j] > crossThreshold) i--;
+    while (i >= 0 && getImageFilterSelf(i, j) > crossThreshold) i--;
     if (i < halfBlock) {
         pos.x = 0;
         pos.y = 0;
@@ -116,6 +116,8 @@ void runCross() {
             canEnd = 0;
             CROSS_MODE = CROSS_READY;
             RUN_MODE = FORWARD;
+            QW = 45;
+            DQW = 143;
             gpio_set_level(IO_P65, 0);
             return;
         }

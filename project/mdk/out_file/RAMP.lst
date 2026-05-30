@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  RAMP                                                               27/05/26  22:07:32  PAGE 1   
+C251 COMPILER V5.60.0,  RAMP                                                               30/05/26  21:55:54  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE RAMP
@@ -41,41 +41,45 @@ stmt  level    source
    28   1          getGodRoadLine(tarPos, 6);
    29   1          alongLine(tarPos, 6, 5);
    30   1          handle = 1;
-   31   1          setSpeed = 200;
-   32   1          if (dl1b_distance_mm < 400) {
-   33   2              if (readyEnd)
-   34   2                  canEnd = 1;
-   35   2          } else if (dl1b_distance_mm > 600) {
-   36   2              readyEnd = 1;
-   37   2              if (canEnd && pitch > -10 && pitch < 10) {
-   38   3                  gpio_set_level(IO_P65, 0);
-   39   3                  RUN_MODE = FORWARD;
-   40   3                  canEnd = handle = readyEnd = 0;
-   41   3              }
-   42   2          }
-   43   1      }
+   31   1          setSpeed = 180;
+   32   1          ips200_show_int16(0, 0, readyEnd);
+   33   1          ips200_show_int16(0, 20, canEnd);
+   34   1          ips200_show_int16(0, 40, dl1b_distance_mm);
+   35   1          if (dl1b_distance_mm < 500) {
+   36   2              if (readyEnd)
+   37   2                  canEnd = 1;
+   38   2          } else if (dl1b_distance_mm > 450) {
+   39   2              if (dl1b_distance_mm == 8192) readyEnd = 1;
+   40   2              if (canEnd) {
+   41   3                  wireless_uart_send_string("exit\r\n");
+   42   3                  gpio_set_level(IO_P65, 0);
+   43   3                  RUN_MODE = FORWARD;
+   44   3                  canEnd = handle = readyEnd = 0;
+   45   3              }
+   46   2          }
+   47   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       523     ------
+  ecode size           =       569     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
+C251 COMPILER V5.60.0,  RAMP                                                               30/05/26  21:55:54  PAGE 2   
+
   xdata size           =        18     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
-C251 COMPILER V5.60.0,  RAMP                                                               27/05/26  22:07:32  PAGE 2   
-
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =        12     ------
+  hconst size          =        19     ------
 End of Module Information.
 
 
