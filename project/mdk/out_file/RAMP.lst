@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  RAMP                                                               30/05/26  21:55:54  PAGE 1   
+C251 COMPILER V5.60.0,  RAMP                                                               31/05/26  09:24:22  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE RAMP
@@ -19,57 +19,58 @@ stmt  level    source
     6          
     7          static uint8 canEnd = 0, readyEnd = 0;
     8          extern int16 RUN_MODE, pitch;
-    9          
-   10          void runRamp() {
-   11   1          Point tarPos[6];
-   12   1          int16 i, j;
-   13   1          gpio_set_level(IO_P65, 1);
-   14   1          if (func_min(LBorderCount, RBorderCount) < 30) {
-   15   2              smoothStop = 1;
-   16   2              return;
-   17   2          }
-   18   1          smoothStop = 0;
-   19   1          for (i = 0; i < LBorderCount; i++)
-   20   1              if (LBorder[i].x == rampPos) break;
-   21   1          for (j = 0; j < RBorderCount; j++)
-   22   1              if (RBorder[j].x == rampPos) break;
-   23   1          if (LBorder[i].x != rampPos || RBorder[j].x != rampPos) return;
-   24   1          for (i = 0; i <= 5; i++) {
-   25   2              tarPos[i].x = rampPos;
-   26   2              tarPos[i].y = LBorder[i].y + RBorder[j].y >> 1;
-   27   2          }
-   28   1          getGodRoadLine(tarPos, 6);
-   29   1          alongLine(tarPos, 6, 5);
-   30   1          handle = 1;
-   31   1          setSpeed = 180;
-   32   1          ips200_show_int16(0, 0, readyEnd);
-   33   1          ips200_show_int16(0, 20, canEnd);
-   34   1          ips200_show_int16(0, 40, dl1b_distance_mm);
-   35   1          if (dl1b_distance_mm < 500) {
-   36   2              if (readyEnd)
-   37   2                  canEnd = 1;
-   38   2          } else if (dl1b_distance_mm > 450) {
-   39   2              if (dl1b_distance_mm == 8192) readyEnd = 1;
-   40   2              if (canEnd) {
-   41   3                  wireless_uart_send_string("exit\r\n");
-   42   3                  gpio_set_level(IO_P65, 0);
-   43   3                  RUN_MODE = FORWARD;
-   44   3                  canEnd = handle = readyEnd = 0;
-   45   3              }
-   46   2          }
-   47   1      }
+    9          extern uint8 outputImage[MT9V03X_H][MT9V03X_W];
+   10          
+   11          void runRamp() {
+   12   1          Point tarPos[6];
+   13   1          int16 i, j, k;
+   14   1          gpio_set_level(IO_P65, 1);
+   15   1          if (func_min(LBorderCount, RBorderCount) < 30) {
+   16   2              smoothStop = 1;
+   17   2              return;
+   18   2          }
+   19   1          smoothStop = 0;
+   20   1          for (i = 0; i < LBorderCount; i++)
+   21   1              if (LBorder[i].x == rampPos) break;
+   22   1          for (j = 0; j < RBorderCount; j++)
+   23   1              if (RBorder[j].x == rampPos) break;
+   24   1          if (LBorder[i].x != rampPos || RBorder[j].x != rampPos) return;
+   25   1          for (k = 0; k <= 5; k++) {
+   26   2              tarPos[k].x = rampPos;
+   27   2              tarPos[k].y = LBorder[i].y + RBorder[j].y >> 1;
+   28   2          }
+   29   1          getGodRoadLine(tarPos, 6);
+   30   1          alongLine(tarPos, 6, 5);
+   31   1          handle = 1;
+   32   1          setSpeed = 180;
+   33   1          // ips200_show_int16(0, 0, readyEnd);
+   34   1          // ips200_show_int16(0, 20, canEnd);
+   35   1          // ips200_show_int16(0, 40, dl1b_distance_mm);
+   36   1          if (dl1b_distance_mm < 500) {
+   37   2              if (readyEnd)
+   38   2                  canEnd = 1;
+   39   2          } else if (dl1b_distance_mm > 450) {
+   40   2              if (dl1b_distance_mm == 8192) readyEnd = 1;
+   41   2              if (canEnd) {
+   42   3                  wireless_uart_send_string("exit\r\n");
+   43   3                  gpio_set_level(IO_P65, 0);
+   44   3                  RUN_MODE = FORWARD;
+   45   3                  canEnd = handle = readyEnd = 0;
+   46   3              }
+   47   2          }
+   48   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       569     ------
+  ecode size           =       523     ------
   data size            =    ------     ------
   idata size           =    ------     ------
-  pdata size           =    ------     ------
-C251 COMPILER V5.60.0,  RAMP                                                               30/05/26  21:55:54  PAGE 2   
+C251 COMPILER V5.60.0,  RAMP                                                               31/05/26  09:24:22  PAGE 2   
 
-  xdata size           =        18     ------
+  pdata size           =    ------     ------
+  xdata size           =        20     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------

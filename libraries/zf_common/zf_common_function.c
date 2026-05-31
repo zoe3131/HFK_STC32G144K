@@ -73,42 +73,25 @@ void func_soft_delay(volatile long t) {
 
 static const int16 theta[] = {4500,2657,1404,713,358,179,90,45};
 
-int16 atan2_int(int32 y, int32 x) {
-    int32 angle = 0, x_cur, y_cur, deg, x_shift, y_shift;
-    uint8 i;
-    if (x == 0 && y == 0) return 0;
-    if (x == 0) {
-        int16 temp = (y > 0) ? 90 : 270;
-        if (temp > 180) temp -= 360;
-        return temp;
+int32 atan2_int(int32 y, int32 x) {
+    static const int32 tan_table[31] = {
+        0,         1143,      2288,      3434,      4582,      5732,
+        6887,      8046,      9212,      10383,     11562,     12749,
+        13945,     15151,     16368,     17597,     18840,     20097,
+        21369,     22657,     23962,     25286,     26628,     27989,
+        29371,     30775,     32203,     33654,     35132,     36637,
+        37837
+};
+    int32 sign = (y >= 0) ? 1 : -1, ay = (y >= 0) ? y : -y, d = 29, lhs, rhs;
+    if (ay == 0) return 0;
+    lhs = (int)ay * 65536;
+    rhs = (int)x * tan_table[30];
+    if (lhs >= rhs) return sign * 30;
+    while (d >= 0) {
+        if (lhs >= (int)x * tan_table[d]) break;
+        d--;
     }
-    if (x < 0) {
-        x = -x;
-        y = -y;
-        angle = 18000;
-    }
-    x_cur = x;
-    y_cur = y;
-    for (i = 0; i < 8; i++) {
-        if (y_cur == 0) break;
-        x_shift = x_cur >> i;
-        y_shift = y_cur >> i;
-        if (y_cur < 0) {
-            x_cur = x_cur - y_shift;
-            y_cur = y_cur + x_shift;
-            angle -= theta[i];
-        } else {
-            x_cur = x_cur + y_shift;
-            y_cur = y_cur - x_shift;
-            angle += theta[i];
-        }
-    }
-    angle = angle % 36000;
-    if (angle < 0) angle += 36000;
-    deg = (angle + 50) / 100;
-    if (deg >= 360) deg = 0;
-    if (deg > 180) deg -= 360;
-    return (int16)deg;
+    return sign * d;
 }
 
 int32 sqrt_int(int32 x) {

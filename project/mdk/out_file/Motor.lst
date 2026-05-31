@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Motor                                                              30/05/26  21:19:27  PAGE 1   
+C251 COMPILER V5.60.0,  Motor                                                              31/05/26  11:23:07  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Motor
@@ -16,8 +16,8 @@ stmt  level    source
     4          #include "Motor.h"
 *** WARNING C323 IN LINE 12 OF ..\code\Zebra.h: newline expected, extra characters found
     5          
-    6          #define pressPwmL PWMF_CH3_PA5
-    7          #define pressPwmR PWMF_CH4_PA7
+    6          #define pressPwmL PWMF_CH2_PA3
+    7          #define pressPwmR PWMF_CH1_PA1
     8          #define motorDirR IO_P77
     9          #define motorPwmR PWMB_CH3_P76
    10          #define motorDirL IO_P75
@@ -66,7 +66,7 @@ stmt  level    source
    53   1          d_term = (int32) pid->Kd * (error - pid->last_error);
    54   1          att_term = (int32) pid->attitude_coeff * imu660rb_gyro_z;
    55   1          pid->last_error = error;
-C251 COMPILER V5.60.0,  Motor                                                              30/05/26  21:19:27  PAGE 2   
+C251 COMPILER V5.60.0,  Motor                                                              31/05/26  11:23:07  PAGE 2   
 
    56   1          pid_output = (p_term + d_term + att_term) / 100;
    57   1          return func_limit(pid_output, pid->max_out);
@@ -98,18 +98,18 @@ stmt  level    source
    83   1          encoder_clear_count(PWMA_ENCODER);
    84   1          encoder_clear_count(PWMC_ENCODER);
    85   1          pwm_set_duty(PWME_CH4P_PA6, 3060 + steerPIDCalculate(&steerPid, duty));
-   86   1          if (smoothStop) {
+   86   1          if (smoothStop || mustStop) {
    87   2              pwm_set_duty(motorPwmR, 0);
    88   2              pwm_set_duty(motorPwmL, 0);
-   89   2      //        pwm_set_duty(pressPwmL, 0);
-   90   2      //        pwm_set_duty(pressPwmR, 0);
+   89   2              pwm_set_duty(pressPwmL, 0);
+   90   2              pwm_set_duty(pressPwmR, 0);
    91   2          } else {
    92   2              pwm_set_duty(motorPwmR, motorPIDCalculate(&motorRPID, setSpeed + (!R ? 0 : setSpeed * 8 / R), enc
              -oderR));
    93   2              pwm_set_duty(motorPwmL, motorPIDCalculate(&motorLPID, setSpeed - (!R ? 0 : setSpeed * 8 / R), enc
              -oderL));
-   94   2      //        pwm_set_duty(pressPwmL, 750);
-   95   2      //        pwm_set_duty(pressPwmR, 750);
+   94   2              pwm_set_duty(pressPwmL, 900);
+   95   2              pwm_set_duty(pressPwmR, 900);
    96   2          }
    97   1      }
    98          
@@ -133,8 +133,8 @@ stmt  level    source
   116   1          //     //ips200_show_int16(0, 40, dy);
   117   1          //     if ((d <= 0 && dy <= 0) || (d >= 0 && dy >= 0)) d += dy;
   118   1          // }
-  119   1          setServoDuty(d);
-C251 COMPILER V5.60.0,  Motor                                                              30/05/26  21:19:27  PAGE 3   
+  119   1          setServoDuty(func_limit(d, 30));
+C251 COMPILER V5.60.0,  Motor                                                              31/05/26  11:23:07  PAGE 3   
 
   120   1      }
   121          
@@ -168,43 +168,49 @@ stmt  level    source
   149   1                   170, 0, 200, 2,
   150   1                   333);
   151   1          PIDInit(&motorLPID, 0,
-  152   1                  2500, 55, 100, 0,
+  152   1                  2500, 55, 1000, 0,
   153   1                  9500);
   154   1          PIDInit(&motorRPID, 1,
-  155   1                  2500, 55, 100, 0,
+  155   1                  2500, 55, 1000, 0,
   156   1                  9500);
   157   1          pwm_init(PWME_CH4P_PA6, servoFreq, 3060);
   158   1          gpio_init(motorDirR, GPO, 1, GPO_PUSH_PULL);
   159   1          gpio_init(motorDirL, GPO, 1, GPO_PUSH_PULL);
   160   1          pwm_init(motorPwmR, 17000, 0);
   161   1          pwm_init(motorPwmL, 17000, 0);
-  162   1      //    pwm_init(pressPwmR, 50, 750);
-  163   1      //    pwm_init(pressPwmL, 50, 750);
-  164   1          encoder_quad_init(PWMA_ENCODER, PWMA_ENCODER_CH1P_P60, PWMA_ENCODER_CH2P_P62);
-  165   1          encoder_quad_init(PWMC_ENCODER, PWMC_ENCODER_CH1P_P40, PWMC_ENCODER_CH2P_P42);
-  166   1          pit_ms_init(TIM1_PIT, 5, pitHandler);
-  167   1      }
-  168          
-  169          const int16 tani[31] = {0,
-  170                                  17,  35,  52,  70,  87,  105, 123, 141, 158, 176,
-  171                                  194, 213, 231, 249, 268, 287, 306, 325, 344, 364,
-  172                                  384, 404, 424, 445, 466, 488, 510, 532, 554, 577};
+  162   1          pwm_init(pressPwmR, 50, 900);
+  163   1          pwm_init(pressPwmL, 50, 900);
+  164   1          // 在50Hz的控制频率下，无刷电调转速 0%   为 500
+  165   1          // 在50Hz的控制频率下，无刷电调转速 20%  为 600
+  166   1          // 在50Hz的控制频率下，无刷电调转速 40%  为 700
+  167   1          // 在50Hz的控制频率下，无刷电调转速 60%  为 800
+  168   1          // 在50Hz的控制频率下，无刷电调转速 80%  为 900
+  169   1          // 在50Hz的控制频率下，无刷电调转速 100% 为 1000
+  170   1          encoder_quad_init(PWMA_ENCODER, PWMA_ENCODER_CH1P_P60, PWMA_ENCODER_CH2P_P62);
+  171   1          encoder_quad_init(PWMC_ENCODER, PWMC_ENCODER_CH1P_P40, PWMC_ENCODER_CH2P_P42);
+  172   1          pit_ms_init(TIM1_PIT, 5, pitHandler);
+  173   1      }
+  174          
+  175          const int16 tani[31] = {0,
+  176                                  17,  35,  52,  70,  87,  105, 123, 141, 158, 176,
+  177                                  194, 213, 231, 249, 268, 287, 306, 325, 344, 364,
+  178                                  384, 404, 424, 445, 466, 488, 510, 532, 554, 577};
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      3009     ------
+  ecode size           =      3137     ------
   data size            =    ------     ------
   idata size           =    ------     ------
+C251 COMPILER V5.60.0,  Motor                                                              31/05/26  11:23:07  PAGE 4   
+
   pdata size           =    ------     ------
   xdata size           =       172     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------
-C251 COMPILER V5.60.0,  Motor                                                              30/05/26  21:19:27  PAGE 4   
-
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------

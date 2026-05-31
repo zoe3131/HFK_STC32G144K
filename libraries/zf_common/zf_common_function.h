@@ -86,7 +86,7 @@ uint32      func_get_greatest_common_divisor    (uint32 num1, uint32 num2);
 
 void        func_soft_delay                     (volatile long t);
 int32       sqrt_int(int32 x);
-int16 atan2_int(int32 y, int32 x);
+int32 atan2_int(int32 y, int32 x);
 int32       func_str_to_int                     (char *str);
 void        func_int_to_str                     (char *str, int32 number);
 uint32      func_str_to_uint                    (char *str);

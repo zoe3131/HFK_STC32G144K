@@ -79,8 +79,10 @@ void main(void) {
     // seekfree_assistant_interface_init(SEEKFREE_ASSISTANT_DEBUG_UART);
     // seekfree_assistant_camera_information_config(SEEKFREE_ASSISTANT_MT9V03X, outputImage, MT9V03X_W, MT9V03X_H);
     while (1) {
-        ips200_show_int16(0, 90, RUN_MODE);
-
+        if (wireless_uart_read_buffer(data_buffer, 32)) {
+            mustStop = 1;
+            break;
+        }
         if (mt9v03x_finish_flag) {
             // memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
             // seekfree_assistant_camera_send();

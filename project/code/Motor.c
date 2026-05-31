@@ -3,8 +3,8 @@
 //
 #include "Motor.h"
 
-#define pressPwmL PWMF_CH3_PA5
-#define pressPwmR PWMF_CH4_PA7
+#define pressPwmL PWMF_CH2_PA3
+#define pressPwmR PWMF_CH1_PA1
 #define motorDirR IO_P77
 #define motorPwmR PWMB_CH3_P76
 #define motorDirL IO_P75
@@ -83,16 +83,16 @@ static void pitHandler() {
     encoder_clear_count(PWMA_ENCODER);
     encoder_clear_count(PWMC_ENCODER);
     pwm_set_duty(PWME_CH4P_PA6, 3060 + steerPIDCalculate(&steerPid, duty));
-    if (smoothStop) {
+    if (smoothStop || mustStop) {
         pwm_set_duty(motorPwmR, 0);
         pwm_set_duty(motorPwmL, 0);
-//        pwm_set_duty(pressPwmL, 0);
-//        pwm_set_duty(pressPwmR, 0);
+        pwm_set_duty(pressPwmL, 0);
+        pwm_set_duty(pressPwmR, 0);
     } else {
         pwm_set_duty(motorPwmR, motorPIDCalculate(&motorRPID, setSpeed + (!R ? 0 : setSpeed * 8 / R), encoderR));
         pwm_set_duty(motorPwmL, motorPIDCalculate(&motorLPID, setSpeed - (!R ? 0 : setSpeed * 8 / R), encoderL));
-//        pwm_set_duty(pressPwmL, 750);
-//        pwm_set_duty(pressPwmR, 750);
+        pwm_set_duty(pressPwmL, 900);
+        pwm_set_duty(pressPwmR, 900);
     }
 }
 
@@ -116,7 +116,7 @@ void alongLine(Point roadLine[], int16 count, int16 aimPos) {
     //     //ips200_show_int16(0, 40, dy);
     //     if ((d <= 0 && dy <= 0) || (d >= 0 && dy >= 0)) d += dy;
     // }
-    setServoDuty(d);
+    setServoDuty(func_limit(d, 30));
 }
 
 void setServoDuty(int8 d) {
@@ -149,18 +149,24 @@ void motorInit(int16 p, int16 i, int16 d, int16 amm, int16 spd, int16 dh) {
              170, 0, 200, 2,
              333);
     PIDInit(&motorLPID, 0,
-            2500, 55, 100, 0,
+            2500, 55, 1000, 0,
             9500);
     PIDInit(&motorRPID, 1,
-            2500, 55, 100, 0,
+            2500, 55, 1000, 0,
             9500);
     pwm_init(PWME_CH4P_PA6, servoFreq, 3060);
     gpio_init(motorDirR, GPO, 1, GPO_PUSH_PULL);
     gpio_init(motorDirL, GPO, 1, GPO_PUSH_PULL);
     pwm_init(motorPwmR, 17000, 0);
     pwm_init(motorPwmL, 17000, 0);
-//    pwm_init(pressPwmR, 50, 750);
-//    pwm_init(pressPwmL, 50, 750);
+    pwm_init(pressPwmR, 50, 900);
+    pwm_init(pressPwmL, 50, 900);
+    // 在50Hz的控制频率下，无刷电调转速 0%   为 500
+    // 在50Hz的控制频率下，无刷电调转速 20%  为 600
+    // 在50Hz的控制频率下，无刷电调转速 40%  为 700
+    // 在50Hz的控制频率下，无刷电调转速 60%  为 800
+    // 在50Hz的控制频率下，无刷电调转速 80%  为 900
+    // 在50Hz的控制频率下，无刷电调转速 100% 为 1000
     encoder_quad_init(PWMA_ENCODER, PWMA_ENCODER_CH1P_P60, PWMA_ENCODER_CH2P_P62);
     encoder_quad_init(PWMC_ENCODER, PWMC_ENCODER_CH1P_P40, PWMC_ENCODER_CH2P_P42);
     pit_ms_init(TIM1_PIT, 5, pitHandler);

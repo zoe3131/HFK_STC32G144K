@@ -6,10 +6,11 @@
 
 static uint8 canEnd = 0, readyEnd = 0;
 extern int16 RUN_MODE, pitch;
+extern uint8 outputImage[MT9V03X_H][MT9V03X_W];
 
 void runRamp() {
     Point tarPos[6];
-    int16 i, j;
+    int16 i, j, k;
     gpio_set_level(IO_P65, 1);
     if (func_min(LBorderCount, RBorderCount) < 30) {
         smoothStop = 1;
@@ -21,17 +22,17 @@ void runRamp() {
     for (j = 0; j < RBorderCount; j++)
         if (RBorder[j].x == rampPos) break;
     if (LBorder[i].x != rampPos || RBorder[j].x != rampPos) return;
-    for (i = 0; i <= 5; i++) {
-        tarPos[i].x = rampPos;
-        tarPos[i].y = LBorder[i].y + RBorder[j].y >> 1;
+    for (k = 0; k <= 5; k++) {
+        tarPos[k].x = rampPos;
+        tarPos[k].y = LBorder[i].y + RBorder[j].y >> 1;
     }
     getGodRoadLine(tarPos, 6);
     alongLine(tarPos, 6, 5);
     handle = 1;
-    setSpeed = 180;
-    ips200_show_int16(0, 0, readyEnd);
-    ips200_show_int16(0, 20, canEnd);
-    ips200_show_int16(0, 40, dl1b_distance_mm);
+    setSpeed = 200;
+    // ips200_show_int16(0, 0, readyEnd);
+    // ips200_show_int16(0, 20, canEnd);
+    // ips200_show_int16(0, 40, dl1b_distance_mm);
     if (dl1b_distance_mm < 500) {
         if (readyEnd)
             canEnd = 1;
