@@ -6,8 +6,8 @@
 
 #define CROSS_READY 1
 #define CROSS_IN 2
-extern uint8 outputImage[MT9V03X_H][MT9V03X_W], crossDis;
-static uint8 halfBlock = block / 2, QW = 45, DQW = 143, m;
+extern uint8 outputImage[MT9V03X_H][MT9V03X_W], switch2;
+static uint8 halfBlock = block / 2, QW = 45, DQW = 143, m, added;
 static int8 CROSS_MODE = CROSS_READY, canEnd = 0;
 static int16 alongR, crossThreshold;
 extern int16 centerLineCount, RUN_MODE, LRoadCount, RRoadCount, LCorner, RCorner;
@@ -32,9 +32,9 @@ Point getCrossRStart() {
             DQW = m;
         }
     }
-    while (i >= 0 && getImageFilterSelf(i, j) <= crossThreshold) i -= 3;
+    while (i >= 0 && getImagePointFilterSelf(i, j) <= crossThreshold) i -= 3;
     j = DQW;
-    while (i >= 0 && getImageFilterSelf(i, j) > crossThreshold) i--;
+    while (i >= 0 && getImagePointFilterSelf(i, j) > crossThreshold) i--;
     if (i < halfBlock) {
         pos.x = 0;
         pos.y = 0;
@@ -63,9 +63,9 @@ Point getCrossLStart() {
             QW = m;
         }
     }
-    while (i >= 0 && getImageFilterSelf(i, j) <= crossThreshold) i -= 3;
+    while (i >= 0 && getImagePointFilterSelf(i, j) <= crossThreshold) i -= 3;
     j = QW;
-    while (i >= 0 && getImageFilterSelf(i, j) > crossThreshold) i--;
+    while (i >= 0 && getImagePointFilterSelf(i, j) > crossThreshold) i--;
     if (i < halfBlock) {
         pos.x = 0;
         pos.y = 0;
@@ -77,18 +77,31 @@ Point getCrossLStart() {
 }
 
 void runCross() {
-    smoothStop = 0;
+#if (DEBUG_MODE)
+    if (switch2) {
+        ips200_show_int16(0, MT9V03X_H + 1, LBorderCount);
+        ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, RBorderCount);
+    }
+#endif
     if (CROSS_MODE == CROSS_READY) {
         gpio_set_level(IO_P65, 1);
-        if (centerLineCount < 10) {
-            crossThreshold = threshold;
+        if (!added) {
+            if (LBorderCount && RBorderCount) added = 1;
             alongR = LBorderCount < RBorderCount;
+        }
+        if (centerLineCount && centerLineCount < 9) {
+            crossThreshold = threshold;
             CROSS_MODE = CROSS_IN;
         }
         alongLine(centerLine, centerLineCount, getDynamicAimPos());
+        if (!LRoadCount && !RRoadCount) canEnd = 1;
     } else if (CROSS_MODE == CROSS_IN) {
         Point border[expRoadCount], farCenterLine[expRoadCount];
         int16 roadCount = expRoadCount, farCenterLineCount, corner, i, j;
+        if (!LRoadCount && !RRoadCount) {
+            canEnd = 1;
+            wireless_uart_send_string("re\r\n");
+        }
         if (alongR) {
             start = getCrossRStart();
             getRBorder(border, start, &roadCount);
@@ -98,34 +111,32 @@ void runCross() {
         }
         getGodRoadLine(border, roadCount);
         resampleRoad(border, &roadCount, 0, 3);
-        corner = findCorner(border, roadCount);
+        corner = findCorner(border, roadCount, 1);
         filterRoad(border, roadCount);
         farCenterLineCount = roadCount;
         if (alongR)
             getCenterLineByRBorder(border, farCenterLine, farCenterLineCount);
         else getCenterLineByLBorder(border, farCenterLine, farCenterLineCount);
-        if (!LRoadCount && !RRoadCount) canEnd = 1;
         if (corner && farCenterLine[corner].x > 50) corner = func_min(corner + 3, farCenterLineCount);
-        else corner = 0;
+        else corner = 5;
         farCenterLine[corner].x = MT9V03X_H - 1;
         farCenterLine[corner].y = MT9V03X_W / 2 - 3;
         resampleRoad(farCenterLine, &farCenterLineCount, corner, 2);
         filterRoad(farCenterLine, farCenterLineCount);
         alongLine(farCenterLine, farCenterLineCount, 25);
         if (centerLineCount > 20 && canEnd) {
-            canEnd = 0;
+            canEnd = added = 0;
             CROSS_MODE = CROSS_READY;
             RUN_MODE = FORWARD;
             QW = 45;
             DQW = 143;
             gpio_set_level(IO_P65, 0);
-            return;
+            wireless_uart_send_string("exit\r\n");
         }
-        if (crossDis) {
+#if (DEBUG_MODE)
+        if (switch2) {
             ips200_displayimage03x(mt9v03x_image, MT9V03X_W, MT9V03X_H, 0, 0);
             ips200_draw_point(start.y, start.x, RGB565_RED);
-            ips200_show_int16(0, MT9V03X_H + 1, corner);
-            ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, farCenterLineCount);
             for (i = 0; i < MT9V03X_H; i++)
                 for (j = 0; j < MT9V03X_W; j++)
                     outputImage[i][j] = 0;
@@ -135,5 +146,6 @@ void runCross() {
                 outputImage[border[i].x][border[i].y] = 255;
             ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
         }
+#endif
     }
 }

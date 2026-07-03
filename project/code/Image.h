@@ -9,8 +9,9 @@
 #define block 5               //局域二值化边长
 #define cap 5                 //去噪
 #define expRoadCount 100      //边线期望长度
-#define expThreshold 150
+#define expThreshold 100
 #define ZEBRA_TRIGGER_POS 50
+#define targetPos 70
 
 void getLBorder(Point LRoad[], Point start, int16 *count);
 void getRBorder(Point RRoad[], Point start, int16 *count);
@@ -21,11 +22,12 @@ void getGodRoadLine(Point roadLine[], int16 count);
 void resampleRoad(Point roadLine[], int16 *count, int16 startPos, uint8 dis);
 Point getLStart();
 Point getRStart();
-int16 findCorner(Point roadLine[], int16 count);
-uint8 isZebra(int16 pos, uint8 along);
-uint8 getImageFilterSelf(uint8 i, uint8 j);
-extern uint8 threshold, centerLineDistance;
+int16 findCorner(Point roadLine[], int16 count, int8 cross);
+uint8 findZebra(int16 pos);
+Point findTarget(int16 i);
 extern const uint8 borderOffset[120];
+uint8 getImagePointFilterSelf(uint8 i, uint8 j);
+extern uint8 threshold, centerLineDistance;
 extern int16 LBorderCount, RBorderCount;
 extern Point LBorder[expRoadCount], RBorder[expRoadCount];
 void displayBinarizationImage();

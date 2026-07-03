@@ -528,10 +528,10 @@ sfr         RSTCFG      =           0xff;
 
 /////////////////////////////////////////////////
 //
-//濡備笅鐗规畩鍔熻兘瀵勫瓨鍣ㄤ綅浜庢墿灞昍AM鍖哄煙
-//璁块棶杩欎簺瀵勫瓨鍣?闇�鍏堝皢EAXFR璁剧疆涓?,鎵嶅彲姝ｅ父璇诲啓
+//如下特殊功能寄存器位于扩展RAM区域
+//访问这些寄存??需先将EAXFR设置??,才可正常读写
 //    EAXFR = 1;
-//鎴栬�?
+//或??
 //    P_SW2 |= 0x80;
 ///////////////////////////////////////////////////
 
@@ -2753,8 +2753,8 @@ sfr         RSTCFG      =           0xff;
 
 /////////////////////////////////////////////////
 
-#define	EAXSFR()		EAXFR = 1		/* MOVX A,@DPTR/MOVX @DPTR,A鎸囦护鐨勬搷浣滃?硅薄涓烘墿灞昐FR(XSFR) */
-#define	EAXRAM()		EAXFR = 0		/* MOVX A,@DPTR/MOVX @DPTR,A鎸囦护鐨勬搷浣滃?硅薄涓烘墿灞昍AM(XRAM) */
+#define	EAXSFR()		EAXFR = 1		/* MOVX A,@DPTR/MOVX @DPTR,A指令的操作???象为扩展SFR(XSFR) */
+#define	EAXRAM()		EAXFR = 0		/* MOVX A,@DPTR/MOVX @DPTR,A指令的操作???象为扩展RAM(XRAM) */
 
 /////////////////////////////////////////////////
 #define NOP1()  _nop_()

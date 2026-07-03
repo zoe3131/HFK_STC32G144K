@@ -22,7 +22,6 @@ void runRRound(int16 LCorner, int16 RCorner) {
         gpio_set_level(IO_P65, 1);
         if (centerLineCount < 5) {
             smoothStop = 1;
-            return;
         } else smoothStop = 0;
         alongLine(centerLine, centerLineCount, getDynamicAimPos());
         if (!RRoadCount)
@@ -32,9 +31,9 @@ void runRRound(int16 LCorner, int16 RCorner) {
             ALONG = ALONG_R;
         }
     } else if (ROUND_MODE == ROUND_START) {
-        handle = 0;
         gpio_set_level(IO_P65, 0);
         ALONG = ALONG_R;
+        setSpeed = 250;
         if (centerLineCount > 10)
             alongLine(centerLine, centerLineCount, 28);
         else
@@ -44,6 +43,7 @@ void runRRound(int16 LCorner, int16 RCorner) {
         else if (LRoadCount > 20 && !LCorner && canIn) {
             ROUND_MODE = ROUND_IN;
             ALONG = ALONG_L;
+            handle = 0;
             centerLineDistance = 26;
         }
     } else if (ROUND_MODE == ROUND_IN) {
@@ -57,6 +57,8 @@ void runRRound(int16 LCorner, int16 RCorner) {
             ALONG = ALONG_R;
         }
     } else if (ROUND_MODE == ROUND_END) {
+        handle = 1;
+        setSpeed = 230;
         ALONG = ALONG_R;
         if (centerLineCount > 5)
             alongLine(centerLine, centerLineCount, 17);
@@ -69,14 +71,16 @@ void runRRound(int16 LCorner, int16 RCorner) {
         }
     } else if (ROUND_MODE == ROUND_EXIT) {
         ALONG = ALONG_L;
+        setSpeed = 230;
         if (centerLineCount < 5) {
             smoothStop = 1;
         } else smoothStop = 0;
         alongLine(centerLine, centerLineCount, 40);
         if (!RRoadCount)
             canFinish = 1;
-        else if (RRoadCount > 10 && !RCorner && canFinish) {
+        else if (RRoadCount > 10 && canFinish) {
             ROUND_MODE = ROUND_READY;
+            smoothStop = handle = 0;
             RUN_MODE = FORWARD;
             canFinish = canStart = canIn = 0;
         }

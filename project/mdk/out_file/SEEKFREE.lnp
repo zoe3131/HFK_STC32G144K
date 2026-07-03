@@ -51,6 +51,7 @@
 ".\out_file\Zebra.obj",
 ".\out_file\Block.obj",
 ".\out_file\RAMP.obj",
+".\out_file\Laser.obj",
 ".\out_file\isr.obj",
 ".\out_file\main.obj" 
 TO ".\out_file\SEEKFREE" 

@@ -10,13 +10,13 @@
 #define motorDirL IO_P75
 #define motorPwmL PWMB_CH1_P74
 
-int16 encoderL, encoderR, setSpeed = 0, handle = 0, duty = 0;
+volatile int16 encoderL, encoderR, setSpeed = 0, handle = 0, duty = 0;
 static uint32 K;
 const int16 tani[31];
 extern int16 RUN_MODE;
-extern uint8 display, borderIn, mustStop;
-static uint8 DEVICE_H = 30;
-static int16 R, c1, c2, c3, c4, c5, c6;
+extern uint8 switch1, borderIn, mustStop;
+static uint8 DEVICE_H = 30, send_buff[32];
+static int16 R, c1, c2, c3, c4, c5, c6, c7, LSetSpeed, RSetSpeed, ct = 0, ct2 = 0;
 int8 smoothStop;
 
 typedef struct {
@@ -74,12 +74,12 @@ int16 motorPIDCalculate(PID_t *pid, int16 target, int16 actual) {
     pid->base += delta_u / 100;
     pid->base = func_limit(pid->base, pid->max_out);
     gpio_set_level((gpio_pin_enum) pid->which ? motorDirR : motorDirL, pid->base >= 0);
-    return func_abs(pid->base);
+    return func_abs(pid->base) + 200;
 }
 
 static void pitHandler() {
-    encoderR = -encoder_get_count(PWMA_ENCODER) << 1;
-    encoderL = encoder_get_count(PWMC_ENCODER) << 1;
+    encoderR = -encoder_get_count(PWMA_ENCODER) + (encoderR >> 1);
+    encoderL = encoder_get_count(PWMC_ENCODER) + (encoderL >> 1);
     encoder_clear_count(PWMA_ENCODER);
     encoder_clear_count(PWMC_ENCODER);
     pwm_set_duty(PWME_CH4P_PA6, 3060 + steerPIDCalculate(&steerPid, duty));
@@ -89,11 +89,17 @@ static void pitHandler() {
         pwm_set_duty(pressPwmL, 0);
         pwm_set_duty(pressPwmR, 0);
     } else {
-        pwm_set_duty(motorPwmR, motorPIDCalculate(&motorRPID, setSpeed + (!R ? 0 : setSpeed * 8 / R), encoderR));
-        pwm_set_duty(motorPwmL, motorPIDCalculate(&motorLPID, setSpeed - (!R ? 0 : setSpeed * 8 / R), encoderL));
-        pwm_set_duty(pressPwmL, 900);
-        pwm_set_duty(pressPwmR, 900);
+        RSetSpeed = setSpeed + (!R ? 0 : setSpeed * 8 / R);
+        LSetSpeed = setSpeed - (!R ? 0 : setSpeed * 8 / R);
+        pwm_set_duty(motorPwmR, motorPIDCalculate(&motorRPID, RSetSpeed, encoderR));
+        pwm_set_duty(motorPwmL, motorPIDCalculate(&motorLPID, LSetSpeed, encoderL));
+        if (!handle) {
+            pwm_set_duty(pressPwmL, c7);
+            pwm_set_duty(pressPwmR, c7);
+        }
     }
+    // sprintf(send_buff, "speed: %d, %d, %d, %d\n", LSetSpeed, encoderL, RSetSpeed, encoderR);
+    // wireless_uart_send_buffer(send_buff, 32);
 }
 
 void alongLine(Point roadLine[], int16 count, int16 aimPos) {
@@ -104,7 +110,9 @@ void alongLine(Point roadLine[], int16 count, int16 aimPos) {
     dx = MT9V03X_H - (roadLine[pos].x + roadLine[pos - 1].x + roadLine[pos - 2].x) / 3 + DEVICE_H;
     dy = 91 - (roadLine[pos].y + roadLine[pos - 1].y + roadLine[pos - 2].y) / 3;
     d = atan2_int(2 * DEVICE_H * dy, dx * dx + dy * dy);
-    if (!display) ips200_draw_point(roadLine[pos].y, roadLine[pos].x + MT9V03X_H + 40, RGB565_RED);
+#if (DEBUG_MODE)
+    if (switch1) ips200_draw_point(roadLine[pos].y, roadLine[pos].x + MT9V03X_H + 40, RGB565_RED);
+#endif
 //    pos = func_limit_ab(c2, 5, count - 1);
 //    dx = MT9V03X_H - roadLine[pos].x;
 //    dy = 94 - roadLine[pos].y;
@@ -120,12 +128,15 @@ void alongLine(Point roadLine[], int16 count, int16 aimPos) {
 }
 
 void setServoDuty(int8 d) {
-    int16 t = tani[func_limit_ab(func_abs((int16) d * 170 / 100), 0, 30)];
-    if (!display) ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 20, d);
+    int16 data t = tani[func_limit_ab(func_abs((int16) d * 170 / 100), 0, 30)];
+#if (DEBUG_MODE)
+    if (switch1) ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 20, d);
+#endif
     R = !t ? 0 : 20000 / t;
     //if (func_abs(K) > func_abs(R)) K = R;
     if (!handle)
-        setSpeed = !R ? c4 : func_limit(sqrt_int(func_abs(R) * (uint32) c3), c4);
+        setSpeed = !R ? c5 : func_limit(sqrt_int(func_abs(R) * (uint32) c4), c5);
+    else setSpeed = func_min(setSpeed, !R ? c5 : func_limit(sqrt_int(func_abs(R) * (uint32) c4), c5));
     if (d < 0) R = -R;
     // ips200_show_int16(0, 0, encoderL);
     // ips200_show_int16(0, 30, encoderR);
@@ -135,32 +146,33 @@ void setServoDuty(int8 d) {
 
 int8 getDynamicAimPos() {
     int16 speed = encoderR + encoderL >> 1;
-    return speed / 10 + c5;
+    return speed / 10 + c6;
 }
 
-void motorInit(int16 p, int16 i, int16 d, int16 amm, int16 spd, int16 dh) {
-    c1 = p;
-    c2 = i;
-    c3 = d;
-    c4 = amm;
-    c5 = spd;
-    c6 = dh;
+void motorInit(int16 c11, int16 c22, int16 c33, int16 c44, int16 c55, int16 c66, int16 c77) {
+    c1 = c11;
+    c2 = c22;
+    c3 = c33;
+    c4 = c44;
+    c5 = c55;
+    c6 = c66;
+    c7 = c77;
     PIDInit(&steerPid, 3,
-             170, 0, 200, 2,
+             170, 0, 100, 2,
              333);
     PIDInit(&motorLPID, 0,
-            2500, 55, 1000, 0,
+            c11, c22, c33, 0,
             9500);
     PIDInit(&motorRPID, 1,
-            2500, 55, 1000, 0,
+            c11, c22, c33, 0,
             9500);
     pwm_init(PWME_CH4P_PA6, servoFreq, 3060);
     gpio_init(motorDirR, GPO, 1, GPO_PUSH_PULL);
     gpio_init(motorDirL, GPO, 1, GPO_PUSH_PULL);
     pwm_init(motorPwmR, 17000, 0);
     pwm_init(motorPwmL, 17000, 0);
-    pwm_init(pressPwmR, 50, 900);
-    pwm_init(pressPwmL, 50, 900);
+    pwm_init(pressPwmR, 50, c7);
+    pwm_init(pressPwmL, 50, c7);
     // 在50Hz的控制频率下，无刷电调转速 0%   为 500
     // 在50Hz的控制频率下，无刷电调转速 20%  为 600
     // 在50Hz的控制频率下，无刷电调转速 40%  为 700

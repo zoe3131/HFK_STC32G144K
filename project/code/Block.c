@@ -12,10 +12,10 @@ extern Point centerLine[expRoadCount];
 uint8 canEnd() {
     int16 i;
     if (fixedLCorner) {
-        for (i = 0; i < RBorderCount; i += 10)
+        for (i = 0; i < RBorderCount && RBorder[i].x > 10; i += 10)
             if (mt9v03x_image[RBorder[i].x][RBorder[i].y - borderOffset[RBorder[i].x]] < blockThreshold) return 0;
     } else {
-        for (i = 0; i < LBorderCount; i += 10)
+        for (i = 0; i < LBorderCount && LBorder[i].x > 10; i += 10)
             if (mt9v03x_image[LBorder[i].x][LBorder[i].y + borderOffset[LBorder[i].x]] < blockThreshold) return 0;
     }
     return 1;

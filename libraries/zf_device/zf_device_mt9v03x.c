@@ -161,7 +161,8 @@ uint8 mt9v03x_init (void)
             gpio_init(FIFO_VSY_PIN,  GPI, 1, GPI_PULL_UP);
 
             // 默认中断优先级最高，DMA优先级最高
-            mt9v03x_dma_init((uint8 *)&mt9v03x_image[0][0], MT9V03X_IMAGE_SIZE, 0, 3, 3);   
+			// 单片机读取摄像头数据约3ms
+            mt9v03x_dma_init((uint8 *)&mt9v03x_image[0][0], MT9V03X_IMAGE_SIZE, 0, 3, 3);
             
             exit_init(INT1_P33, BOTH);
             // 默认中断优先级最高

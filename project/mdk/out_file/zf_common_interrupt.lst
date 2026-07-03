@@ -1,13 +1,13 @@
-C251 COMPILER V5.60.0,  zf_common_interrupt                                                30/05/26  21:19:22  PAGE 1   
+C251 COMPILER V5.60.0,  zf_common_interrupt                                                02/07/26  14:49:08  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_common_interrupt
 OBJECT MODULE PLACED IN .\out_file\zf_common_interrupt.obj
 COMPILER INVOKED BY: D:\Keil\C251\BIN\C251.EXE ..\..\libraries\zf_common\zf_common_interrupt.c LARGE FLOAT64 ROM(HUGE) W
-                    -ARNINGLEVEL(3) OPTIMIZE(2,SIZE) BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf
-                    -_device;..\..\libraries\zf_driver;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_compon
-                    -ents\seekfree_assistant) DEBUG PRINT(.\out_file\zf_common_interrupt.lst) TABS(2) OBJECT(.\out_file\zf_common_interrupt.o
-                    -bj) 
+                    -ARNINGLEVEL(3) OPTIMIZE(SIZE) BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_d
+                    -evice;..\..\libraries\zf_driver;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_componen
+                    -ts\seekfree_assistant) DEBUG PRINT(.\out_file\zf_common_interrupt.lst) TABS(2) OBJECT(.\out_file\zf_common_interrupt.obj
+                    -) 
 
 stmt  level    source
 
@@ -66,7 +66,7 @@ stmt  level    source
    49   1        if((irqn >> 4) == 0)
    50   1        {
    51   2          IP  |= (priority & 0x01) << (irqn & 0x0F);
-C251 COMPILER V5.60.0,  zf_common_interrupt                                                30/05/26  21:19:22  PAGE 2   
+C251 COMPILER V5.60.0,  zf_common_interrupt                                                02/07/26  14:49:08  PAGE 2   
 
    52   2          IPH |= ((priority >> 1) & 0x01) << (irqn & 0x0F);
    53   2        }
@@ -112,66 +112,66 @@ stmt  level    source
    93   3            case P5_INI_IRQ: 
    94   3            case P6_INI_IRQ: 
    95   3            case P7_INI_IRQ: 
-   96   3              if(priority / 2){PINIPH |= (0x01 << (irqn & 0x0f));}
-   97   3              else{PINIPH &= ~(0x01 << (irqn & 0x0f));}
-   98   3              if(priority % 2){PINIPL |= (0x01 << (irqn & 0x0f));}
-   99   3              else{PINIPL |= (0x01 << (irqn & 0x0f));}
-  100   3              break;
-  101   3            case P8_INI_IRQ: //P8到PB共用2个字节控制中断优先级
-  102   3            case P9_INI_IRQ: 
-  103   3            case PA_INI_IRQ: 
-  104   3            case PB_INI_IRQ: 
-  105   3              if(priority / 2){PIN2IPH |= (0x01 << (irqn & 0x0f));}
-  106   3              else{PIN2IPH &= ~(0x01 << (irqn & 0x0f));}
-  107   3              if(priority % 2){PIN2IPL |= (0x01 << (irqn & 0x0f));}
-  108   3              else{PIN2IPL |= (0x01 << (irqn & 0x0f));}
-  109   3              break;
-  110   3          }
-  111   2        }
-  112   1      }
-  113          
-  114          //-------------------------------------------------------------------------------------------------------
+   96   3                      PINIPH = (priority >> 1) ? (PINIPH | (1U << (irqn & 0x0F))) : (PINIPH & ~(1U << (irqn & 0
+             -x0F)));
+   97   3                      PINIPL = (priority & 1U) ? (PINIPL | (1U << (irqn & 0x0F))) : (PINIPL & ~(1U << (irqn & 0
+             -x0F)));
+   98   3              break;
+   99   3            case P8_INI_IRQ: //P8到PB共用2个字节控制中断优先级
+  100   3            case P9_INI_IRQ: 
+  101   3            case PA_INI_IRQ: 
+  102   3            case PB_INI_IRQ: 
+  103   3                      PIN2IPH = (priority >> 1) ? (PIN2IPH | (1U << (irqn & 0x0F))) : (PIN2IPH & ~(1U << (irqn 
+             -& 0x0F)));
+  104   3                      PIN2IPL = (priority & 1U) ? (PIN2IPL | (1U << (irqn & 0x0F))) : (PIN2IPL & ~(1U << (irqn 
+             -& 0x0F)));
+  105   3                    break;
+  106   3          }
+  107   2        }
+  108   1      }
+  109          
+  110          //-------------------------------------------------------------------------------------------------------
              -------------
-  115          // 函数简介     关闭全局中断
-  116          // 参数说明     void            
-C251 COMPILER V5.60.0,  zf_common_interrupt                                                30/05/26  21:19:22  PAGE 3   
+  111          // 函数简介     关闭全局中断
+  112          // 参数说明     void            
+C251 COMPILER V5.60.0,  zf_common_interrupt                                                02/07/26  14:49:08  PAGE 3   
 
-  117          // 返回参数     void
-  118          // 使用示例     
-  119          //             
-  120          // 备注信息        
-  121          //-------------------------------------------------------------------------------------------------------
+  113          // 返回参数     void
+  114          // 使用示例     
+  115          //             
+  116          // 备注信息        
+  117          //-------------------------------------------------------------------------------------------------------
              -------------
-  122          void interrupt_global_disable(void)
-  123          {
-  124   1          EA = 0;
-  125   1      }
-  126          
-  127          //-------------------------------------------------------------------------------------------------------
+  118          void interrupt_global_disable(void)
+  119          {
+  120   1          EA = 0;
+  121   1      }
+  122          
+  123          //-------------------------------------------------------------------------------------------------------
              -------------
-  128          // 函数简介     开启全局中断
-  129          // 参数说明     void            
-  130          // 返回参数     void
-  131          // 使用示例     
-  132          //             
-  133          // 备注信息        
-  134          //-------------------------------------------------------------------------------------------------------
+  124          // 函数简介     开启全局中断
+  125          // 参数说明     void            
+  126          // 返回参数     void
+  127          // 使用示例     
+  128          //             
+  129          // 备注信息        
+  130          //-------------------------------------------------------------------------------------------------------
              -------------
-  135          void interrupt_global_enable(void)
-  136          {
-  137   1          EA = 1;
-  138   1      }
-  139          
+  131          void interrupt_global_enable(void)
+  132          {
+  133   1          EA = 1;
+  134   1      }
+  135          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      1474     ------
+  ecode size           =       956     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =         3     ------
+  xdata size           =    ------     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------

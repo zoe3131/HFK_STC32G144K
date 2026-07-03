@@ -1,12 +1,12 @@
-C251 COMPILER V5.60.0,  Block                                                              31/05/26  09:20:18  PAGE 1   
+C251 COMPILER V5.60.0,  Block                                                              03/07/26  15:12:37  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Block
 OBJECT MODULE PLACED IN .\out_file\Block.obj
-COMPILER INVOKED BY: D:\Keil\C251\BIN\C251.EXE ..\code\Block.c LARGE FLOAT64 ROM(HUGE) WARNINGLEVEL(3) OPTIMIZE(2,SIZE) 
-                    -BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_device;..\..\libraries\zf_drive
-                    -r;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_components\seekfree_assistant) DEBUG P
-                    -RINT(.\out_file\Block.lst) TABS(2) OBJECT(.\out_file\Block.obj) 
+COMPILER INVOKED BY: D:\Keil\C251\BIN\C251.EXE ..\code\Block.c LARGE FLOAT64 ROM(HUGE) WARNINGLEVEL(3) OPTIMIZE(SIZE) BR
+                    -OWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_device;..\..\libraries\zf_driver;
+                    -..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_components\seekfree_assistant) DEBUG PRI
+                    -NT(.\out_file\Block.lst) TABS(2) OBJECT(.\out_file\Block.obj) 
 
 stmt  level    source
 
@@ -25,11 +25,11 @@ stmt  level    source
    12          uint8 canEnd() {
    13   1          int16 i;
    14   1          if (fixedLCorner) {
-   15   2              for (i = 0; i < RBorderCount; i += 10)
+   15   2              for (i = 0; i < RBorderCount && RBorder[i].x > 10; i += 10)
    16   2                  if (mt9v03x_image[RBorder[i].x][RBorder[i].y - borderOffset[RBorder[i].x]] < blockThreshold) 
              -return 0;
    17   2          } else {
-   18   2              for (i = 0; i < LBorderCount; i += 10)
+   18   2              for (i = 0; i < LBorderCount && LBorder[i].x > 10; i += 10)
    19   2                  if (mt9v03x_image[LBorder[i].x][LBorder[i].y + borderOffset[LBorder[i].x]] < blockThreshold) 
              -return 0;
    20   2          }
@@ -62,12 +62,12 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       491     ------
+  ecode size           =       397     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =        11     ------
-C251 COMPILER V5.60.0,  Block                                                              31/05/26  09:20:18  PAGE 2   
+  xdata size           =         5     ------
+C251 COMPILER V5.60.0,  Block                                                              03/07/26  15:12:37  PAGE 2   
 
   xdata-const size     =    ------     ------
   edata size           =    ------     ------

@@ -1,12 +1,12 @@
-C251 COMPILER V5.60.0,  Zebra                                                              31/05/26  11:06:25  PAGE 1   
+C251 COMPILER V5.60.0,  Zebra                                                              03/07/26  15:12:37  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Zebra
 OBJECT MODULE PLACED IN .\out_file\Zebra.obj
-COMPILER INVOKED BY: D:\Keil\C251\BIN\C251.EXE ..\code\Zebra.c LARGE FLOAT64 ROM(HUGE) WARNINGLEVEL(3) OPTIMIZE(2,SIZE) 
-                    -BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_device;..\..\libraries\zf_drive
-                    -r;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_components\seekfree_assistant) DEBUG P
-                    -RINT(.\out_file\Zebra.lst) TABS(2) OBJECT(.\out_file\Zebra.obj) 
+COMPILER INVOKED BY: D:\Keil\C251\BIN\C251.EXE ..\code\Zebra.c LARGE FLOAT64 ROM(HUGE) WARNINGLEVEL(3) OPTIMIZE(SIZE) BR
+                    -OWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_device;..\..\libraries\zf_driver;
+                    -..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_components\seekfree_assistant) DEBUG PRI
+                    -NT(.\out_file\Zebra.lst) TABS(2) OBJECT(.\out_file\Zebra.obj) 
 
 stmt  level    source
 
@@ -19,71 +19,63 @@ stmt  level    source
     6          
     7          extern Point centerLine[expRoadCount];
     8          extern int16 centerLineCount, RUN_MODE, LCorner, RCorner;
-    9          uint8 canEnd, count, add;
+    9          static uint8 count, add = 1;
    10          extern uint8 outputImage[MT9V03X_H][MT9V03X_W];
    11          
    12          
    13          uint8 haveLine() {
-   14   1          int16 pos = 0;
-   15   1          if (LBorderCount > RBorderCount) {
-   16   2              while (pos < LBorderCount && LBorder[pos].x > ZEBRA_TRIGGER_POS)
-   17   2                  pos += 3;
-   18   2              pos = func_min(pos, LBorderCount - 1);
-   19   2              for (; pos > 0; pos -= 4)
-   20   2                  if (isZebra(pos, ALONG_L)) return 1;
-   21   2              return 0;
-   22   2          }
-   23   1          while (pos < RBorderCount && RBorder[pos].x > ZEBRA_TRIGGER_POS)
-   24   1              pos += 3;
-   25   1          pos = func_min(pos, RBorderCount - 1);
-   26   1          for (; pos > 0; pos -= 4)
-   27   1              if (isZebra(pos, ALONG_R)) return 1;
-   28   1          return 0;
-   29   1      }
-   30          
-   31          void runZebra(uint8 have) {
-   32   1          alongLine(centerLine, centerLineCount, getDynamicAimPos());
-   33   1          if (count == 2) {
-   34   2              stop:
-   35   2              system_delay_ms(200);
-   36   2              handle = 1;
-   37   2              setSpeed = 0;
-   38   2              ips200_show_string(0, 0, "FINISH");
-   39   2          } else {
-   40   2              if (add) {
-   41   3                  count++;
-   42   3                  if (count == 3) goto stop;
-   43   3                  add = 0;
-   44   3              }
-   45   2              if (!LCorner && !RCorner && !haveLine() && !have) {
-   46   3                  RUN_MODE = FORWARD;
-   47   3                  add = 1;
-   48   3                  canEnd = 0;
-   49   3              }
-   50   2          }
-   51   1      }
+   14   1          int16 i = 0;
+   15   1          while (i < LBorderCount && LBorder[i].x > ZEBRA_TRIGGER_POS) {
+   16   2              if (findZebra(i)) return 1;
+   17   2              i += 5;
+   18   2          }
+   19   1          return !LBorderCount || LBorder[i].x > ZEBRA_TRIGGER_POS;
+   20   1      }
+   21          
+   22          void runZebra(uint8 have) {
+   23   1          centerLineDistance = 17;
+   24   1          alongLine(centerLine, centerLineCount, getDynamicAimPos());
+   25   1          if (count == 2) {
+   26   2              stop:
+   27   2              system_delay_ms(100);
+   28   2              handle = 1;
+   29   2              pwm_set_duty(PWMF_CH2_PA3, 0);
+   30   2              pwm_set_duty(PWMF_CH1_PA1, 0);
+   31   2              setSpeed = 0;
+   32   2          } else {
+   33   2              if (add) {
+   34   3                  count++;
+   35   3                  if (count == 2) goto stop;
+   36   3                  add = 0;
+   37   3              }
+   38   2              if (!LCorner && !RCorner && LBorderCount && !have && !haveLine()) {
+   39   3                  RUN_MODE = FORWARD;
+   40   3                  add = 1;
+   41   3              }
+   42   2          }
+   43   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-C251 COMPILER V5.60.0,  Zebra                                                              31/05/26  11:06:25  PAGE 2   
-
-  ecode size           =       491     ------
+  ecode size           =       285     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =         6     ------
+  xdata size           =         2     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
+C251 COMPILER V5.60.0,  Zebra                                                              03/07/26  15:12:37  PAGE 2   
+
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =         7     ------
+  hconst size          =         6     ------
 End of Module Information.
 
 

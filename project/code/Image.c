@@ -7,42 +7,14 @@
 const static int8 data dirF[4][2] = {{-2, 0},{0, 2},{2, 0},{0, -2}},
     dirL[4][2] = {{-2, -2},{-2, 2},{2,  2},{2,  -2}},
     dirR[4][2] = {{-2, 2},{2,  2},{2,  -2},{-2, -2}};
-uint8 LThreshold = expThreshold, RThreshold = expThreshold, threshold = expThreshold, centerLineDistance = 17;
+uint8 LThreshold = expThreshold, RThreshold = expThreshold, threshold = expThreshold, centerLineDistance = 17, outputImage[MT9V03X_H][MT9V03X_W];
 const static uint8 reflection[120][188][2], data halfBlock = block / 2, data halfH = MT9V03X_H / 2, data halfW = MT9V03X_W / 2;
 Point LBorder[expRoadCount], RBorder[expRoadCount];
 int16 LBorderCount, RBorderCount;
 
-uint8 getImageFilterSelf(uint8 i, uint8 j) {
-    if (i > 97 && j > 45 && j < 143) return 255;
+uint8 getImagePointFilterSelf(uint8 i, uint8 j) {
+    if (i > 95 && j > 45 && j < 143) return 255;
     return mt9v03x_image[i][j];
-}
-
-uint8 isZebra(int16 pos, uint8 along) {
-    uint8 i, j, d, c = 0, added = 0;
-    if (along == ALONG_L) {
-        i = LBorder[pos].x;
-        j = LBorder[pos].y;
-        d = func_min(j + borderOffset[i], MT9V03X_W - 1);
-        for (; j < d; j += 2)
-            if (getImageFilterSelf(i, j) < threshold) {
-                if (!added) {
-                    added = 1;
-                    c++;
-                }
-            } else added = 0;
-    } else {
-        i = RBorder[pos].x;
-        j = RBorder[pos].y;
-        d = func_max(j - borderOffset[i], 0);
-        for (; j > d; j -= 2)
-            if (getImageFilterSelf(i, j) < threshold) {
-                if (!added) {
-                    added = 1;
-                    c++;
-                }
-            } else added = 0;
-    }
-    return i > 97 ? c >= 2 : c >= 5;
 }
 
 uint8 getPointThreshold(uint8 x, uint8 y) {
@@ -58,21 +30,27 @@ static int8 check(uint8 x, uint8 y) {
     uint16 d = func_abs((int16) mt9v03x_image[x][y - 2] - (int16) mt9v03x_image[x][y + 2]), a =
             (uint16) mt9v03x_image[x][y - 2] + (uint16) mt9v03x_image[x][y + 2];
     if (d > 15 && a / d <= 7) return 1;
-    else return 0;
+    return 0;
+}
+
+static int16 getLIndexStart(int16 i) {
+    int16 l, r, m;
+    l = halfBlock + 1;
+    r = i < 95 ? halfW : 40;
+    while (l < r) {
+        m = (l + r) >> 1;
+        if (mt9v03x_image[i][m] < LThreshold && mt9v03x_image[i][func_max(0, m - 10)] < LThreshold) l = m + 1;
+        else r = m;
+    }
+    return l;
 }
 
 Point getLStart() {
-    int16 i, l, r, m;
+    int16 i, l;
     Point ans;
-    for (i = MT9V03X_H - halfBlock - 2; i >= halfH; i -= 3) {
-        l = halfBlock + 1;
-        r = i < 97 ? halfW : 45;
-        while (l < r) {
-            m = (l + r) >> 1;
-            if (mt9v03x_image[i][m] >= LThreshold) r = m;
-            else l = m + 1;
-        }
-        if (mt9v03x_image[i][l + 2] > LThreshold && check(i, l)) {
+    for (i = MT9V03X_H - halfBlock - 2; i >= 70; i -= 3) {
+        l = getLIndexStart(i);
+        if (mt9v03x_image[i][func_min(l + 2, 187)] > LThreshold && check(i, l)) {
             ans.x = i;
             ans.y = l + 1;
             return ans;
@@ -83,18 +61,24 @@ Point getLStart() {
     return ans;
 }
 
+static int16 getRIndexStart(int16 i) {
+    int16 l, r, m;
+    l = i < 95 ? halfW : 150;
+    r = MT9V03X_W - halfBlock - 2;
+    while (l < r) {
+        m = (l + r + 1) >> 1;
+        if (mt9v03x_image[i][m] < RThreshold && mt9v03x_image[i][func_min(187, m + 10)] < RThreshold) r = m - 1;
+        else l = m;
+    }
+    return r;
+}
+
 Point getRStart() {
-    int16 i, l, r, m;
+    int16 i, r;
     Point ans;
-    for (i = MT9V03X_H - halfBlock - 2; i >= halfH; i -= 3) {
-        l = i < 97 ? halfW : 143;
-        r = MT9V03X_W - halfBlock - 2;
-        while (l < r) {
-            m = (l + r + 1) >> 1;
-            if (mt9v03x_image[i][m] >= RThreshold) l = m;
-            else r = m - 1;
-        }
-        if (mt9v03x_image[i][l - 2] > RThreshold && check(i, r)) {
+    for (i = MT9V03X_H - halfBlock - 2; i >= 70; i -= 3) {
+        r = getRIndexStart(i);
+        if (mt9v03x_image[i][func_max(r - 2, 0)] > RThreshold && check(i, r)) {
             ans.x = i;
             ans.y = r - 1;
             return ans;
@@ -104,6 +88,90 @@ Point getRStart() {
     ans.y = 0;
     return ans;
 }
+
+uint8 findZebra(int16 pos) {
+    uint8 data i = LBorder[pos].x, data j = LBorder[pos].y, data d = func_min(j + borderOffset[i], MT9V03X_W - 1), c = 0, added = 0;
+        for (; j < d; j += 2)
+            if (getImagePointFilterSelf(i, j) < threshold) {
+                if (!added) {
+                    added = 1;
+                    c++;
+                }
+            } else added = 0;
+    return i > 97 ? c >= 3 : c >= 5;
+}
+
+Point findTarget(int16 i) {
+    int16 LStart = getLIndexStart(i), RStart = getRIndexStart(i), len = 40, ans;
+    uint8 t = 119, b = 0, r = 0, l = 187, h, v, dh, dv;
+    Point pos, target[40], ret;
+    pos.x = i;
+    pos.y = 0;
+    if (LStart < 0) LStart = 0;
+    if (RStart > 187) RStart = 187;
+    for (ans = LStart + 1, RStart--;ans < RStart; ans += 2) {
+        if (mt9v03x_image[i][ans] < threshold) {
+            pos.y = ans - 1;
+            break;
+        }
+    }
+    if (pos.y) {
+        getRBorder(target, pos, &len);
+        // for (LStart = 0; LStart < 188; LStart++)
+        //     for (RStart = 0; RStart < 120; RStart++)
+        //         outputImage[RStart][LStart] = 0;
+        for (i = 0; i < len; i++) {
+            t = func_min(t, target[i].x);
+            b = func_max(b, target[i].x);
+            l = func_min(l, target[i].y);
+            r = func_max(r, target[i].y);
+        }
+        h = l + r >> 1;
+        v = t + b >> 1;
+        dh = reflection[v][r][1] - reflection[v][l][1];
+        dv = reflection[b][h][0] - reflection[t][h][0];
+        if (dh >= 8 && dh <= 12 && dv >= 8 && dv <= 12) {
+            // ips200_draw_point(l + r >> 1, t + b >> 1, RGB565_RED);
+            // ips200_draw_point((l + r >> 1) + 1, t + b >> 1, RGB565_RED);
+            // ips200_draw_point((l + r >> 1) - 1, t + b >> 1, RGB565_RED);
+            // ips200_draw_point(l + r >> 1, (t + b >> 1) + 1, RGB565_RED);
+            // ips200_draw_point(l + r >> 1, (t + b >> 1) - 1, RGB565_RED);
+            // outputImage[reflection[t + b >> 1][l + r >> 1][0]][reflection[t + b >> 1][l + r >> 1][1]] = 255;
+            // outputImage[reflection[v][r][0]][reflection[v][r][1]] = 255;
+            // outputImage[reflection[v][l][0]][reflection[v][l][1]] = 255;
+            // outputImage[reflection[b][h][0]][reflection[b][h][1]] = 255;
+            // outputImage[reflection[t][h][0]][reflection[t][h][1]] = 255;
+            //ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, 0);
+            ret.x = reflection[t + b >> 1][l + r >> 1][0];
+            ret.y = reflection[t + b >> 1][l + r >> 1][1];
+            // ips200_show_int16(0, MT9V03X_H + 1, ret.x);
+            // ips200_show_int16(0, MT9V03X_H + 15, ret.y);
+            return ret;
+        }
+    }
+    ret.x = 0;
+    ret.y = 0;
+    return ret;
+}
+//TODO:findTarget
+// if (start) {
+//     l = r = start;
+//     t = b = x;
+//     s.x = x;
+//     s.y = start;
+//     getRBorder(target, s, &targetLen);
+//     for (i = 0; i < targetLen; i++) {
+//         l = func_min(l, target[i].y);
+//         r = func_max(r, target[i].y);
+//         t = func_min(t, target[i].x);
+//         b = func_max(b, target[i].x);
+//     }
+//     if (r - l > 3) {
+//         ans.x = (t >> 1) + (b >> 1);
+//         ans.y = (l >> 1) + (r >> 1);
+//         return ans;
+//     }
+// }
 
 void getLBorder(Point LRoad[], Point start, int16 *count) {
     uint8 data
@@ -119,11 +187,11 @@ void getLBorder(Point LRoad[], Point start, int16 *count) {
         *count = 0;
         return;
     }
-    LThreshold = localThreshold - 5;
+    LThreshold = localThreshold;
     while (x > halfBlock + 1 && x < MT9V03X_H - halfBlock - 1 && y > halfBlock + 1 && y < MT9V03X_W - halfBlock - 1 && step < *count &&
            turn < 4) {
         up++;
-        if (up == 5) {
+        if (up == 2) {
             localThreshold = getPointThreshold(x, y);
             up = 0;
         }
@@ -146,10 +214,10 @@ void getLBorder(Point LRoad[], Point start, int16 *count) {
             turn = 0;
             dir = (dir + 3) % 4;
         }
+        if (x == start.x && y == start.y && !turn) break;
     }
     *count = LBorderCount = step;
-    for (step = 0; step < *count; step++)
-        LBorder[step] = LRoad[step];
+    memcpy(LBorder, LRoad, (*count) * sizeof(Point));
 }
 
 void getRBorder(Point RRoad[], Point start, int16 *count) {
@@ -166,12 +234,12 @@ void getRBorder(Point RRoad[], Point start, int16 *count) {
         *count = 0;
         return;
     }
-    RThreshold = localThreshold - 5;
+    RThreshold = localThreshold;
     threshold = LThreshold + RThreshold >> 1;
-    while (x > halfBlock + 1 && x < MT9V03X_H - halfBlock - 1 && y > halfBlock + 1 && y < MT9V03X_W - halfBlock - 1 && step < *count &&
+    while (x > halfBlock + 1 && x < 119 - halfBlock && y > halfBlock + 1 && y < 187 - halfBlock && step < *count &&
            turn < 4) {
         up++;
-        if (up == 5) {
+        if (up == 2) {
             localThreshold = getPointThreshold(x, y);
             up = 0;
         }
@@ -194,10 +262,10 @@ void getRBorder(Point RRoad[], Point start, int16 *count) {
             turn = 0;
             dir = (dir + 1) % 4;
         }
+        if (x == start.x && y == start.y && !turn) break;
     }
     *count = RBorderCount = step;
-    for (step = 0; step < *count; step++)
-        RBorder[step] = RRoad[step];
+    memcpy(RBorder, RRoad, (*count) * sizeof(Point));
 }
 
 void getCenterLineByLBorder(Point roadLine[], Point centerLine[], int16 count) {
@@ -303,16 +371,15 @@ void resampleRoad(Point roadLine[], int16 *count, int16 startPos, uint8 dis) {
     else
         output[--step] = roadLine[*count - 1];
     step++;
-    for (i = 0; i < step; i++)
-        roadLine[i] = output[i];
+    memcpy(roadLine, output, step * sizeof(Point));
     *count = step;
 }
 
-int16 findCorner(Point roadLine[], int16 count) {
-    int16 data i;
+int16 findCorner(Point roadLine[], int16 count, int8 cross) {
+    volatile int16 data i;
     for (i = 3; i < count - 2 && roadLine[i].x > 20; i++) {
-        int32 i_5 = func_limit_ab(i - 5, 0, count - 1), i0 = func_limit_ab(i, 0, count - 1),
-        i5 = func_limit_ab(i + 2, 0, count - 1), dx1 = roadLine[i0].x - roadLine[i_5].x,
+        volatile int32 i_5 = func_limit_ab(i - 5, 0, count - 1), i0 = func_limit_ab(i, 0, count - 1),
+        i5 = func_limit_ab(i + (cross ? 5 : 2), 0, count - 1), dx1 = roadLine[i0].x - roadLine[i_5].x,
         dy1 = roadLine[i0].y - roadLine[i_5].y, dx2 = roadLine[i5].x - roadLine[i0].x,
         dy2 = roadLine[i5].y - roadLine[i0].y, len1_sq = dx1 * dx1 + dy1 * dy1,
         len2_sq = dx2 * dx2 + dy2 * dy2, len1, len2, dot, abs_dot;
@@ -328,7 +395,6 @@ int16 findCorner(Point roadLine[], int16 count) {
 }
 
 //================================================= DEBUG =================================================
-uint8 outputImage[MT9V03X_H][MT9V03X_W];
 
 void displayBinarizationImage() {
     uint8 i, j, x, y;

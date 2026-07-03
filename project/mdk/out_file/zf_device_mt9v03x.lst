@@ -1,12 +1,12 @@
-C251 COMPILER V5.60.0,  zf_device_mt9v03x                                                  30/05/26  21:19:25  PAGE 1   
+C251 COMPILER V5.60.0,  zf_device_mt9v03x                                                  02/07/26  17:21:05  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_device_mt9v03x
 OBJECT MODULE PLACED IN .\out_file\zf_device_mt9v03x.obj
 COMPILER INVOKED BY: D:\Keil\C251\BIN\C251.EXE ..\..\libraries\zf_device\zf_device_mt9v03x.c LARGE FLOAT64 ROM(HUGE) WAR
-                    -NINGLEVEL(3) OPTIMIZE(2,SIZE) BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_d
-                    -evice;..\..\libraries\zf_driver;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_componen
-                    -ts\seekfree_assistant) DEBUG PRINT(.\out_file\zf_device_mt9v03x.lst) TABS(2) OBJECT(.\out_file\zf_device_mt9v03x.obj) 
+                    -NINGLEVEL(3) OPTIMIZE(SIZE) BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_dev
+                    -ice;..\..\libraries\zf_driver;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_components
+                    -\seekfree_assistant) DEBUG PRINT(.\out_file\zf_device_mt9v03x.lst) TABS(2) OBJECT(.\out_file\zf_device_mt9v03x.obj) 
 
 stmt  level    source
 
@@ -66,7 +66,7 @@ stmt  level    source
    52          
    53          
    54          
-C251 COMPILER V5.60.0,  zf_device_mt9v03x                                                  30/05/26  21:19:25  PAGE 2   
+C251 COMPILER V5.60.0,  zf_device_mt9v03x                                                  02/07/26  17:21:05  PAGE 2   
 
    55          
    56          // 需要配置到摄像头的数据 不允许在这修改参数
@@ -134,7 +134,7 @@ stmt  level    source
   112   1      
   113   1          soft_iic_init(
   114   1              &mt9v03x_iic_struct, 0,
-C251 COMPILER V5.60.0,  zf_device_mt9v03x                                                  30/05/26  21:19:25  PAGE 3   
+C251 COMPILER V5.60.0,  zf_device_mt9v03x                                                  02/07/26  17:21:05  PAGE 3   
 
   115   1              MT9V03X_COF_IIC_DELAY,
   116   1              MT9V03X_COF_IIC_SCL,
@@ -187,31 +187,33 @@ stmt  level    source
   161   3                  gpio_init(FIFO_VSY_PIN,  GPI, 1, GPI_PULL_UP);
   162   3      
   163   3                  // 默认中断优先级最高，DMA优先级最高
-  164   3                  mt9v03x_dma_init((uint8 *)&mt9v03x_image[0][0], MT9V03X_IMAGE_SIZE, 0, 3, 3);   
-  165   3                  
-  166   3                  exit_init(INT1_P33, BOTH);
-  167   3                  // 默认中断优先级最高
-  168   3                  interrupt_set_priority(INT1_IRQn, 3);                               
-  169   3                  
-  170   3                  break;
-  171   3              }
-  172   2          }while(0);
-  173   1          
-  174   1          return return_state;
-  175   1      }
-  176          
+  164   3            // 单片机读取摄像头数据约3ms
+  165   3                  mt9v03x_dma_init((uint8 *)&mt9v03x_image[0][0], MT9V03X_IMAGE_SIZE, 0, 3, 3);
+  166   3                  
+  167   3                  exit_init(INT1_P33, BOTH);
+  168   3                  // 默认中断优先级最高
+  169   3                  interrupt_set_priority(INT1_IRQn, 3);                               
+  170   3                  
+  171   3                  break;
+  172   3              }
+  173   2          }while(0);
+  174   1          
+  175   1          return return_state;
+  176   1      }
+  177          
+*** WARNING C183 IN LINE 138 OF ..\..\libraries\zf_device\zf_device_mt9v03x.c: dead assignment eliminated
+C251 COMPILER V5.60.0,  zf_device_mt9v03x                                                  02/07/26  17:21:05  PAGE 4   
 
 
-C251 COMPILER V5.60.0,  zf_device_mt9v03x                                                  30/05/26  21:19:25  PAGE 4   
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       441     ------
+  ecode size           =       374     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =        19     ------
+  xdata size           =    ------          9
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
@@ -225,4 +227,4 @@ Module Information          Static   Overlayable
 End of Module Information.
 
 
-C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
+C251 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

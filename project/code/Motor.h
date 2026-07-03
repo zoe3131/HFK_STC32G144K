@@ -5,6 +5,7 @@
 #ifndef SEEKFREE_STC32G144K_100PIN_OPENSOURCE_LIBRARY_MOTOR_H
 #define SEEKFREE_STC32G144K_100PIN_OPENSOURCE_LIBRARY_MOTOR_H
 #include "zf_common_headfile.h"
+#define DEBUG_MODE 1
 #define servoFreq 200
 #define FORWARD 114
 #define CROSS 514
@@ -16,8 +17,8 @@
 #define ALONG_L 88
 #define ALONG_R 99
 
-extern int16 setSpeed, handle;
-void motorInit(int16 p, int16 i, int16 d,int16 am, int16 sp, int16 dh);
+volatile extern int16 setSpeed, handle;
+void motorInit(int16 c11, int16 c22, int16 c33,int16 am, int16 sp, int16 c66, int16 c77);
 void setServoDuty(int8 duty);
 void alongLine(Point roadLine[], int16 count, int16 aimPos);
 int8 getDynamicAimPos();

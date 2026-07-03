@@ -1,12 +1,12 @@
-C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   30/05/26  21:19:23  PAGE 1   
+C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   02/07/26  14:49:09  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_driver_eeprom
 OBJECT MODULE PLACED IN .\out_file\zf_driver_eeprom.obj
 COMPILER INVOKED BY: D:\Keil\C251\BIN\C251.EXE ..\..\libraries\zf_driver\zf_driver_eeprom.c LARGE FLOAT64 ROM(HUGE) WARN
-                    -INGLEVEL(3) OPTIMIZE(2,SIZE) BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_de
-                    -vice;..\..\libraries\zf_driver;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_component
-                    -s\seekfree_assistant) DEBUG PRINT(.\out_file\zf_driver_eeprom.lst) TABS(2) OBJECT(.\out_file\zf_driver_eeprom.obj) 
+                    -INGLEVEL(3) OPTIMIZE(SIZE) BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_devi
+                    -ce;..\..\libraries\zf_driver;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_components\
+                    -seekfree_assistant) DEBUG PRINT(.\out_file\zf_driver_eeprom.lst) TABS(2) OBJECT(.\out_file\zf_driver_eeprom.obj) 
 
 stmt  level    source
 
@@ -66,7 +66,7 @@ stmt  level    source
    50   1      
    51   1          IAP_TRIG = 0x5A;
    52   1          IAP_TRIG = 0xA5;                    //先送5AH，再送A5H到IAP触发寄存器，每次都需要如此
-C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   30/05/26  21:19:23  PAGE 2   
+C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   02/07/26  14:49:09  PAGE 2   
 
    53   1          //送完A5H后，IAP命令立即被触发启动
    54   1          //CPU等待IAP完成后，才会继续执行程序。
@@ -134,7 +134,7 @@ stmt  level    source
   108   1          uint8 write_time;
   109   1          write_time = (system_clock / 1000000) ;
   110   1          IAP_TPS = write_time + 1;
-C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   30/05/26  21:19:23  PAGE 3   
+C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   02/07/26  14:49:09  PAGE 3   
 
   111   1      }
   112          
@@ -202,7 +202,7 @@ stmt  level    source
   169          // 返回参数     void
   170          // 备注信息
   171          // 使用示例     iap_read_buff(0x00, buff, 10);  // 向0地址读取一个数组，数组长度为10
-C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   30/05/26  21:19:23  PAGE 4   
+C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   02/07/26  14:49:09  PAGE 4   
 
   172          //-------------------------------------------------------------------------------------------------------
              -------------
@@ -270,7 +270,7 @@ stmt  level    source
   229          // 返回参数     void
   230          // 备注信息
   231          // 使用示例             extern_iap_write_bytes(0x0000,(uint8 *)"0123456789",10);
-C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   30/05/26  21:19:23  PAGE 5   
+C251 COMPILER V5.60.0,  zf_driver_eeprom                                                   02/07/26  14:49:09  PAGE 5   
 
   232          //                将"0123456789"写入0x00-0x0A地址中;
   233          // 注意事项           不要跨扇区使用。
@@ -298,14 +298,14 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       812     ------
+  ecode size           =       584     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =       557     ------
+  xdata size           =    ------        530
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
-  bit size             =         3     ------
+  bit size             =    ------          3
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------

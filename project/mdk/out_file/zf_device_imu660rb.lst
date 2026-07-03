@@ -1,13 +1,12 @@
-C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 30/05/26  21:19:26  PAGE 1   
+C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 02/07/26  14:49:12  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_device_imu660rb
 OBJECT MODULE PLACED IN .\out_file\zf_device_imu660rb.obj
 COMPILER INVOKED BY: D:\Keil\C251\BIN\C251.EXE ..\..\libraries\zf_device\zf_device_imu660rb.c LARGE FLOAT64 ROM(HUGE) WA
-                    -RNINGLEVEL(3) OPTIMIZE(2,SIZE) BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_
-                    -device;..\..\libraries\zf_driver;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_compone
-                    -nts\seekfree_assistant) DEBUG PRINT(.\out_file\zf_device_imu660rb.lst) TABS(2) OBJECT(.\out_file\zf_device_imu660rb.obj)
-                    - 
+                    -RNINGLEVEL(3) OPTIMIZE(SIZE) BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_de
+                    -vice;..\..\libraries\zf_driver;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_component
+                    -s\seekfree_assistant) DEBUG PRINT(.\out_file\zf_device_imu660rb.lst) TABS(2) OBJECT(.\out_file\zf_device_imu660rb.obj) 
 
 stmt  level    source
 
@@ -66,9 +65,9 @@ stmt  level    source
    50          *                   SDA/DSI           ²é¿´ zf_device_imu660rb.h ÖÐ IMU660RB_SDA_PIN ºê¶¨Òå
    51          *                   VCC               3.3VµçÔ´
    52          *                   GND               µçÔ´µØ
-C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 30/05/26  21:19:26  PAGE 2   
-
    53          *                   ÆäÓàÒý½ÅÐü¿Õ
+C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 02/07/26  14:49:12  PAGE 2   
+
    54          *                   ------------------------------------
    55          *********************************************************************************************************
              -***********/
@@ -134,9 +133,9 @@ stmt  level    source
   107            // ·µ»Ø²ÎÊý     uint8           Êý¾Ý
   108            // Ê¹ÓÃÊ¾Àý     imu660rb_read_register(IMU660RB_CHIP_ID);
   109            // ±¸×¢ÐÅÏ¢     ÄÚ²¿µ÷ÓÃ
-C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 30/05/26  21:19:26  PAGE 3   
-
   110            //------------------------------------------------------------------------------------------------------
+C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 02/07/26  14:49:12  PAGE 3   
+
              --------------
   111            static uint8 imu660rb_read_register(uint8 reg)
   112            {
@@ -202,9 +201,9 @@ stmt  level    source
              --------------
                  //  @brief      ½«valÐ´Èëcmd¶ÔÓ¦µÄ¼Ä´æÆ÷µØÖ·,Í¬Ê±·µ»Østatus×Ö½Ú
                  //  @param      cmd         ÃüÁî×Ö
-C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 30/05/26  21:19:26  PAGE 4   
-
                  //  @param      val         ´ýÐ´Èë¼Ä´æÆ÷µÄÊýÖµ
+C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 02/07/26  14:49:12  PAGE 4   
+
                  //  @since      v1.0
                  //  Sample usage:
                  //------------------------------------------------------------------------------------------------------
@@ -270,9 +269,9 @@ stmt  level    source
                    imu660rb_simspi_wr_byte(cmd);
                    while(num--)
                    {
-C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 30/05/26  21:19:26  PAGE 5   
-
                      *val++ = imu660rb_simspi_wr_byte(0);
+C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 02/07/26  14:49:12  PAGE 5   
+
                    }
                  }
                  
@@ -338,9 +337,9 @@ stmt  level    source
                  #define imu660rb_write_register(reg, dat)        (soft_iic_write_8bit_register (&imu660rb_iic_struct, (r
              -eg), (dat)))
                  #define imu660rb_write_registers(reg, dat, len)  (soft_iic_write_8bit_registers(&imu660rb_iic_struct, (r
-C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 30/05/26  21:19:26  PAGE 6   
-
              -eg), (dat), (len)))
+C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 02/07/26  14:49:12  PAGE 6   
+
                  #define imu660rb_read_register(reg)               (soft_iic_read_8bit_register  (&imu660rb_iic_struct, (
              -reg)))
                  #define imu660rb_read_registers(reg, dat, len)   (soft_iic_read_8bit_registers (&imu660rb_iic_struct, (r
@@ -406,9 +405,9 @@ stmt  level    source
   340          // Ê¹ÓÃÊ¾Àý     imu660rb_get_gyro();                                            // Ö´ÐÐ¸Ãº¯Êýºó£¬Ö±½Ó²é¿´
              -¶ÔÓ¦µÄ±äÁ¿¼´¿É
   341          // ±¸×¢ÐÅÏ¢     Ê¹ÓÃ SPI µÄ²É¼¯Ê±¼äÎª69us
-C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 30/05/26  21:19:26  PAGE 7   
-
   342          //             Ê¹ÓÃ IIC µÄ²É¼¯Ê±¼äÎª126us
+C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 02/07/26  14:49:12  PAGE 7   
+
   343          //-------------------------------------------------------------------------------------------------------
              -------------
   344          void imu660rb_get_gyro (void)
@@ -474,9 +473,9 @@ stmt  level    source
              -000dps »ñÈ¡µ½µÄÍÓÂÝÒÇÊý¾Ý³ýÒÔ 14.3£¬    ¿ÉÒÔ×ª»¯Îª´øÎïÀíµ¥Î»µÄÊý¾Ý£¬µ¥Î»Îª£º¡ã/s
   392   2              case 0x51: gyro_data = (float)gyro_value / 7.1f;    break;              //  0x51 ÍÓÂÝÒÇÁ¿³ÌÎª:¡À4
              -000dps »ñÈ¡µ½µÄÍÓÂÝÒÇÊý¾Ý³ýÒÔ 7.1£¬     ¿ÉÒÔ×ª»¯Îª´øÎïÀíµ¥Î»µÄÊý¾Ý£¬µ¥Î»Îª£º¡ã/s
-C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 30/05/26  21:19:26  PAGE 8   
-
   393   2              default: break;
+C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 02/07/26  14:49:12  PAGE 8   
+
   394   2          }
   395   1          return gyro_data;
   396   1      }
@@ -542,9 +541,9 @@ stmt  level    source
              -¬µ¥Î»£ºg(m/s^2)
   445   2              // ÉèÖÃÎª:0x34 ¼ÓËÙ¶ÈÁ¿³ÌÎª:¡À16G     »ñÈ¡µ½µÄ¼ÓËÙ¶È¼ÆÊý¾Ý ³ýÒÔ2049£¬ ¿ÉÒÔ×ª»¯Îª´øÎïÀíµ¥Î»µÄÊý¾Ý£
              -¬µ¥Î»£ºg(m/s^2)
-C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 30/05/26  21:19:26  PAGE 9   
-
   446   2      
+C251 COMPILER V5.60.0,  zf_device_imu660rb                                                 02/07/26  14:49:12  PAGE 9   
+
   447   2              imu660rb_write_register(IMU660RB_CTRL2_G, IMU660RB_GYR_SAMPLE);         // ÉèÖÃÍÓÂÝÒÇ¼ÆÁ¿³Ì ¡À200
              -0dps ÒÔ¼°Êý¾ÝÊä³öËÙÂÊ 208hz
   448   2              // IMU660RB_CTRL2_G ¼Ä´æÆ÷
@@ -582,11 +581,11 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      1095     ------
+  ecode size           =       525     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =        54     ------
+  xdata size           =        12         12
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------

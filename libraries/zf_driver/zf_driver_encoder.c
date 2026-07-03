@@ -59,7 +59,7 @@ static volatile uint8 encoder_dir_pin[20] =
 //-------------------------------------------------------------------------------------------------------------------
 int16 encoder_get_count(encoder_index_enum encoder_n)
 {
-    int16 ret = 0;
+    volatile int16 ret = 0;
     if(encoder_n >= TIM0_ENCODER)
     {
         switch(encoder_n)

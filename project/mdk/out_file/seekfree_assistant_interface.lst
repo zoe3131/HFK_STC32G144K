@@ -1,13 +1,13 @@
-C251 COMPILER V5.60.0,  seekfree_assistant_interface                                       31/05/26  09:20:17  PAGE 1   
+C251 COMPILER V5.60.0,  seekfree_assistant_interface                                       03/07/26  15:12:35  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE seekfree_assistant_interface
 OBJECT MODULE PLACED IN .\out_file\seekfree_assistant_interface.obj
 COMPILER INVOKED BY: D:\Keil\C251\BIN\C251.EXE ..\..\libraries\zf_components\seekfree_assistant\seekfree_assistant_inter
-                    -face.c LARGE FLOAT64 ROM(HUGE) WARNINGLEVEL(3) OPTIMIZE(2,SIZE) BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\
-                    -zf_components;..\..\libraries\zf_device;..\..\libraries\zf_driver;..\user;..\code;..\..\libraries\zf_components\stc32g_u
-                    -sb_lib;..\..\libraries\zf_components\seekfree_assistant) DEBUG PRINT(.\out_file\seekfree_assistant_interface.lst) TABS(2
-                    -) OBJECT(.\out_file\seekfree_assistant_interface.obj) 
+                    -face.c LARGE FLOAT64 ROM(HUGE) WARNINGLEVEL(3) OPTIMIZE(SIZE) BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf
+                    -_components;..\..\libraries\zf_device;..\..\libraries\zf_driver;..\user;..\code;..\..\libraries\zf_components\stc32g_usb
+                    -_lib;..\..\libraries\zf_components\seekfree_assistant) DEBUG PRINT(.\out_file\seekfree_assistant_interface.lst) TABS(2) 
+                    -OBJECT(.\out_file\seekfree_assistant_interface.obj) 
 
 stmt  level    source
 
@@ -66,7 +66,7 @@ stmt  level    source
    48          //-------------------------------------------------------------------------------------------------------
              -------------
    49          // 函数简介     逐飞助手接收数据函数
-C251 COMPILER V5.60.0,  seekfree_assistant_interface                                       31/05/26  09:20:17  PAGE 2   
+C251 COMPILER V5.60.0,  seekfree_assistant_interface                                       03/07/26  15:12:35  PAGE 2   
 
    50          // 参数说明     *buff           需要接收的数据地址
    51          // 参数说明     length          要接收的数据最大长度
@@ -133,13 +133,13 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =        95     ------
+  ecode size           =        73     ------
   data size            =    ------     ------
-C251 COMPILER V5.60.0,  seekfree_assistant_interface                                       31/05/26  09:20:17  PAGE 3   
+C251 COMPILER V5.60.0,  seekfree_assistant_interface                                       03/07/26  15:12:35  PAGE 3   
 
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =        10     ------
+  xdata size           =         8     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------

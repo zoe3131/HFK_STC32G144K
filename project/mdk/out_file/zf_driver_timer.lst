@@ -1,12 +1,12 @@
-C251 COMPILER V5.60.0,  zf_driver_timer                                                    30/05/26  21:19:24  PAGE 1   
+C251 COMPILER V5.60.0,  zf_driver_timer                                                    02/07/26  14:49:10  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_driver_timer
 OBJECT MODULE PLACED IN .\out_file\zf_driver_timer.obj
 COMPILER INVOKED BY: D:\Keil\C251\BIN\C251.EXE ..\..\libraries\zf_driver\zf_driver_timer.c LARGE FLOAT64 ROM(HUGE) WARNI
-                    -NGLEVEL(3) OPTIMIZE(2,SIZE) BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_dev
-                    -ice;..\..\libraries\zf_driver;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_components
-                    -\seekfree_assistant) DEBUG PRINT(.\out_file\zf_driver_timer.lst) TABS(2) OBJECT(.\out_file\zf_driver_timer.obj) 
+                    -NGLEVEL(3) OPTIMIZE(SIZE) BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_devic
+                    -e;..\..\libraries\zf_driver;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_components\s
+                    -eekfree_assistant) DEBUG PRINT(.\out_file\zf_driver_timer.lst) TABS(2) OBJECT(.\out_file\zf_driver_timer.obj) 
 
 stmt  level    source
 
@@ -66,7 +66,7 @@ stmt  level    source
    52              TIMER_FUNCTION_INIT,
    53              
    54              TIMER_FUNCTION_INIT,
-C251 COMPILER V5.60.0,  zf_driver_timer                                                    30/05/26  21:19:24  PAGE 2   
+C251 COMPILER V5.60.0,  zf_driver_timer                                                    02/07/26  14:49:10  PAGE 2   
 
    55              TIMER_FUNCTION_INIT,
    56              TIMER_FUNCTION_INIT,
@@ -105,11 +105,11 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       121     ------
+  ecode size           =        49     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =        33     ------
+  xdata size           =        28     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------

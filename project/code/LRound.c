@@ -22,7 +22,6 @@ void runLRound(int16 LCorner, int16 RCorner) {
         gpio_set_level(IO_P65, 1);
         if (centerLineCount < 5) {
             smoothStop = 1;
-            return;
         } else smoothStop = 0;
         alongLine(centerLine, centerLineCount, getDynamicAimPos());
         if (!LRoadCount)
@@ -32,11 +31,11 @@ void runLRound(int16 LCorner, int16 RCorner) {
             ALONG = ALONG_L;
         }
     } else if (ROUND_MODE == ROUND_START) {
-        handle = 0;
         gpio_set_level(IO_P65, 0);
         ALONG = ALONG_L;
+        setSpeed = 250;
         if (centerLineCount > 10)
-            alongLine(centerLine, centerLineCount, 28);
+            alongLine(centerLine, centerLineCount, 32);
         else
             setServoDuty(22);
         if (!RRoadCount)
@@ -44,6 +43,7 @@ void runLRound(int16 LCorner, int16 RCorner) {
         else if (RRoadCount > 10 && !RCorner && canIn) {
             centerLineDistance = 26;
             ROUND_MODE = ROUND_IN;
+            handle = 0;
             ALONG = ALONG_R;
         }
     } else if (ROUND_MODE == ROUND_IN) {
@@ -58,6 +58,8 @@ void runLRound(int16 LCorner, int16 RCorner) {
         }
     } else if (ROUND_MODE == ROUND_END) {
         ALONG = ALONG_L;
+        handle = 1;
+        setSpeed = 230;
         if (centerLineCount > 5)
             alongLine(centerLine, centerLineCount, 17);
         else
@@ -69,16 +71,17 @@ void runLRound(int16 LCorner, int16 RCorner) {
         }
     } else if (ROUND_MODE == ROUND_EXIT) {
         ALONG = ALONG_R;
+        setSpeed = 230;
         if (centerLineCount < 5) {
             smoothStop = 1;
         } else smoothStop = 0;
         alongLine(centerLine, centerLineCount, 40);
         if (!LRoadCount)
             canFinish = 1;
-        else if (LRoadCount > 10 && !LCorner && canFinish) {
+        else if (LRoadCount > 10 && canFinish) {
             ROUND_MODE = ROUND_READY;
             RUN_MODE = FORWARD;
-            smoothStop = 0;
+            smoothStop = handle = 0;
             canFinish = canStart = canIn = 0;
         }
     }

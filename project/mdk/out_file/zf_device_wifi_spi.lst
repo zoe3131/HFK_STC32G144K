@@ -1,13 +1,12 @@
-C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 30/05/26  21:19:25  PAGE 1   
+C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 02/07/26  14:49:11  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_device_wifi_spi
 OBJECT MODULE PLACED IN .\out_file\zf_device_wifi_spi.obj
 COMPILER INVOKED BY: D:\Keil\C251\BIN\C251.EXE ..\..\libraries\zf_device\zf_device_wifi_spi.c LARGE FLOAT64 ROM(HUGE) WA
-                    -RNINGLEVEL(3) OPTIMIZE(2,SIZE) BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_
-                    -device;..\..\libraries\zf_driver;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_compone
-                    -nts\seekfree_assistant) DEBUG PRINT(.\out_file\zf_device_wifi_spi.lst) TABS(2) OBJECT(.\out_file\zf_device_wifi_spi.obj)
-                    - 
+                    -RNINGLEVEL(3) OPTIMIZE(SIZE) BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_de
+                    -vice;..\..\libraries\zf_driver;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_component
+                    -s\seekfree_assistant) DEBUG PRINT(.\out_file\zf_device_wifi_spi.lst) TABS(2) OBJECT(.\out_file\zf_device_wifi_spi.obj) 
 
 stmt  level    source
 
@@ -66,9 +65,9 @@ stmt  level    source
              -************/
    50          
    51          #include "stdio.h"
-C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 30/05/26  21:19:25  PAGE 2   
-
    52          #include "zf_common_clock.h"
+C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 02/07/26  14:49:11  PAGE 2   
+
    53          #include "zf_common_debug.h"
    54          #include "zf_common_fifo.h"
    55          #include "zf_driver_delay.h"
@@ -134,9 +133,9 @@ stmt  level    source
              -------------
   113          // 函数简介     写入数据到WIFI SPI
   114          // 参数说明     *buffer1        第一组需要发送的数据缓冲区地址
-C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 30/05/26  21:19:25  PAGE 3   
-
   115          // 参数说明     length1         第一组数据长度
+C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 02/07/26  14:49:11  PAGE 3   
+
   116          // 参数说明     *buffer2        第二组需要发送的数据缓冲区地址
   117          // 参数说明     length2         第二组数据长度
   118          // 返回参数     void           
@@ -202,9 +201,9 @@ stmt  level    source
              -16 length)
   170          {
   171   1          WIFI_SPI_CS(0);
-C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 30/05/26  21:19:25  PAGE 4   
-
   172   1          
+C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 02/07/26  14:49:11  PAGE 4   
+
   173   1          read_data->head.command = WIFI_SPI_DATA;
   174   1          // 大小端不一致，高低字节交换
   175   1          read_data->head.length  = (uint16)((length&0xFF) << 8) | ((length >> 8) & 0xFF);;
@@ -270,9 +269,9 @@ stmt  level    source
   228   2              // 接收应答信号
   229   2      
   230   2              head.command = WIFI_SPI_DATA;
-C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 30/05/26  21:19:25  PAGE 5   
-
   231   2              head.length = 0;
+C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 02/07/26  14:49:11  PAGE 5   
+
   232   2              wifi_spi_dma_transfer_command((wifi_spi_packets_struct *)&head, head.length);
   233   2              system_delay_us(20);
   234   2              if(WIFI_SPI_REPLY_OK == head.command)
@@ -338,9 +337,9 @@ stmt  level    source
   289   1          wifi_spi_packets_struct temp_packets = {0};
   290   1      
   291   1          return_state = wifi_spi_get_parameter(WIFI_SPI_GET_VERSION, &temp_packets, OTHER_TIME_OUT);
-C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 30/05/26  21:19:25  PAGE 6   
-
   292   1          if((0 == return_state) && (WIFI_SPI_REPLY_VERSION == temp_packets.head.command))
+C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 02/07/26  14:49:11  PAGE 6   
+
   293   1          {
   294   2              memcpy(wifi_spi_version, temp_packets.buffer, temp_packets.head.length);
   295   2          }
@@ -406,9 +405,9 @@ stmt  level    source
   349          // 备注信息     输出的信息为字符串信息，可直接printf到串口助手查看
   350          //-------------------------------------------------------------------------------------------------------
              -------------
-C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 30/05/26  21:19:25  PAGE 7   
-
   351          uint8 wifi_spi_get_time (wifi_spi_time_enum time_format, char *buffer, uint8 buffer_size)
+C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 02/07/26  14:49:11  PAGE 7   
+
   352          {
   353   1          uint8 return_state = 1;
   354   1          wifi_spi_packets_struct temp_packets;
@@ -474,9 +473,9 @@ stmt  level    source
   412          
   413          //-------------------------------------------------------------------------------------------------------
              -------------
-C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 30/05/26  21:19:25  PAGE 8   
-
   414          // 函数简介     WIFI SPI 设置连接的WiFi信息并尝试连接WiFi
+C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 02/07/26  14:49:11  PAGE 8   
+
   415          // 参数说明     *wifi_ssid      WIFI名称
   416          // 参数说明     *pass_word      WIFI密码
   417          // 返回参数     uint8           状态 0-成功 1-错误
@@ -542,9 +541,9 @@ stmt  level    source
   471          
   472          //-------------------------------------------------------------------------------------------------------
              -------------
-C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 30/05/26  21:19:25  PAGE 9   
-
   473          // 函数简介     WIFI SPI 断开Socket连接
+C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 02/07/26  14:49:11  PAGE 9   
+
   474          // 参数说明     void            
   475          // 返回参数     uint8           状态 0-成功 1-错误
   476          // 使用示例     wifi_spi_socket_disconnect();
@@ -610,9 +609,9 @@ stmt  level    source
   530   2              {
   531   3                  if(wifi_spi_wait_idle(OTHER_TIME_OUT))
   532   3                  {
-C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 30/05/26  21:19:25  PAGE 10  
-
   533   4                      break;
+C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 02/07/26  14:49:11  PAGE 10  
+
   534   4                  }
   535   3      
   536   3                  // 立即开始socket发送
@@ -678,9 +677,9 @@ stmt  level    source
   593   2              wifi_spi_mutex = WIFI_SPI_BUSY;
   594   2              
   595   2              while(length)
-C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 30/05/26  21:19:25  PAGE 11  
-
   596   2              {
+C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 02/07/26  14:49:11  PAGE 11  
+
   597   3                  send_length = length > WIFI_SPI_TRANSFER_SIZE ? WIFI_SPI_TRANSFER_SIZE : length;
   598   3                  
   599   3                  if(wifi_spi_wait_idle(OTHER_TIME_OUT))
@@ -746,9 +745,9 @@ stmt  level    source
   655          {
   656   1          wifi_spi_send_buffer((uint8*)string, strlen(string));
   657   1      }
-C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 30/05/26  21:19:25  PAGE 12  
-
   658              
+C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 02/07/26  14:49:11  PAGE 12  
+
   659          //-------------------------------------------------------------------------------------------------------
              -------------
   660          // 函数简介     WIFI SPI 读取缓冲区
@@ -814,9 +813,9 @@ stmt  level    source
   717   5                          {
   718   6                              fifo_write_buffer(&wifi_spi_fifo, temp_packets.buffer + fifo_read_length, temp_pa
              -ckets.head.length - fifo_read_length);
-C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 30/05/26  21:19:25  PAGE 13  
-
   719   6                          }
+C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 02/07/26  14:49:11  PAGE 13  
+
   720   5                      }
   721   4                      else                                                // 全部写入FIFO
   722   4                      {
@@ -882,9 +881,9 @@ stmt  level    source
   779   3              }
   780   2              return_state = wifi_spi_wifi_connect(wifi_ssid, pass_word);
   781   2              if(return_state)
-C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 30/05/26  21:19:25  PAGE 14  
-
   782   2              {
+C251 COMPILER V5.60.0,  zf_device_wifi_spi                                                 02/07/26  14:49:11  PAGE 14  
+
   783   3                  break;
   784   3              }
   785   2              
@@ -914,11 +913,11 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      4133     ------
+  ecode size           =      3223     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =      1658     ------
+  xdata size           =      1106        472
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------

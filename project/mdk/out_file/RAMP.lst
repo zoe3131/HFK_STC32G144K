@@ -1,12 +1,12 @@
-C251 COMPILER V5.60.0,  RAMP                                                               31/05/26  09:24:22  PAGE 1   
+C251 COMPILER V5.60.0,  RAMP                                                               03/07/26  15:12:37  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE RAMP
 OBJECT MODULE PLACED IN .\out_file\RAMP.obj
-COMPILER INVOKED BY: D:\Keil\C251\BIN\C251.EXE ..\code\RAMP.c LARGE FLOAT64 ROM(HUGE) WARNINGLEVEL(3) OPTIMIZE(2,SIZE) B
-                    -ROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_device;..\..\libraries\zf_driver
-                    -;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_components\seekfree_assistant) DEBUG PR
-                    -INT(.\out_file\RAMP.lst) TABS(2) OBJECT(.\out_file\RAMP.obj) 
+COMPILER INVOKED BY: D:\Keil\C251\BIN\C251.EXE ..\code\RAMP.c LARGE FLOAT64 ROM(HUGE) WARNINGLEVEL(3) OPTIMIZE(SIZE) BRO
+                    -WSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_device;..\..\libraries\zf_driver;.
+                    -.\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_components\seekfree_assistant) DEBUG PRIN
+                    -T(.\out_file\RAMP.lst) TABS(2) OBJECT(.\out_file\RAMP.obj) 
 
 stmt  level    source
 
@@ -42,35 +42,36 @@ stmt  level    source
    29   1          getGodRoadLine(tarPos, 6);
    30   1          alongLine(tarPos, 6, 5);
    31   1          handle = 1;
-   32   1          setSpeed = 180;
+   32   1          setSpeed = 170;
    33   1          // ips200_show_int16(0, 0, readyEnd);
    34   1          // ips200_show_int16(0, 20, canEnd);
    35   1          // ips200_show_int16(0, 40, dl1b_distance_mm);
    36   1          if (dl1b_distance_mm < 500) {
    37   2              if (readyEnd)
    38   2                  canEnd = 1;
-   39   2          } else if (dl1b_distance_mm > 450) {
-   40   2              if (dl1b_distance_mm == 8192) readyEnd = 1;
+   39   2          } else if (dl1b_distance_mm > 650) {
+   40   2              if (dl1b_distance_mm > 1000) readyEnd = 1;
    41   2              if (canEnd) {
    42   3                  wireless_uart_send_string("exit\r\n");
    43   3                  gpio_set_level(IO_P65, 0);
-   44   3                  RUN_MODE = FORWARD;
-   45   3                  canEnd = handle = readyEnd = 0;
-   46   3              }
-   47   2          }
-   48   1      }
+   44   3                  canEnd = handle = readyEnd = 0;
+   45   3                  system_delay_ms(200);
+   46   3                  RUN_MODE = FORWARD;
+   47   3              }
+   48   2          }
+   49   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       523     ------
+  ecode size           =       430     ------
   data size            =    ------     ------
-  idata size           =    ------     ------
-C251 COMPILER V5.60.0,  RAMP                                                               31/05/26  09:24:22  PAGE 2   
+C251 COMPILER V5.60.0,  RAMP                                                               03/07/26  15:12:37  PAGE 2   
 
+  idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =        20     ------
+  xdata size           =         2         12
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------

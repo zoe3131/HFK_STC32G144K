@@ -116,5 +116,6 @@
 #include "RAMP.h"
 #include "Motor.h"
 #include "Zebra.h"
+#include "Laser.h"
 
 #endif
