@@ -22,7 +22,7 @@ uint8 canEnd() {
 }
 
 void runBlock(int16 LCorner, int16 RCorner) {
-    gpio_set_level(IO_P65, 1);
+    gpio_set_level(IO_P90, 1);
     if (!added) {
         fixedLCorner = LCorner;
         fixedRCorner = RCorner;
@@ -37,7 +37,7 @@ void runBlock(int16 LCorner, int16 RCorner) {
     }
     if (canEnd()) {
         added = smoothStop = 0;
-        gpio_set_level(IO_P65, 0);
+        gpio_set_level(IO_P90, 0);
         RUN_MODE = FORWARD;
         centerLineDistance = 18;
     }

@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Block                                                              03/07/26  15:12:37  PAGE 1   
+C251 COMPILER V5.60.0,  Block                                                              08/07/26  12:15:50  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Block
@@ -37,7 +37,7 @@ stmt  level    source
    22   1      }
    23          
    24          void runBlock(int16 LCorner, int16 RCorner) {
-   25   1          gpio_set_level(IO_P65, 1);
+   25   1          gpio_set_level(IO_P90, 1);
    26   1          if (!added) {
    27   2              fixedLCorner = LCorner;
    28   2              fixedRCorner = RCorner;
@@ -52,7 +52,7 @@ stmt  level    source
    37   2          }
    38   1          if (canEnd()) {
    39   2              added = smoothStop = 0;
-   40   2              gpio_set_level(IO_P65, 0);
+   40   2              gpio_set_level(IO_P90, 0);
    41   2              RUN_MODE = FORWARD;
    42   2              centerLineDistance = 18;
    43   2          }
@@ -67,7 +67,7 @@ Module Information          Static   Overlayable
   idata size           =    ------     ------
   pdata size           =    ------     ------
   xdata size           =         5     ------
-C251 COMPILER V5.60.0,  Block                                                              03/07/26  15:12:37  PAGE 2   
+C251 COMPILER V5.60.0,  Block                                                              08/07/26  12:15:50  PAGE 2   
 
   xdata-const size     =    ------     ------
   edata size           =    ------     ------

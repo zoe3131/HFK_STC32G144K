@@ -22,7 +22,7 @@ uint8 haveLine() {
 void runZebra(uint8 have) {
     centerLineDistance = 17;
     alongLine(centerLine, centerLineCount, getDynamicAimPos());
-    if (count == 2) {
+    if (count == 3) {
         stop:
         system_delay_ms(100);
         handle = 1;
@@ -32,7 +32,7 @@ void runZebra(uint8 have) {
     } else {
         if (add) {
             count++;
-            if (count == 2) goto stop;
+            if (count == 3) goto stop;
             add = 0;
         }
         if (!LCorner && !RCorner && LBorderCount && !have && !haveLine()) {

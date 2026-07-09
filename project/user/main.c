@@ -40,7 +40,7 @@ static int16 p, i, d, s1, am, borderInTriggerDistance, ab;
 uint8 borderIn, switch1, mustStop, switch2, ALONG = ALONG_R, button, disEd;
 Point centerLine[expRoadCount], LRoad[expRoadCount], RRoad[expRoadCount], target;
 extern uint8 outputImage[MT9V03X_H][MT9V03X_W];
-static uint8 have, data_buffer[32];
+static uint8 have, data_buffer[32], send_buff[32], findBorderIn;
 
 void pitInit();
 
@@ -59,7 +59,7 @@ void main(void) {
     gpio_init(IO_PB1, GPI, 0, GPI_PULL_UP);
     gpio_init(IO_PB0, GPI, 0, GPI_PULL_UP);
     gpio_init(IO_P32, GPI, 0, GPI_PULL_UP);
-    gpio_init(IO_P65, GPO, 0, GPO_PUSH_PULL); //·äÃùÆ÷
+    //gpio_init(IO_P90, GPO, 0, GPO_PUSH_PULL); //·äÃùÆ÷
     gpio_init(IO_P64, GPO, 0, GPO_PUSH_PULL); //Ê¾²¨Æ÷
     laserInit();
     pitInit();
@@ -73,6 +73,7 @@ void main(void) {
             switch2 = gpio_get_level(IO_PB1);
             switch1 = gpio_get_level(IO_PB0);
             ips200_clear(RGB565_WHITE);
+            dismissLaser();
             motorInit(p, i, d, am, s1, s2, ab);
             break;
         }
@@ -96,9 +97,7 @@ void main(void) {
         if (!button) break;
 #endif
     }
-    ips200_clear(RGB565_WHITE);
-    ips200_show_string(0, 0, "RUNNING");
-    ips200_show_string(0, 30, "(? ?_?)?");
+    // ips200_clear(RGB565_WHITE);
 #if (!DEBUG_MODE)
     system_delay_ms(500);
     system_delay_ms(500);
@@ -134,45 +133,45 @@ void main(void) {
             gpio_set_level(IO_P64, 0);
             if (target.y) startLaser(target.y);
             have = haveZebra();
-            if (RUN_MODE == ZEBRA || ((RUN_MODE == FORWARD || RUN_MODE == BLOCK) && have)) {
+            if (RUN_MODE == ZEBRA || have) {
                 RUN_MODE = ZEBRA;
-                wireless_uart_send_string("zebra\r\n");
+                sprintf(send_buff, "ZEBRA: %d, %d\n", LBorderCount, RBorderCount);
                 runZebra(have);
             }
-            // else if (RUN_MODE == RAMP || (RUN_MODE == FORWARD && dl1b_distance_mm < 600
-            //      && dl1b_distance_mm > 100 && !borderIn && !LCorner && !RCorner)) {
-            //     RUN_MODE = RAMP;
-            //     wireless_uart_send_string("ramp\r\n");
-            //     runRamp();
-            // }
+            else if (RUN_MODE == RAMP || (RUN_MODE == FORWARD && dl1b_distance_mm < 600
+                 && dl1b_distance_mm > 100 && !borderIn && !LCorner && !RCorner)) {
+                RUN_MODE = RAMP;
+                wireless_uart_send_string("ramp\r\n");
+                runRamp();
+            }
             else if (RUN_MODE == BLOCK) {
                 runBlock(LCorner, RCorner);
-                wireless_uart_send_string("block\r\n");
-            }
-            else if (RUN_MODE == CROSS ||
-                       (RUN_MODE == FORWARD && ((RCorner && RRoadCount > 2 && RRoad[0].x > 115) || (LCorner && LRoadCount > 2 && LRoad[0].x > 115)) && LRoadCount < 14 &&
-                        RRoadCount < 14)) {
+                sprintf(send_buff, "BLOCK: %d, %d\n", LBorderCount, RBorderCount);
+            } else if (RUN_MODE == CROSS ||
+                       (RUN_MODE == FORWARD && ((RCorner && RRoadCount > 2 && RRoad[0].x > 110) || (LCorner && LRoadCount > 2 && LRoad[0].x > 110)) && LRoadCount < 13 &&
+                        RRoadCount < 13)) {
                 RUN_MODE = CROSS;
-                wireless_uart_send_string("cross\r\n");
                 runCross();
+                sprintf(send_buff, "CROSS: %d, %d\n", LBorderCount, RBorderCount);
             } else if (RUN_MODE == R_ROUND ||
-                       (RUN_MODE == FORWARD && !borderIn && RCorner && LRoadCount > 30 && RRoadCount < 8 && RRoadCount > 3)) {
+                       (RUN_MODE == FORWARD && !borderIn && RCorner && LRoadCount > 30 && RRoadCount < 8)) {
                 RUN_MODE = R_ROUND;
-                wireless_uart_send_string("r_round\r\n");
                 runRRound(LCorner, RCorner);
+                sprintf(send_buff, "R_ROUND: %d, %d\n", LBorderCount, RBorderCount);
             } else if (RUN_MODE == L_ROUND ||
-                       (RUN_MODE == FORWARD && !borderIn && LCorner && RRoadCount > 30 && LRoadCount < 8 && LRoadCount > 3)) {
+                       (RUN_MODE == FORWARD && !borderIn && LCorner && RRoadCount > 30 && LRoadCount < 8)) {
                 RUN_MODE = L_ROUND;
-                wireless_uart_send_string("l_round\r\n");
                 runLRound(LCorner, RCorner);
-            } else {
+                sprintf(send_buff, "L_ROUND: %d, %d\n", LBorderCount, RBorderCount);
+             } else {
                 if (centerLineCount < 10) smoothStop = 1;
                 else {
                     smoothStop = 0;
                     alongLine(centerLine, centerLineCount, getDynamicAimPos());
                 }
+                sprintf(send_buff, "FORWARD: %d, %d\n", LBorderCount, RBorderCount);
             }
-
+            //wireless_uart_send_buffer(send_buff, 32);
 // #if(DEBUG_MODE)
 //             if (!disEd && RUN_MODE == BLOCK) {
 //                 disEd = 1;
@@ -197,10 +196,14 @@ void main(void) {
 void loadRoad() {
     int16 data i, j, pos;
     Point LStart = getLStart(), RStart = getRStart();
-    target = findTarget(targetPos);
+    target = findTargetByL(targetPos);
     LRoadCount = expRoadCount, RRoadCount = expRoadCount;
     getLBorder(LRoad, LStart, &LRoadCount);
     getRBorder(RRoad, RStart, &RRoadCount);
+    LBorderCount = LRoadCount;
+    memcpy(LBorder, LRoad, LBorderCount * sizeof(Point));
+    RBorderCount = RRoadCount;
+    memcpy(RBorder, RRoad, RBorderCount * sizeof(Point));
     getGodRoadLine(LRoad, LRoadCount);
     getGodRoadLine(RRoad, RRoadCount);
     filterRoad(LRoad, LRoadCount);
@@ -209,18 +212,22 @@ void loadRoad() {
     resampleRoad(RRoad, &RRoadCount, 0, 3);
     LCorner = findCorner(LRoad, LRoadCount, 0);
     RCorner = findCorner(RRoad, RRoadCount, 0);
-    borderIn = 0;
-    for (i = LRoadCount - 2; i >= 0 && LRoad[i].y > 92; i -= 3)
-        if (LRoad[i].x > borderInTriggerDistance) {
-            borderIn = 1;
+    findBorderIn = 0;
+    for (i = 0; i < LRoadCount; i += 2)
+        if (LRoad[i].y > 94) {
+            findBorderIn = 1;
             break;
         }
-    if (!borderIn)
-        for (i = RRoadCount - 2; i >= 0 && RRoad[i].y < 92; i -= 3)
-            if (RRoad[i].x > borderInTriggerDistance) {
-                borderIn = 1;
+    if (LRoad[i].x > borderInTriggerDistance && findBorderIn) borderIn = 1;
+    else {
+        for (i = 0; i < RRoadCount; i += 2)
+            if (RRoad[i].y < 94) {
+                findBorderIn = 1;
                 break;
             }
+        if (RRoad[i].x > borderInTriggerDistance && findBorderIn) borderIn = 1;
+        else borderIn = 0;
+    }
     if (LCorner >= LRoadCount - 1) LCorner = 0;
     if (RCorner >= RRoadCount - 1) RCorner = 0;
     if (LCorner) {
@@ -247,7 +254,7 @@ void loadRoad() {
         centerLineCount = RRoadCount;
     }
     for (i = 1; i < centerLineCount; i++)
-        if (centerLine[i].x < MT9V03X_H - 1) {
+        if (centerLine[i].x < 119) {
             i--;
             break;
         }

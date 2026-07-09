@@ -7,13 +7,15 @@
 const static int8 data dirF[4][2] = {{-2, 0},{0, 2},{2, 0},{0, -2}},
     dirL[4][2] = {{-2, -2},{-2, 2},{2,  2},{2,  -2}},
     dirR[4][2] = {{-2, 2},{2,  2},{2,  -2},{-2, -2}};
-uint8 LThreshold = expThreshold, RThreshold = expThreshold, threshold = expThreshold, centerLineDistance = 17, outputImage[MT9V03X_H][MT9V03X_W];
+uint8 banUpdateThreshold = 0, LThreshold = expThreshold, RThreshold = expThreshold, threshold = expThreshold, centerLineDistance = 17, outputImage[MT9V03X_H][MT9V03X_W];
 const static uint8 reflection[120][188][2], data halfBlock = block / 2, data halfH = MT9V03X_H / 2, data halfW = MT9V03X_W / 2;
 Point LBorder[expRoadCount], RBorder[expRoadCount];
 int16 LBorderCount, RBorderCount;
+extern uint8 switch2, switch1;
+extern int16 currentDuty;
 
 uint8 getImagePointFilterSelf(uint8 i, uint8 j) {
-    if (i > 95 && j > 45 && j < 143) return 255;
+    if (i > 95 && j >= 50 && j <= 144) return 255;
     return mt9v03x_image[i][j];
 }
 
@@ -36,10 +38,10 @@ static int8 check(uint8 x, uint8 y) {
 static int16 getLIndexStart(int16 i) {
     int16 l, r, m;
     l = halfBlock + 1;
-    r = i < 95 ? halfW : 40;
+    r = i < 90 ? halfW : 50;
     while (l < r) {
         m = (l + r) >> 1;
-        if (mt9v03x_image[i][m] < LThreshold && mt9v03x_image[i][func_max(0, m - 10)] < LThreshold) l = m + 1;
+        if (mt9v03x_image[i][m] < LThreshold && mt9v03x_image[i][func_max(0, m - 8)] < LThreshold && mt9v03x_image[i][func_max(0, m - 25)] < LThreshold) l = m + 1;
         else r = m;
     }
     return l;
@@ -63,11 +65,11 @@ Point getLStart() {
 
 static int16 getRIndexStart(int16 i) {
     int16 l, r, m;
-    l = i < 95 ? halfW : 150;
-    r = MT9V03X_W - halfBlock - 2;
+    l = i < 90 ? halfW : 144;
+    r = 186 - halfBlock;
     while (l < r) {
         m = (l + r + 1) >> 1;
-        if (mt9v03x_image[i][m] < RThreshold && mt9v03x_image[i][func_min(187, m + 10)] < RThreshold) r = m - 1;
+        if (mt9v03x_image[i][m] < RThreshold && mt9v03x_image[i][func_min(187, m + 8)] < RThreshold && mt9v03x_image[i][func_min(187, m + 25)] < RThreshold) r = m - 1;
         else l = m;
     }
     return r;
@@ -101,77 +103,116 @@ uint8 findZebra(int16 pos) {
     return i > 97 ? c >= 3 : c >= 5;
 }
 
-Point findTarget(int16 i) {
-    int16 LStart = getLIndexStart(i), RStart = getRIndexStart(i), len = 40, ans;
+// Point findTargetByR(int16 i) {
+//     int16 LStart = getLIndexStart(i), RStart = getRIndexStart(i), len = 40, ans, j;
+//     uint8 t = 119, b = 0, r = 0, l = 187, h, v, dh, dv;
+//     Point pos, target[40], ret;
+//     pos.x = i;
+//     pos.y = 0;
+//     if (LStart < 0) LStart = 0;
+//     if (RStart > 187) RStart = 187;
+//     for (ans = RStart - 1, LStart++;ans < RStart; ans -= 2) {
+//         if (mt9v03x_image[i][ans] < threshold && check(i, ans - 2)) {
+//             pos.y = ans - 1;
+//             break;
+//         }
+//     }
+// }
+
+Point findTargetByL(int16 i) {
+    int16 LStart, RStart, len = 40, ans, j, absDuty;
     uint8 t = 119, b = 0, r = 0, l = 187, h, v, dh, dv;
     Point pos, target[40], ret;
+    absDuty = func_abs(currentDuty);
+    if (absDuty >= 5) i++;
+    if (absDuty >= 10) i++;
+    if (absDuty >= 15) i++;
+    if (absDuty >= 20) i++;
+    if (absDuty >= 25) i++;
+    LStart = getLIndexStart(i);
+    RStart = getRIndexStart(i);
     pos.x = i;
     pos.y = 0;
     if (LStart < 0) LStart = 0;
     if (RStart > 187) RStart = 187;
-    for (ans = LStart + 1, RStart--;ans < RStart; ans += 2) {
-        if (mt9v03x_image[i][ans] < threshold) {
+#if (DEBUG_MODE)
+    if (switch2) {
+        ips200_draw_point(LStart, i, RGB565_RED);
+        ips200_draw_point(RStart, i, RGB565_RED);
+    }
+#endif
+    for (ans = LStart + 2, RStart--;ans < RStart; ans++) {
+        if (mt9v03x_image[i][ans] < threshold + 25 && check(i, ans - 2)) {
             pos.y = ans - 1;
             break;
         }
     }
     if (pos.y) {
+#if (DEBUG_MODE)
+        if (switch2) {
+            ips200_draw_point(pos.y, i, RGB565_RED);
+        }
+#endif
+        banUpdateThreshold = 1;
         getRBorder(target, pos, &len);
-        // for (LStart = 0; LStart < 188; LStart++)
-        //     for (RStart = 0; RStart < 120; RStart++)
-        //         outputImage[RStart][LStart] = 0;
-        for (i = 0; i < len; i++) {
-            t = func_min(t, target[i].x);
-            b = func_max(b, target[i].x);
-            l = func_min(l, target[i].y);
-            r = func_max(r, target[i].y);
+        for (j = 0; j < len; j++) {
+            t = func_min(t, target[j].x);
+            b = func_max(b, target[j].x);
+            l = func_min(l, target[j].y);
+            r = func_max(r, target[j].y);
         }
         h = l + r >> 1;
         v = t + b >> 1;
         dh = reflection[v][r][1] - reflection[v][l][1];
         dv = reflection[b][h][0] - reflection[t][h][0];
-        if (dh >= 8 && dh <= 12 && dv >= 8 && dv <= 12) {
-            // ips200_draw_point(l + r >> 1, t + b >> 1, RGB565_RED);
-            // ips200_draw_point((l + r >> 1) + 1, t + b >> 1, RGB565_RED);
-            // ips200_draw_point((l + r >> 1) - 1, t + b >> 1, RGB565_RED);
-            // ips200_draw_point(l + r >> 1, (t + b >> 1) + 1, RGB565_RED);
-            // ips200_draw_point(l + r >> 1, (t + b >> 1) - 1, RGB565_RED);
+#if (DEBUG_MODE)
+        if (switch2) {
+            ips200_show_int16(0, MT9V03X_H + 1, dh);
+            ips200_show_int16(0, MT9V03X_H + 16, dv);
+            ips200_show_int16(0, MT9V03X_H + 32, currentDuty);
+        }
+#endif
+        if (dh >= 8 && dh <= 12 && dv >= 7 && dv <= 11) {
             // outputImage[reflection[t + b >> 1][l + r >> 1][0]][reflection[t + b >> 1][l + r >> 1][1]] = 255;
             // outputImage[reflection[v][r][0]][reflection[v][r][1]] = 255;
             // outputImage[reflection[v][l][0]][reflection[v][l][1]] = 255;
             // outputImage[reflection[b][h][0]][reflection[b][h][1]] = 255;
             // outputImage[reflection[t][h][0]][reflection[t][h][1]] = 255;
             //ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, 0);
-            ret.x = reflection[t + b >> 1][l + r >> 1][0];
-            ret.y = reflection[t + b >> 1][l + r >> 1][1];
+            ret.x = reflection[v][h][0];
+            ret.y = reflection[v][h][1];
             // ips200_show_int16(0, MT9V03X_H + 1, ret.x);
             // ips200_show_int16(0, MT9V03X_H + 15, ret.y);
+            if (currentDuty >= 5) ret.y++;
+            else if (currentDuty <= -5) ret.y--;
+            if (currentDuty >= 10) ret.y++;
+            else if (currentDuty <= -10) ret.y--;
+            if (currentDuty >= 15) ret.y++;
+            else if (currentDuty <= -15) ret.y--;
+            if (currentDuty >= 24) ret.y++;
+            else if (currentDuty <= -24) ret.y--;
+            // if (v >= i + 3)
+            //     ret.y = 0;
+#if (DEBUG_MODE)
+            if (switch2) {
+                memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
+                ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, 0);
+                ips200_draw_point(h, v, RGB565_RED);
+            }
+#endif
             return ret;
         }
     }
-    ret.x = 0;
+#if (DEBUG_MODE)
+    if (switch2) {
+        memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
+        ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, 0);
+        ips200_draw_point(h, v, RGB565_RED);
+    }
+#endif
     ret.y = 0;
     return ret;
 }
-//TODO:findTarget
-// if (start) {
-//     l = r = start;
-//     t = b = x;
-//     s.x = x;
-//     s.y = start;
-//     getRBorder(target, s, &targetLen);
-//     for (i = 0; i < targetLen; i++) {
-//         l = func_min(l, target[i].y);
-//         r = func_max(r, target[i].y);
-//         t = func_min(t, target[i].x);
-//         b = func_max(b, target[i].x);
-//     }
-//     if (r - l > 3) {
-//         ans.x = (t >> 1) + (b >> 1);
-//         ans.y = (l >> 1) + (r >> 1);
-//         return ans;
-//     }
-// }
 
 void getLBorder(Point LRoad[], Point start, int16 *count) {
     uint8 data
@@ -182,12 +223,12 @@ void getLBorder(Point LRoad[], Point start, int16 *count) {
     up = 0, data
     localThreshold = getPointThreshold(x, y);
     uint16 data
-    step = 0;
+    step = 0, tempThreshold;
     if (start.x == 0 && start.y == 0) {
         *count = 0;
         return;
     }
-    LThreshold = localThreshold;
+    tempThreshold = localThreshold;
     while (x > halfBlock + 1 && x < MT9V03X_H - halfBlock - 1 && y > halfBlock + 1 && y < MT9V03X_W - halfBlock - 1 && step < *count &&
            turn < 4) {
         up++;
@@ -216,8 +257,11 @@ void getLBorder(Point LRoad[], Point start, int16 *count) {
         }
         if (x == start.x && y == start.y && !turn) break;
     }
-    *count = LBorderCount = step;
-    memcpy(LBorder, LRoad, (*count) * sizeof(Point));
+    *count = step;
+    if (step > 15 && !banUpdateThreshold) {
+        LThreshold = tempThreshold;
+        threshold = LThreshold + RThreshold >> 1;
+    } else banUpdateThreshold = 0;
 }
 
 void getRBorder(Point RRoad[], Point start, int16 *count) {
@@ -229,13 +273,12 @@ void getRBorder(Point RRoad[], Point start, int16 *count) {
     up = 0, data
     localThreshold = getPointThreshold(x, y);
     int16 data
-    step = 0;
+    step = 0, tempThreshold;
     if (start.x == 0 && start.y == 0) {
         *count = 0;
         return;
     }
-    RThreshold = localThreshold;
-    threshold = LThreshold + RThreshold >> 1;
+    tempThreshold = localThreshold;
     while (x > halfBlock + 1 && x < 119 - halfBlock && y > halfBlock + 1 && y < 187 - halfBlock && step < *count &&
            turn < 4) {
         up++;
@@ -264,8 +307,11 @@ void getRBorder(Point RRoad[], Point start, int16 *count) {
         }
         if (x == start.x && y == start.y && !turn) break;
     }
-    *count = RBorderCount = step;
-    memcpy(RBorder, RRoad, (*count) * sizeof(Point));
+    *count = step;
+    if (step > 15 && !banUpdateThreshold) {
+        RThreshold = tempThreshold;
+        threshold = LThreshold + RThreshold >> 1;
+    } else banUpdateThreshold = 0;
 }
 
 void getCenterLineByLBorder(Point roadLine[], Point centerLine[], int16 count) {

@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  LRound                                                             03/07/26  15:12:37  PAGE 1   
+C251 COMPILER V5.60.0,  LRound                                                             08/07/26  12:15:49  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE LRound
@@ -32,81 +32,78 @@ stmt  level    source
    19   1          if (ROUND_MODE == ROUND_READY) {
    20   2              handle = 1;
    21   2              setSpeed = 250;
-   22   2              gpio_set_level(IO_P65, 1);
-   23   2              if (centerLineCount < 5) {
-   24   3                  smoothStop = 1;
-   25   3              } else smoothStop = 0;
-   26   2              alongLine(centerLine, centerLineCount, getDynamicAimPos());
-   27   2              if (!LRoadCount)
-   28   2                  canStart = 1;
-   29   2              else if (LRoadCount > 10 && !LCorner && canStart) {
-   30   3                  ROUND_MODE = ROUND_START;
-   31   3                  ALONG = ALONG_L;
-   32   3              }
-   33   2          } else if (ROUND_MODE == ROUND_START) {
-   34   2              gpio_set_level(IO_P65, 0);
-   35   2              ALONG = ALONG_L;
-   36   2              setSpeed = 250;
-   37   2              if (centerLineCount > 10)
-   38   2                  alongLine(centerLine, centerLineCount, 32);
-   39   2              else
-   40   2                  setServoDuty(22);
-   41   2              if (!RRoadCount)
-   42   2                  canIn = 1;
-   43   2              else if (RRoadCount > 10 && !RCorner && canIn) {
-   44   3                  centerLineDistance = 26;
-   45   3                  ROUND_MODE = ROUND_IN;
-   46   3                  handle = 0;
-   47   3                  ALONG = ALONG_R;
-   48   3              }
-   49   2          } else if (ROUND_MODE == ROUND_IN) {
-   50   2              ALONG = ALONG_R;
-   51   2              alongLine(centerLine, centerLineCount, getDynamicAimPos());
-   52   2              if (centerLineCount < 5) smoothStop = 1;
-   53   2              else smoothStop = 0;
-   54   2              if (RCorner > 3 && centerLineCount < 10 && centerLineCount) {
-   55   3                  centerLineDistance = 8;
-C251 COMPILER V5.60.0,  LRound                                                             03/07/26  15:12:37  PAGE 2   
+   22   2              gpio_set_level(IO_P90, 1);
+   23   2              alongLine(centerLine, centerLineCount, getDynamicAimPos());
+   24   2              if (!LRoadCount)
+   25   2                  canStart = 1;
+   26   2              else if (LRoadCount > 10 && !LCorner && canStart) {
+   27   3                  ROUND_MODE = ROUND_START;
+   28   3                  ALONG = ALONG_L;
+   29   3              }
+   30   2          } else if (ROUND_MODE == ROUND_START) {
+   31   2              gpio_set_level(IO_P90, 0);
+   32   2              ALONG = ALONG_L;
+   33   2              setSpeed = 250;
+   34   2              if (centerLineCount > 10)
+   35   2                  alongLine(centerLine, centerLineCount, 25);
+   36   2              else
+   37   2                  setServoDuty(22);
+   38   2              if (!RRoadCount)
+   39   2                  canIn = 1;
+   40   2              else if (RRoadCount > 10 && !RCorner && canIn) {
+   41   3                  centerLineDistance = 27;
+   42   3                  ROUND_MODE = ROUND_IN;
+   43   3                  handle = 0;
+   44   3                  ALONG = ALONG_R;
+   45   3              }
+   46   2          } else if (ROUND_MODE == ROUND_IN) {
+   47   2              ALONG = ALONG_R;
+   48   2              alongLine(centerLine, centerLineCount, getDynamicAimPos());
+   49   2              if (centerLineCount < 5) smoothStop = 1;
+   50   2              else smoothStop = 0;
+   51   2              if (RCorner > 3 && centerLineCount < 10 && centerLineCount) {
+   52   3                  centerLineDistance = 8;
+   53   3                  ROUND_MODE = ROUND_END;
+   54   3                  ALONG = ALONG_L;
+   55   3              }
+C251 COMPILER V5.60.0,  LRound                                                             08/07/26  12:15:49  PAGE 2   
 
-   56   3                  ROUND_MODE = ROUND_END;
-   57   3                  ALONG = ALONG_L;
-   58   3              }
-   59   2          } else if (ROUND_MODE == ROUND_END) {
-   60   2              ALONG = ALONG_L;
-   61   2              handle = 1;
-   62   2              setSpeed = 230;
-   63   2              if (centerLineCount > 5)
-   64   2                  alongLine(centerLine, centerLineCount, 17);
-   65   2              else
-   66   2                  setServoDuty(28);
-   67   2              if (!RCorner && RRoadCount > 25 && RRoad[RRoadCount - 1].y < 133) {
-   68   3                  centerLineDistance = 17;
-   69   3                  ROUND_MODE = ROUND_EXIT;
-   70   3                  ALONG = ALONG_R;
-   71   3              }
-   72   2          } else if (ROUND_MODE == ROUND_EXIT) {
-   73   2              ALONG = ALONG_R;
-   74   2              setSpeed = 230;
-   75   2              if (centerLineCount < 5) {
-   76   3                  smoothStop = 1;
-   77   3              } else smoothStop = 0;
-   78   2              alongLine(centerLine, centerLineCount, 40);
-   79   2              if (!LRoadCount)
-   80   2                  canFinish = 1;
-   81   2              else if (LRoadCount > 10 && canFinish) {
-   82   3                  ROUND_MODE = ROUND_READY;
-   83   3                  RUN_MODE = FORWARD;
-   84   3                  smoothStop = handle = 0;
-   85   3                  canFinish = canStart = canIn = 0;
-   86   3              }
-   87   2          }
-   88   1      }
+   56   2          } else if (ROUND_MODE == ROUND_END) {
+   57   2              ALONG = ALONG_L;
+   58   2              handle = 1;
+   59   2              setSpeed = 230;
+   60   2              if (centerLineCount > 5)
+   61   2                  alongLine(centerLine, centerLineCount, 17);
+   62   2              else
+   63   2                  setServoDuty(28);
+   64   2              if (!RCorner && RRoadCount > 25 && RRoad[RRoadCount - 1].y < 133) {
+   65   3                  centerLineDistance = 17;
+   66   3                  ROUND_MODE = ROUND_EXIT;
+   67   3                  ALONG = ALONG_R;
+   68   3              }
+   69   2          } else if (ROUND_MODE == ROUND_EXIT) {
+   70   2              ALONG = ALONG_R;
+   71   2              setSpeed = 230;
+   72   2              if (centerLineCount < 5) {
+   73   3                  smoothStop = 1;
+   74   3              } else smoothStop = 0;
+   75   2              alongLine(centerLine, centerLineCount, 40);
+   76   2              if (!LRoadCount)
+   77   2                  canFinish = 1;
+   78   2              else if (LRoadCount > 10 && canFinish) {
+   79   3                  ROUND_MODE = ROUND_READY;
+   80   3                  RUN_MODE = FORWARD;
+   81   3                  smoothStop = handle = 0;
+   82   3                  canFinish = canStart = canIn = 0;
+   83   3              }
+   84   2          }
+   85   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       650     ------
+  ecode size           =       624     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------

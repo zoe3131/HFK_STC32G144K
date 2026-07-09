@@ -10,3 +10,5 @@
 void laserInit();
 
 void startLaser(uint8 i);
+
+void dismissLaser();

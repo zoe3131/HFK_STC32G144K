@@ -19,10 +19,7 @@ void runRRound(int16 LCorner, int16 RCorner) {
     if (ROUND_MODE == ROUND_READY) {
         handle = 1;
         setSpeed = 250;
-        gpio_set_level(IO_P65, 1);
-        if (centerLineCount < 5) {
-            smoothStop = 1;
-        } else smoothStop = 0;
+        gpio_set_level(IO_P90, 1);
         alongLine(centerLine, centerLineCount, getDynamicAimPos());
         if (!RRoadCount)
             canStart = 1;
@@ -31,11 +28,11 @@ void runRRound(int16 LCorner, int16 RCorner) {
             ALONG = ALONG_R;
         }
     } else if (ROUND_MODE == ROUND_START) {
-        gpio_set_level(IO_P65, 0);
+        gpio_set_level(IO_P90, 0);
         ALONG = ALONG_R;
         setSpeed = 250;
         if (centerLineCount > 10)
-            alongLine(centerLine, centerLineCount, 28);
+            alongLine(centerLine, centerLineCount, 23);
         else
             setServoDuty(-22);
         if (!LRoadCount)

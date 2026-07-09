@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Motor                                                              03/07/26  15:12:36  PAGE 1   
+C251 COMPILER V5.60.0,  Motor                                                              09/07/26  09:08:48  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Motor
@@ -24,13 +24,13 @@ stmt  level    source
    11          #define motorPwmL PWMB_CH1_P74
    12          
    13          volatile int16 encoderL, encoderR, setSpeed = 0, handle = 0, duty = 0;
-   14          static uint32 K;
-   15          const int16 tani[31];
-   16          extern int16 RUN_MODE;
-   17          extern uint8 switch1, borderIn, mustStop;
-   18          static uint8 DEVICE_H = 30, send_buff[32];
-   19          static int16 R, c1, c2, c3, c4, c5, c6, c7, LSetSpeed, RSetSpeed, ct = 0, ct2 = 0;
-   20          int8 smoothStop;
+   14          const int16 tani[31];
+   15          extern int16 RUN_MODE;
+   16          extern uint8 switch1, borderIn, mustStop;
+   17          static uint8 DEVICE_H = 30, send_buff[32];
+   18          int16 R, c1, c2, c3, c4, c5, c6, c7, LSetSpeed, RSetSpeed, ct = 0, ct2 = 0;
+   19          int16 currentDuty, longc = 300, LPWM, RPWM;
+   20          int8 smoothStop, FD;
    21          
    22          typedef struct {
    23              int16 Kp;
@@ -66,98 +66,98 @@ stmt  level    source
    53   1          d_term = (int32) pid->Kd * (error - pid->last_error);
    54   1          att_term = (int32) pid->attitude_coeff * imu660rb_gyro_z;
    55   1          pid->last_error = error;
-C251 COMPILER V5.60.0,  Motor                                                              03/07/26  15:12:36  PAGE 2   
+C251 COMPILER V5.60.0,  Motor                                                              09/07/26  09:08:48  PAGE 2   
 
    56   1          pid_output = (p_term + d_term + att_term) / 100;
    57   1          return func_limit(pid_output, pid->max_out);
    58   1      }
    59          
    60          int16 motorPIDCalculate(PID_t *pid, int16 target, int16 actual) {
-   61   1          int32 err, delta_err, delta2_err, delta_u;
-   62   1      //    if (actual - target > 100) { //BangBang~
-   63   1      //        gpio_set_level((gpio_pin_enum) pid->which ? motorDirR : motorDirL, 0);
-   64   1      //        return c2;
-   65   1      //    }
-   66   1          err = target - actual;
-   67   1          delta_err = err - pid->last_error;
-   68   1          delta2_err = delta_err - (pid->last_error - pid->llast_error);
-   69   1          delta_u = (int32) pid->Kp * delta_err +
-   70   1                       (int32) pid->Ki * err +
-   71   1                       (int32) pid->Kd * delta2_err;
-   72   1          pid->llast_error = pid->last_error;
-   73   1          pid->last_error = err;
-   74   1          pid->base += delta_u / 100;
-   75   1          pid->base = func_limit(pid->base, pid->max_out);
-   76   1          gpio_set_level((gpio_pin_enum) pid->which ? motorDirR : motorDirL, pid->base >= 0);
-   77   1          return func_abs(pid->base) + 200;
-   78   1      }
-   79          
-   80          static void pitHandler() {
-   81   1          encoderR = -encoder_get_count(PWMA_ENCODER) + (encoderR >> 1);
-   82   1          encoderL = encoder_get_count(PWMC_ENCODER) + (encoderL >> 1);
-   83   1          encoder_clear_count(PWMA_ENCODER);
-   84   1          encoder_clear_count(PWMC_ENCODER);
-   85   1          pwm_set_duty(PWME_CH4P_PA6, 3060 + steerPIDCalculate(&steerPid, duty));
-   86   1          if (smoothStop || mustStop) {
-   87   2              pwm_set_duty(motorPwmR, 0);
-   88   2              pwm_set_duty(motorPwmL, 0);
-   89   2              pwm_set_duty(pressPwmL, 0);
-   90   2              pwm_set_duty(pressPwmR, 0);
-   91   2          } else {
-   92   2              RSetSpeed = setSpeed + (!R ? 0 : setSpeed * 8 / R);
-   93   2              LSetSpeed = setSpeed - (!R ? 0 : setSpeed * 8 / R);
-   94   2              pwm_set_duty(motorPwmR, motorPIDCalculate(&motorRPID, RSetSpeed, encoderR));
-   95   2              pwm_set_duty(motorPwmL, motorPIDCalculate(&motorLPID, LSetSpeed, encoderL));
-   96   2              if (!handle) {
-   97   3                  pwm_set_duty(pressPwmL, c7);
-   98   3                  pwm_set_duty(pressPwmR, c7);
-   99   3              }
-  100   2          }
-  101   1          // sprintf(send_buff, "speed: %d, %d, %d, %d\n", LSetSpeed, encoderL, RSetSpeed, encoderR);
-  102   1          // wireless_uart_send_buffer(send_buff, 32);
-  103   1      }
-  104          
-  105          void alongLine(Point roadLine[], int16 count, int16 aimPos) {
-  106   1          int16 pos, dx, dy;
-  107   1          int8 d;
-  108   1          if (count <= 5) return;
-  109   1          pos = func_limit_ab(aimPos, 5, count - 1);
-  110   1          dx = MT9V03X_H - (roadLine[pos].x + roadLine[pos - 1].x + roadLine[pos - 2].x) / 3 + DEVICE_H;
-  111   1          dy = 91 - (roadLine[pos].y + roadLine[pos - 1].y + roadLine[pos - 2].y) / 3;
-  112   1          d = atan2_int(2 * DEVICE_H * dy, dx * dx + dy * dy);
-  113   1      #if (DEBUG_MODE)
-  114   1          if (switch1) ips200_draw_point(roadLine[pos].y, roadLine[pos].x + MT9V03X_H + 40, RGB565_RED);
-  115   1      #endif
-  116   1      //    pos = func_limit_ab(c2, 5, count - 1);
-  117   1      //    dx = MT9V03X_H - roadLine[pos].x;
-  118   1      //    dy = 94 - roadLine[pos].y;
-  119   1      //    K = !dy ? 0 : 20 * dx / dy;
-  120   1      //    if (!display) ips200_draw_point(roadLine[pos].y, roadLine[pos].x + MT9V03X_H + 40, RGB565_RED);
-  121   1          //ips200_show_int16(0, 20, K);
-C251 COMPILER V5.60.0,  Motor                                                              03/07/26  15:12:36  PAGE 3   
+   61   1          int32 err, delta_err, delta_u;
+   62   1          err = target - actual;
+   63   1          delta_err = err - pid->last_error;
+   64   1          delta_u = (int32) pid->Kp * delta_err +
+   65   1                       (int32) pid->Ki * err +
+   66   1                       (int32) pid->Kd * delta_err - (pid->last_error - pid->llast_error);
+   67   1          pid->llast_error = pid->last_error;
+   68   1          pid->last_error = err;
+   69   1          pid->base += delta_u / 100;
+   70   1          pid->base = func_limit(pid->base, pid->max_out);
+   71   1          gpio_set_level((gpio_pin_enum) pid->which ? motorDirR : motorDirL, pid->base >= 0);
+   72   1          return func_abs(pid->base);
+   73   1      }
+   74          
+   75          static void pitHandler() {
+   76   1          encoderR = -encoder_get_count(PWMA_ENCODER) << 1;
+   77   1          encoderL = encoder_get_count(PWMC_ENCODER) << 1;
+   78   1          encoder_clear_count(PWMA_ENCODER);
+   79   1          encoder_clear_count(PWMC_ENCODER);
+   80   1          pwm_set_duty(PWME_CH4P_PA6, 2835 + steerPIDCalculate(&steerPid, duty));
+   81   1          if (smoothStop || mustStop) {
+   82   2              pwm_set_duty(motorPwmR, 0);
+   83   2              pwm_set_duty(motorPwmL, 0);
+   84   2              pwm_set_duty(pressPwmL, 0);
+   85   2              pwm_set_duty(pressPwmR, 0);
+   86   2          } else {
+   87   2              RSetSpeed = setSpeed + (!R ? 0 : setSpeed * 8 / R);
+   88   2              LSetSpeed = setSpeed - (!R ? 0 : setSpeed * 8 / R);
+   89   2              // if (longc > 150) RSetSpeed = LSetSpeed = c4;
+   90   2              // else RSetSpeed = LSetSpeed = c5;
+   91   2              RPWM = motorPIDCalculate(&motorRPID, RSetSpeed, encoderR);
+   92   2              LPWM = motorPIDCalculate(&motorLPID, LSetSpeed, encoderL);
+   93   2              pwm_set_duty(motorPwmR, RPWM);
+   94   2              pwm_set_duty(motorPwmL, LPWM);
+   95   2              if (!handle) {
+   96   3                  pwm_set_duty(pressPwmL, c7);
+   97   3                  pwm_set_duty(pressPwmR, c7);
+   98   3              }
+   99   2          }
+  100   1          // longc--;
+  101   1          // if (!longc) longc = 300;
+  102   1      }
+  103          
+  104          void up() {
+  105   1          sprintf(send_buff, "speed: %d, %d, %d\n", LSetSpeed, encoderL, LPWM);
+  106   1          if (!mustStop) wireless_uart_send_buffer(send_buff, 32);
+  107   1      }
+  108          
+  109          void alongLine(Point roadLine[], int16 count, int16 aimPos) {
+  110   1          int16 pos, dx, dy;
+  111   1          int8 d;
+  112   1          if (count <= 5) return;
+  113   1          pos = func_limit_ab(aimPos, 5, count - 1);
+  114   1          dx = MT9V03X_H - (roadLine[pos].x + roadLine[pos - 1].x + roadLine[pos - 2].x) / 3 + DEVICE_H;
+  115   1          dy = 91 - (roadLine[pos].y + roadLine[pos - 1].y + roadLine[pos - 2].y) / 3;
+  116   1          d = atan2_int(2 * DEVICE_H * dy, dx * dx + dy * dy);
+  117   1      #if (DEBUG_MODE)
+  118   1          if (switch1) ips200_draw_point(roadLine[pos].y, roadLine[pos].x + MT9V03X_H + 40, RGB565_RED);
+  119   1      #endif
+  120   1      
+  121   1          pos = func_limit_ab(aimPos + 5, 5, count - 1);
+C251 COMPILER V5.60.0,  Motor                                                              09/07/26  09:08:48  PAGE 3   
 
-  122   1          // if (RUN_MODE != RAMP && c5) {
-  123   1          //     dy = 94 - roadLine[c5].y;
-  124   1          //     //ips200_show_int16(0, 40, dy);
-  125   1          //     if ((d <= 0 && dy <= 0) || (d >= 0 && dy >= 0)) d += dy;
-  126   1          // }
-  127   1          setServoDuty(func_limit(d, 30));
-  128   1      }
-  129          
-  130          void setServoDuty(int8 d) {
-  131   1          int16 data t = tani[func_limit_ab(func_abs((int16) d * 170 / 100), 0, 30)];
-  132   1      #if (DEBUG_MODE)
-  133   1          if (switch1) ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 20, d);
-  134   1      #endif
-  135   1          R = !t ? 0 : 20000 / t;
-  136   1          //if (func_abs(K) > func_abs(R)) K = R;
-  137   1          if (!handle)
-  138   1              setSpeed = !R ? c5 : func_limit(sqrt_int(func_abs(R) * (uint32) c4), c5);
-  139   1          else setSpeed = func_min(setSpeed, !R ? c5 : func_limit(sqrt_int(func_abs(R) * (uint32) c4), c5));
-  140   1          if (d < 0) R = -R;
-  141   1          // ips200_show_int16(0, 0, encoderL);
-  142   1          // ips200_show_int16(0, 30, encoderR);
-  143   1          //ips200_show_int16(0, 0, R);
+  122   1          dx = roadLine[0].x - roadLine[pos].x + DEVICE_H;
+  123   1          dy = 91 - roadLine[pos].y;
+  124   1          FD = atan2_int(2 * DEVICE_H * dy, dx * dx + dy * dy);
+  125   1      
+  126   1          setServoDuty(func_limit(d, 30));
+  127   1      }
+  128          
+  129          void setServoDuty(int8 d) {
+  130   1          int16 data t, ts;
+  131   1          //d = c1;
+  132   1          currentDuty = (int16) d * 170 / 100;
+  133   1          t = tani[func_limit_ab(func_max(func_abs(currentDuty), func_abs(FD * 17 / 10)), 0, 30)];
+  134   1      #if (DEBUG_MODE)
+  135   1          if (switch1) ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 20, currentDuty);
+  136   1      #endif
+  137   1          R = !t ? 0 : 20000 / t;
+  138   1          if (borderIn) ts = func_min(c5, 320);
+  139   1          else ts = c5;
+  140   1          if (!handle)
+  141   1              setSpeed = !R ? ts : func_limit(sqrt_int(func_abs(R) * (uint32) c4), ts);
+  142   1          else setSpeed = func_min(setSpeed, !R ? c5 : func_limit(sqrt_int(func_abs(R) * (uint32) c4), c5));
+  143   1          if (d < 0) R = -R;
   144   1          duty = (int16) d * 11;
   145   1      }
   146          
@@ -175,21 +175,21 @@ stmt  level    source
   158   1          c6 = c66;
   159   1          c7 = c77;
   160   1          PIDInit(&steerPid, 3,
-  161   1                   170, 0, 100, 2,
-  162   1                   333);
+  161   1                   c1, 0, c2, c3,
+  162   1                   375);
   163   1          PIDInit(&motorLPID, 0,
-  164   1                  c11, c22, c33, 0,
-  165   1                  9500);
+  164   1                  3000, 100, 50, 0,
+  165   1                  9000);
   166   1          PIDInit(&motorRPID, 1,
-  167   1                  c11, c22, c33, 0,
-  168   1                  9500);
-  169   1          pwm_init(PWME_CH4P_PA6, servoFreq, 3060);
+  167   1                  3000, 100, 50, 0,
+  168   1                  9000);
+  169   1          pwm_init(PWME_CH4P_PA6, servoFreq, 2835);
   170   1          gpio_init(motorDirR, GPO, 1, GPO_PUSH_PULL);
   171   1          gpio_init(motorDirL, GPO, 1, GPO_PUSH_PULL);
   172   1          pwm_init(motorPwmR, 17000, 0);
   173   1          pwm_init(motorPwmL, 17000, 0);
-  174   1          pwm_init(pressPwmR, 50, c7);
-  175   1          pwm_init(pressPwmL, 50, c7);
+  174   1          pwm_init(pressPwmR, 50, 0);
+  175   1          pwm_init(pressPwmL, 50, 0);
   176   1          // 在50Hz的控制频率下，无刷电调转速 0%   为 500
   177   1          // 在50Hz的控制频率下，无刷电调转速 20%  为 600
   178   1          // 在50Hz的控制频率下，无刷电调转速 40%  为 700
@@ -199,24 +199,25 @@ stmt  level    source
   182   1          encoder_quad_init(PWMA_ENCODER, PWMA_ENCODER_CH1P_P60, PWMA_ENCODER_CH2P_P62);
   183   1          encoder_quad_init(PWMC_ENCODER, PWMC_ENCODER_CH1P_P40, PWMC_ENCODER_CH2P_P42);
   184   1          pit_ms_init(TIM1_PIT, 5, pitHandler);
-  185   1      }
-  186          
-  187          const int16 tani[31] = {0,
-C251 COMPILER V5.60.0,  Motor                                                              03/07/26  15:12:36  PAGE 4   
+  185   1          //pit_ms_init(TIM3_PIT, 5, up);
+  186   1      }
+  187          
+C251 COMPILER V5.60.0,  Motor                                                              09/07/26  09:08:48  PAGE 4   
 
-  188                                  17,  35,  52,  70,  87,  105, 123, 141, 158, 176,
-  189                                  194, 213, 231, 249, 268, 287, 306, 325, 344, 364,
-  190                                  384, 404, 424, 445, 466, 488, 510, 532, 554, 577};
+  188          const int16 tani[31] = {0,
+  189                                  17,  35,  52,  70,  87,  105, 123, 141, 158, 176,
+  190                                  194, 213, 231, 249, 268, 287, 306, 325, 344, 364,
+  191                                  384, 404, 424, 445, 466, 488, 510, 532, 554, 577};
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      3750     ------
+  ecode size           =      4556     ------
   data size            =         2     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =       214     ------
+  xdata size           =       217     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
@@ -226,7 +227,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =       103     ------
+  hconst size          =       129     ------
 End of Module Information.
 
 
