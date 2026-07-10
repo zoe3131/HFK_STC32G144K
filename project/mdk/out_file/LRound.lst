@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  LRound                                                             08/07/26  12:15:49  PAGE 1   
+C251 COMPILER V5.60.0,  LRound                                                             10/07/26  14:49:17  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE LRound
@@ -45,7 +45,7 @@ stmt  level    source
    32   2              ALONG = ALONG_L;
    33   2              setSpeed = 250;
    34   2              if (centerLineCount > 10)
-   35   2                  alongLine(centerLine, centerLineCount, 25);
+   35   2                  alongLine(centerLine, centerLineCount, 20);
    36   2              else
    37   2                  setServoDuty(22);
    38   2              if (!RRoadCount)
@@ -66,7 +66,7 @@ stmt  level    source
    53   3                  ROUND_MODE = ROUND_END;
    54   3                  ALONG = ALONG_L;
    55   3              }
-C251 COMPILER V5.60.0,  LRound                                                             08/07/26  12:15:49  PAGE 2   
+C251 COMPILER V5.60.0,  LRound                                                             10/07/26  14:49:17  PAGE 2   
 
    56   2          } else if (ROUND_MODE == ROUND_END) {
    57   2              ALONG = ALONG_L;

@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  zf_common_interrupt                                                07/07/26  16:33:55  PAGE 1   
+C251 COMPILER V5.60.0,  zf_common_interrupt                                                10/07/26  10:55:12  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_common_interrupt
@@ -66,7 +66,7 @@ stmt  level    source
    49   1        if((irqn >> 4) == 0)
    50   1        {
    51   2          IP  |= (priority & 0x01) << (irqn & 0x0F);
-C251 COMPILER V5.60.0,  zf_common_interrupt                                                07/07/26  16:33:55  PAGE 2   
+C251 COMPILER V5.60.0,  zf_common_interrupt                                                10/07/26  10:55:12  PAGE 2   
 
    52   2          IPH |= ((priority >> 1) & 0x01) << (irqn & 0x0F);
    53   2        }
@@ -134,7 +134,7 @@ stmt  level    source
              -------------
   111          // 函数简介     关闭全局中断
   112          // 参数说明     void            
-C251 COMPILER V5.60.0,  zf_common_interrupt                                                07/07/26  16:33:55  PAGE 3   
+C251 COMPILER V5.60.0,  zf_common_interrupt                                                10/07/26  10:55:12  PAGE 3   
 
   113          // 返回参数     void
   114          // 使用示例     

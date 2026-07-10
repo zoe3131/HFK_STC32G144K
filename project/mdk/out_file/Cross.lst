@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Cross                                                              08/07/26  12:15:49  PAGE 1   
+C251 COMPILER V5.60.0,  Cross                                                              10/07/26  17:18:43  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Cross
@@ -66,7 +66,7 @@ stmt  level    source
    52   1          else {
    53   2              pos.x = 80;
    54   2              pos.y = minMaxH;
-C251 COMPILER V5.60.0,  Cross                                                              08/07/26  12:15:49  PAGE 2   
+C251 COMPILER V5.60.0,  Cross                                                              10/07/26  17:18:43  PAGE 2   
 
    55   2          }
    56   1          while (pos.x >= 8 && getImagePointFilterSelf(pos.x, pos.y) > crossThreshold || getImagePointFilterSel
@@ -134,7 +134,7 @@ stmt  level    source
   117   3                  ips200_displayimage03x(mt9v03x_image, MT9V03X_W, MT9V03X_H, 0, 0);
 *** WARNING C98 IN LINE 117 OF ..\code\Cross.c: parameter 3: pointer to different objects
 *** WARNING C91 IN LINE 117 OF ..\code\Cross.c: '&': pointer to different objects
-C251 COMPILER V5.60.0,  Cross                                                              08/07/26  12:15:49  PAGE 3   
+C251 COMPILER V5.60.0,  Cross                                                              10/07/26  17:18:43  PAGE 3   
 
   118   3                  ips200_draw_point(start.y, start.x, RGB565_RED);
   119   3                  for (i = 0; i < MT9V03X_H; i++)

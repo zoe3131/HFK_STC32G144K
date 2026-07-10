@@ -108,6 +108,7 @@
 
 #include "seekfree_assistant_interface.h"
 
+#include "Imu.h"
 #include "Block.h"
 #include "Cross.h"
 #include "Image.h"

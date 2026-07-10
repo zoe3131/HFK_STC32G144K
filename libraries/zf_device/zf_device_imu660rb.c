@@ -405,7 +405,7 @@ float imu660rb_gyro_transition (int16 gyro_value)
 uint8 imu660rb_init (void)
 {
     uint8 return_state = 0;
-    system_delay_ms(20);                                                        // 等待设备上电成功
+    system_delay_ms(200);                                                        // 等待设备上电成功
 
 #if (IMU660RB_USE_INTERFACE==HARDWARE_SPI)
 	

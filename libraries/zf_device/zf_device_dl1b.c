@@ -113,7 +113,7 @@ void dl1b_get_distance (void)
                 }
                 else
                 {
-                    dl1b_distance_mm = dl1b_distance_temp;
+                    dl1b_distance_mm = dl1b_distance_temp + dl1b_distance_mm >> 1;
                     dl1b_finsh_flag = 1;
                 }
             }

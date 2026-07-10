@@ -7,6 +7,7 @@
 gpio_pin_enum laser[] = {IO_P17, IO_P67, IO_PB2, IO_P44, IO_PB5, IO_PB3, IO_PB4, IO_P91, IO_P16, IO_P14, IO_P65, IO_P45};
 uint8 time, i, canStart = 51;
 extern int16 currentDuty;
+extern uint8 canNotInRamp;
 
 void dismissLaser() {
     for (i = 0; i < 12; i++)
@@ -22,6 +23,7 @@ void timer() {
     } else if (canStart < 50) {
         canStart++;
     }
+    if (canNotInRamp) canNotInRamp--;
 }
 
 void laserInit() {

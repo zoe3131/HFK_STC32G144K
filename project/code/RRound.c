@@ -32,7 +32,7 @@ void runRRound(int16 LCorner, int16 RCorner) {
         ALONG = ALONG_R;
         setSpeed = 250;
         if (centerLineCount > 10)
-            alongLine(centerLine, centerLineCount, 23);
+            alongLine(centerLine, centerLineCount, 20);
         else
             setServoDuty(-22);
         if (!LRoadCount)

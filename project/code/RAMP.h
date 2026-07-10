@@ -6,7 +6,7 @@
 #define SEEKFREE_STC32G144K_100PIN_OPENSOURCE_LIBRARY_RAMP_H
 #include "zf_common_headfile.h"
 
-#define rampPos 80
+#define rampPos 70
 
 void runRamp();
 

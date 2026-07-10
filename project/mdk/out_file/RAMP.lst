@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  RAMP                                                               08/07/26  12:15:50  PAGE 1   
+C251 COMPILER V5.60.0,  RAMP                                                               10/07/26  11:04:39  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE RAMP
@@ -17,60 +17,58 @@ stmt  level    source
     5          #include "RAMP.h"
 *** WARNING C323 IN LINE 12 OF ..\code\Zebra.h: newline expected, extra characters found
     6          
-    7          static uint8 canEnd = 0, readyEnd = 0;
-    8          extern int16 RUN_MODE, pitch;
-    9          extern uint8 outputImage[MT9V03X_H][MT9V03X_W];
+    7          extern int16 RUN_MODE;
+    8          extern uint8 outputImage[MT9V03X_H][MT9V03X_W];
+    9          uint8 canEnd, canNotInRamp;
    10          
    11          void runRamp() {
    12   1          Point tarPos[6];
    13   1          int16 i, j, k;
-   14   1          gpio_set_level(IO_P65, 1);
-   15   1          if (func_min(LBorderCount, RBorderCount) < 30) {
-   16   2              smoothStop = 1;
-   17   2              return;
-   18   2          }
-   19   1          smoothStop = 0;
-   20   1          for (i = 0; i < LBorderCount; i++)
-   21   1              if (LBorder[i].x == rampPos) break;
-   22   1          for (j = 0; j < RBorderCount; j++)
-   23   1              if (RBorder[j].x == rampPos) break;
-   24   1          if (LBorder[i].x != rampPos || RBorder[j].x != rampPos) return;
-   25   1          for (k = 0; k <= 5; k++) {
-   26   2              tarPos[k].x = rampPos;
-   27   2              tarPos[k].y = LBorder[i].y + RBorder[j].y >> 1;
-   28   2          }
-   29   1          getGodRoadLine(tarPos, 6);
-   30   1          alongLine(tarPos, 6, 5);
-   31   1          handle = 1;
-   32   1          setSpeed = 170;
-   33   1          // ips200_show_int16(0, 0, readyEnd);
-   34   1          // ips200_show_int16(0, 20, canEnd);
-   35   1          // ips200_show_int16(0, 40, dl1b_distance_mm);
-   36   1          if (dl1b_distance_mm < 500) {
-   37   2              if (readyEnd)
-   38   2                  canEnd = 1;
-   39   2          } else if (dl1b_distance_mm > 650) {
-   40   2              if (dl1b_distance_mm > 1000) readyEnd = 1;
-   41   2              if (canEnd) {
-   42   3                  wireless_uart_send_string("exit\r\n");
-   43   3                  gpio_set_level(IO_P65, 0);
-   44   3                  canEnd = handle = readyEnd = 0;
-   45   3                  system_delay_ms(200);
-   46   3                  RUN_MODE = FORWARD;
-   47   3              }
-   48   2          }
-   49   1      }
+   14   1          gpio_set_level(IO_P90, 1);
+   15   1          if (pitch <= -8) {
+   16   2              canEnd = 1;
+   17   2              setSpeed = 300;
+   18   2          } else if (pitch > -2 && pitch < 2 && canEnd && dl1b_distance_mm > 500) {
+   19   2              RUN_MODE = FORWARD;
+   20   2              centerLineDistance = 17;
+   21   2              canEnd = handle = 0;
+   22   2              canNotInRamp = 5;
+   23   2              enableDifSpeed = 1;
+   24   2              gpio_set_level(IO_P90, 0);
+   25   2              wireless_uart_send_string("exit\n");
+   26   2          } else if (!canEnd) {
+   27   2              handle = 1;
+   28   2              setSpeed = 150;
+   29   2              enableDifSpeed = 0;
+   30   2          }
+   31   1          if (func_min(LBorderCount, RBorderCount) < 30) {
+   32   2              smoothStop = 1;
+   33   2              return;
+   34   2          }
+   35   1          smoothStop = 0;
+   36   1          for (i = 0; i < LBorderCount; i++)
+   37   1              if (LBorder[i].x == rampPos) break;
+   38   1          for (j = 0; j < RBorderCount; j++)
+   39   1              if (RBorder[j].x == rampPos) break;
+   40   1          if (LBorder[i].x != rampPos || RBorder[j].x != rampPos) return;
+   41   1          for (k = 0; k <= 5; k++) {
+   42   2              tarPos[k].x = rampPos;
+   43   2              tarPos[k].y = LBorder[i].y + RBorder[j].y >> 1;
+   44   2          }
+   45   1          getGodRoadLine(tarPos, 6);
+   46   1          alongLine(tarPos, 6, 5);
+   47   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       430     ------
+  ecode size           =       440     ------
   data size            =    ------     ------
-C251 COMPILER V5.60.0,  RAMP                                                               08/07/26  12:15:50  PAGE 2   
-
   idata size           =    ------     ------
   pdata size           =    ------     ------
+C251 COMPILER V5.60.0,  RAMP                                                               10/07/26  11:04:39  PAGE 2   
+
   xdata size           =         2         12
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
@@ -81,7 +79,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =        19     ------
+  hconst size          =         6     ------
 End of Module Information.
 
 

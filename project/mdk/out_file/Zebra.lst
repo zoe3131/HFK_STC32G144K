@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Zebra                                                              08/07/26  12:15:49  PAGE 1   
+C251 COMPILER V5.60.0,  Zebra                                                              10/07/26  14:49:18  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Zebra
@@ -48,7 +48,7 @@ stmt  level    source
    35   3                  if (count == 3) goto stop;
    36   3                  add = 0;
    37   3              }
-   38   2              if (!LCorner && !RCorner && LBorderCount && !have && !haveLine()) {
+   38   2              if (LBorderCount && !have && !haveLine()) {
    39   3                  RUN_MODE = FORWARD;
    40   3                  add = 1;
    41   3              }
@@ -59,7 +59,7 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       285     ------
+  ecode size           =       265     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
@@ -67,7 +67,7 @@ Module Information          Static   Overlayable
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
-C251 COMPILER V5.60.0,  Zebra                                                              08/07/26  12:15:49  PAGE 2   
+C251 COMPILER V5.60.0,  Zebra                                                              10/07/26  14:49:18  PAGE 2   
 
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------

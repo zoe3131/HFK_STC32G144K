@@ -6,7 +6,6 @@
 #define SEEKFREE_STC32G144K_100PIN_OPENSOURCE_LIBRARY_MOTOR_H
 #include "zf_common_headfile.h"
 #define DEBUG_MODE 1
-#define servoFreq 200
 #define FORWARD 114
 #define CROSS 514
 #define R_ROUND 1919
@@ -23,5 +22,5 @@ void setServoDuty(int8 duty);
 void alongLine(Point roadLine[], int16 count, int16 aimPos);
 int8 getDynamicAimPos();
 extern int8 smoothStop;
-
+extern int16 enableDifSpeed;
 #endif //SEEKFREE_STC32G144K_100PIN_OPENSOURCE_LIBRARY_MOTOR_H

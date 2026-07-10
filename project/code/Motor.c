@@ -14,10 +14,10 @@ volatile int16 encoderL, encoderR, setSpeed = 0, handle = 0, duty = 0;
 const int16 tani[31];
 extern int16 RUN_MODE;
 extern uint8 switch1, borderIn, mustStop;
-static uint8 DEVICE_H = 30, send_buff[32];
-int16 R, c1, c2, c3, c4, c5, c6, c7, LSetSpeed, RSetSpeed, ct = 0, ct2 = 0;
-int16 currentDuty, longc = 300, LPWM, RPWM;
+static uint8 DEVICE_H = 35, send_buff[32];
 int8 smoothStop, FD;
+int16 R, c1, c2, c3, c4, c5, c6, c7, LSetSpeed, RSetSpeed, enableDifSpeed = 1, ct2 = 0;
+int16 currentDuty, longc = 300, LPWM, RPWM;
 
 typedef struct {
     int16 Kp;
@@ -84,8 +84,8 @@ static void pitHandler() {
         pwm_set_duty(pressPwmL, 0);
         pwm_set_duty(pressPwmR, 0);
     } else {
-        RSetSpeed = setSpeed + (!R ? 0 : setSpeed * 8 / R);
-        LSetSpeed = setSpeed - (!R ? 0 : setSpeed * 8 / R);
+        RSetSpeed = setSpeed + (!R || !enableDifSpeed ? 0 : setSpeed * 8 / R);
+        LSetSpeed = setSpeed - (!R || !enableDifSpeed ? 0 : setSpeed * 8 / R);
         // if (longc > 150) RSetSpeed = LSetSpeed = c4;
         // else RSetSpeed = LSetSpeed = c5;
         RPWM = motorPIDCalculate(&motorRPID, RSetSpeed, encoderR);
@@ -102,7 +102,7 @@ static void pitHandler() {
 }
 
 void up() {
-    sprintf(send_buff, "speed: %d, %d, %d\n", LSetSpeed, encoderL, LPWM);
+    sprintf(send_buff, "duty: %d\n", duty / 11);
     if (!mustStop) wireless_uart_send_buffer(send_buff, 32);
 }
 
@@ -110,15 +110,14 @@ void alongLine(Point roadLine[], int16 count, int16 aimPos) {
     int16 pos, dx, dy;
     int8 d;
     if (count <= 5) return;
-    pos = func_limit_ab(aimPos, 5, count - 1);
+    pos = func_limit_ab(aimPos, 5, count - 2);
     dx = MT9V03X_H - (roadLine[pos].x + roadLine[pos - 1].x + roadLine[pos - 2].x) / 3 + DEVICE_H;
     dy = 91 - (roadLine[pos].y + roadLine[pos - 1].y + roadLine[pos - 2].y) / 3;
     d = atan2_int(2 * DEVICE_H * dy, dx * dx + dy * dy);
 #if (DEBUG_MODE)
     if (switch1) ips200_draw_point(roadLine[pos].y, roadLine[pos].x + MT9V03X_H + 40, RGB565_RED);
 #endif
-
-    pos = func_limit_ab(aimPos + 5, 5, count - 1);
+    pos = func_limit_ab(aimPos + 5, 5, count - 2);
     dx = roadLine[0].x - roadLine[pos].x + DEVICE_H;
     dy = 91 - roadLine[pos].y;
     FD = atan2_int(2 * DEVICE_H * dy, dx * dx + dy * dy);
@@ -127,21 +126,21 @@ void alongLine(Point roadLine[], int16 count, int16 aimPos) {
 }
 
 void setServoDuty(int8 d) {
-    int16 data t, ts;
+    int16 data t, ts, r;
     //d = c1;
     currentDuty = (int16) d * 170 / 100;
     t = tani[func_limit_ab(func_max(func_abs(currentDuty), func_abs(FD * 17 / 10)), 0, 30)];
 #if (DEBUG_MODE)
     if (switch1) ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 20, currentDuty);
 #endif
-    R = !t ? 0 : 20000 / t;
+    r = !t ? 0 : 20000 / t;
     if (borderIn) ts = func_min(c5, 320);
     else ts = c5;
     if (!handle)
-        setSpeed = !R ? ts : func_limit(sqrt_int(func_abs(R) * (uint32) c4), ts);
-    else setSpeed = func_min(setSpeed, !R ? c5 : func_limit(sqrt_int(func_abs(R) * (uint32) c4), c5));
-    if (d < 0) R = -R;
-    duty = (int16) d * 11;
+        setSpeed = !r ? ts : func_limit(sqrt_int(func_abs(r) * (uint32) c4), ts);
+    else setSpeed = func_min(setSpeed, !r ? c5 : func_limit(sqrt_int(func_abs(r) * (uint32) c4), c5));
+    R = d < 0 ? -r : r;
+    duty = (int16) d * 13;
 }
 
 int8 getDynamicAimPos() {
@@ -158,15 +157,15 @@ void motorInit(int16 c11, int16 c22, int16 c33, int16 c44, int16 c55, int16 c66,
     c6 = c66;
     c7 = c77;
     PIDInit(&steerPid, 3,
-             c1, 0, c2, c3,
-             375);
+             c1, 0, c2, 0,
+             380);
     PIDInit(&motorLPID, 0,
             3000, 100, 50, 0,
-            9000);
+            10000);
     PIDInit(&motorRPID, 1,
             3000, 100, 50, 0,
-            9000);
-    pwm_init(PWME_CH4P_PA6, servoFreq, 2835);
+            10000);
+    pwm_init(PWME_CH4P_PA6, 200, 2835);
     gpio_init(motorDirR, GPO, 1, GPO_PUSH_PULL);
     gpio_init(motorDirL, GPO, 1, GPO_PUSH_PULL);
     pwm_init(motorPwmR, 17000, 0);

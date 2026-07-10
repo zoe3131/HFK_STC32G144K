@@ -35,7 +35,7 @@ void runZebra(uint8 have) {
             if (count == 3) goto stop;
             add = 0;
         }
-        if (!LCorner && !RCorner && LBorderCount && !have && !haveLine()) {
+        if (LBorderCount && !have && !haveLine()) {
             RUN_MODE = FORWARD;
             add = 1;
         }

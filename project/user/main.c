@@ -35,34 +35,33 @@
 ********************************************************************************************************************/
 #include "zf_common_headfile.h"
 
-int16 LCorner, RCorner, s2,centerLineCount, RUN_MODE = ZEBRA, pitch = 0, LRoadCount = expRoadCount, RRoadCount = expRoadCount;
+int16 LCorner, RCorner, s2, centerLineCount, RUN_MODE = ZEBRA, LRoadCount = expRoadCount, RRoadCount = expRoadCount;
 static int16 p, i, d, s1, am, borderInTriggerDistance, ab;
 uint8 borderIn, switch1, mustStop, switch2, ALONG = ALONG_R, button, disEd;
 Point centerLine[expRoadCount], LRoad[expRoadCount], RRoad[expRoadCount], target;
-extern uint8 outputImage[MT9V03X_H][MT9V03X_W];
+extern uint8 outputImage[MT9V03X_H][MT9V03X_W], canNotInRamp;
 static uint8 have, data_buffer[32], send_buff[32], findBorderIn;
-
-void pitInit();
 
 void loadRoad();
 
 uint8 haveZebra();
+
+void tof() {dl1b_get_distance();}
 
 void main(void) {
     clock_init(SYSTEM_CLOCK_96M);
     debug_init();
     ips200_init();
     while (mt9v03x_init());
-    while (imu660rb_init());
-    //while (dl1b_init());
+    while (dl1b_init());
+    pit_ms_init(TIM6_PIT, 10, tof);
     while (wireless_uart_init());
     gpio_init(IO_PB1, GPI, 0, GPI_PULL_UP);
     gpio_init(IO_PB0, GPI, 0, GPI_PULL_UP);
     gpio_init(IO_P32, GPI, 0, GPI_PULL_UP);
-    //gpio_init(IO_P90, GPO, 0, GPO_PUSH_PULL); //·äÃùÆ÷
+    gpio_init(IO_P90, GPO, 0, GPO_PUSH_PULL); //·äÃùÆ÷
     gpio_init(IO_P64, GPO, 0, GPO_PUSH_PULL); //Ê¾²¨Æ÷
     laserInit();
-    pitInit();
     displayBorderLineImage();
     while (1) {
         system_delay_ms(50);
@@ -75,6 +74,8 @@ void main(void) {
             ips200_clear(RGB565_WHITE);
             dismissLaser();
             motorInit(p, i, d, am, s1, s2, ab);
+            imuInit();
+
             break;
         }
 #else
@@ -114,13 +115,21 @@ void main(void) {
     }
 #endif
     if (DEBUG_MODE) RUN_MODE = FORWARD;
-    system_delay_ms(500);
+    //system_delay_ms(500);
     // seekfree_assistant_interface_init(SEEKFREE_ASSISTANT_DEBUG_UART);
     // seekfree_assistant_camera_information_config(SEEKFREE_ASSISTANT_MT9V03X, outputImage, MT9V03X_W, MT9V03X_H);
     while (1) {
         if (wireless_uart_read_buffer(data_buffer, 32)) {
             mustStop = 1;
+            gpio_set_level(IO_P90, 0);
             break;
+        }
+        // ips200_show_int16(0,0,pitch);
+        // ips200_show_int16(0,20,dl1b_distance_mm);
+        if (RUN_MODE == RAMP || (!canNotInRamp && (RUN_MODE == FORWARD || RUN_MODE == BLOCK) && dl1b_distance_mm < 400 && pitch >= 1)) {
+            RUN_MODE = RAMP;
+            wireless_uart_send_string("ramp\n");
+            runRamp();
         }
         if (mt9v03x_finish_flag) {
             // memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
@@ -137,14 +146,7 @@ void main(void) {
                 RUN_MODE = ZEBRA;
                 sprintf(send_buff, "ZEBRA: %d, %d\n", LBorderCount, RBorderCount);
                 runZebra(have);
-            }
-            else if (RUN_MODE == RAMP || (RUN_MODE == FORWARD && dl1b_distance_mm < 600
-                 && dl1b_distance_mm > 100 && !borderIn && !LCorner && !RCorner)) {
-                RUN_MODE = RAMP;
-                wireless_uart_send_string("ramp\r\n");
-                runRamp();
-            }
-            else if (RUN_MODE == BLOCK) {
+            } else if (RUN_MODE == BLOCK) {
                 runBlock(LCorner, RCorner);
                 sprintf(send_buff, "BLOCK: %d, %d\n", LBorderCount, RBorderCount);
             } else if (RUN_MODE == CROSS ||
@@ -163,7 +165,7 @@ void main(void) {
                 RUN_MODE = L_ROUND;
                 runLRound(LCorner, RCorner);
                 sprintf(send_buff, "L_ROUND: %d, %d\n", LBorderCount, RBorderCount);
-             } else {
+            } else {
                 if (centerLineCount < 10) smoothStop = 1;
                 else {
                     smoothStop = 0;
@@ -171,7 +173,7 @@ void main(void) {
                 }
                 sprintf(send_buff, "FORWARD: %d, %d\n", LBorderCount, RBorderCount);
             }
-            //wireless_uart_send_buffer(send_buff, 32);
+            wireless_uart_send_buffer(send_buff, 32);
 // #if(DEBUG_MODE)
 //             if (!disEd && RUN_MODE == BLOCK) {
 //                 disEd = 1;
@@ -292,18 +294,4 @@ uint8 haveZebra() {
         i += 3;
     if (LBorder[i].x > ZEBRA_TRIGGER_POS) return 0;
     return findZebra(i);
-}
-
-void pitHandlerImu() {
-    imu660rb_get_acc();
-    imu660rb_get_gyro();
-}
-
-void pitHandlerTof() {
-    dl1b_get_distance();
-}
-
-void pitInit() {
-    //pit_ms_init(TIM6_PIT, 10, pitHandlerTof);
-    pit_ms_init(TIM0_PIT, 5, pitHandlerImu);
 }

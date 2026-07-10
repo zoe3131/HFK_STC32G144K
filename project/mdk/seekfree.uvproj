@@ -1024,6 +1024,21 @@
               <FileType>1</FileType>
               <FilePath>..\code\Laser.c</FilePath>
             </File>
+            <File>
+              <FileName>Laser.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\code\Laser.h</FilePath>
+            </File>
+            <File>
+              <FileName>Imu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\code\Imu.c</FilePath>
+            </File>
+            <File>
+              <FileName>Imu.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\code\Imu.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
