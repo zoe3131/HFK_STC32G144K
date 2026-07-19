@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Cross                                                              10/07/26  17:18:43  PAGE 1   
+C251 COMPILER V5.60.0,  Cross                                                              19/07/26  14:56:43  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Cross
@@ -43,7 +43,7 @@ stmt  level    source
    30   2              pos.y = minMaxH;
    31   2          }
    32   1          while (pos.x >= 8 && getImagePointFilterSelf(pos.x, pos.y) > crossThreshold || getImagePointFilterSel
-             -f(pos.x - 8, pos.y) > crossThreshold) pos.x--;
+             -f(pos.x - 8, pos.y) > crossThreshold || getImagePointFilterSelf(pos.x - 3, pos.y) > crossThreshold) pos.x--;
    33   1          if (pos.x <= 7)
    34   1              pos.x = pos.y = 0;
    35   1          else
@@ -66,11 +66,11 @@ stmt  level    source
    52   1          else {
    53   2              pos.x = 80;
    54   2              pos.y = minMaxH;
-C251 COMPILER V5.60.0,  Cross                                                              10/07/26  17:18:43  PAGE 2   
+C251 COMPILER V5.60.0,  Cross                                                              19/07/26  14:56:43  PAGE 2   
 
    55   2          }
    56   1          while (pos.x >= 8 && getImagePointFilterSelf(pos.x, pos.y) > crossThreshold || getImagePointFilterSel
-             -f(pos.x - 8, pos.y) > crossThreshold) pos.x--;
+             -f(pos.x - 8, pos.y) > crossThreshold || getImagePointFilterSelf(pos.x - 3, pos.y) > crossThreshold) pos.x--;
    57   1          if (pos.x <= 7)
    58   1              pos.x = pos.y = 0;
    59   1          else
@@ -87,8 +87,8 @@ stmt  level    source
    70   2          }
    71   1      #endif
    72   1          if (CROSS_MODE == CROSS_READY) {
-   73   2              gpio_set_level(IO_P90, 1);
-   74   2              if (centerLineCount && centerLineCount < 9) {
+   73   2              //gpio_set_level(IO_P90, 1);
+   74   2              if (centerLineCount && centerLineCount < 13) {
    75   3                  crossThreshold = threshold;
    76   3                  alongR = LBorderCount < RBorderCount;
    77   3                  CROSS_MODE = CROSS_IN;
@@ -102,10 +102,10 @@ stmt  level    source
    85   2              banUpdateThreshold = 1;
    86   2              if (alongR) {
    87   3                  start = getCrossRStart();
-   88   3                  getRBorder(border, start, &roadCount);
+   88   3                  getRBorder(border, start, &roadCount, 0);
    89   3              } else {
    90   3                  start = getCrossLStart();
-   91   3                  getLBorder(border, start, &roadCount);
+   91   3                  getLBorder(border, start, &roadCount, 0);
    92   3              }
    93   2              getGodRoadLine(border, roadCount);
    94   2              resampleRoad(border, &roadCount, 0, 3);
@@ -123,7 +123,7 @@ stmt  level    source
   106   2              filterRoad(farCenterLine, farCenterLineCount);
   107   2              alongLine(farCenterLine, farCenterLineCount, getDynamicAimPos());
   108   2              if (centerLineCount > 20 && canEnd) {
-  109   3                  canEnd = 0;
+  109   3                  canEnd = minMaxH = 0;
   110   3                  CROSS_MODE = CROSS_READY;
   111   3                  RUN_MODE = FORWARD;
   112   3                  gpio_set_level(IO_P90, 0);
@@ -134,7 +134,7 @@ stmt  level    source
   117   3                  ips200_displayimage03x(mt9v03x_image, MT9V03X_W, MT9V03X_H, 0, 0);
 *** WARNING C98 IN LINE 117 OF ..\code\Cross.c: parameter 3: pointer to different objects
 *** WARNING C91 IN LINE 117 OF ..\code\Cross.c: '&': pointer to different objects
-C251 COMPILER V5.60.0,  Cross                                                              10/07/26  17:18:43  PAGE 3   
+C251 COMPILER V5.60.0,  Cross                                                              19/07/26  14:56:43  PAGE 3   
 
   118   3                  ips200_draw_point(start.y, start.x, RGB565_RED);
   119   3                  for (i = 0; i < MT9V03X_H; i++)
@@ -156,7 +156,7 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      1474     ------
+  ecode size           =      1538     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------

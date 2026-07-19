@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Block                                                              10/07/26  11:04:39  PAGE 1   
+C251 COMPILER V5.60.0,  Block                                                              19/07/26  14:56:44  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Block
@@ -18,18 +18,18 @@ stmt  level    source
 *** WARNING C323 IN LINE 12 OF ..\code\Zebra.h: newline expected, extra characters found
     6          static uint8 added = 0;
     7          extern uint8 ALONG;
-    8          static int16 fixedLCorner, fixedRCorner;
+    8          static int16 fixedLCorner;
     9          extern int16 RUN_MODE, centerLineCount;
    10          extern Point centerLine[expRoadCount];
    11          
    12          uint8 canEnd() {
    13   1          int16 i;
    14   1          if (fixedLCorner) {
-   15   2              for (i = 0; i < RBorderCount && RBorder[i].x > 10; i += 10)
+   15   2              for (i = 0; i < RBorderCount && RBorder[i].x > 25; i += 5)
    16   2                  if (mt9v03x_image[RBorder[i].x][RBorder[i].y - borderOffset[RBorder[i].x]] < blockThreshold) 
              -return 0;
    17   2          } else {
-   18   2              for (i = 0; i < LBorderCount && LBorder[i].x > 10; i += 10)
+   18   2              for (i = 0; i < LBorderCount && LBorder[i].x > 25; i += 5)
    19   2                  if (mt9v03x_image[LBorder[i].x][LBorder[i].y + borderOffset[LBorder[i].x]] < blockThreshold) 
              -return 0;
    20   2          }
@@ -39,42 +39,36 @@ stmt  level    source
    24          void runBlock(int16 LCorner, int16 RCorner) {
    25   1          gpio_set_level(IO_P90, 1);
    26   1          if (!added) {
-   27   2              fixedLCorner = LCorner;
-   28   2              fixedRCorner = RCorner;
-   29   2              added = 1;
-   30   2          }
-   31   1          ALONG = fixedLCorner ? ALONG_R : ALONG_L;
-   32   1          if (centerLineCount < 10)
-   33   1              smoothStop = 1;
-   34   1          else {
-   35   2              smoothStop = 0;
-   36   2              alongLine(centerLine, centerLineCount, 20);
+   27   2              fixedLCorner = (LCorner && !RCorner) || (LCorner < RCorner && LCorner && RCorner);
+   28   2              added = 1;
+   29   2          }
+   30   1          ALONG = fixedLCorner ? ALONG_R : ALONG_L;
+   31   1          alongLine(centerLine, centerLineCount, 15);
+   32   1          if (canEnd()) {
+   33   2              added = 0;
+   34   2              gpio_set_level(IO_P90, 0);
+   35   2              RUN_MODE = FORWARD;
+   36   2              centerLineDistance = 18;
    37   2          }
-   38   1          if (canEnd()) {
-   39   2              added = smoothStop = 0;
-   40   2              gpio_set_level(IO_P90, 0);
-   41   2              RUN_MODE = FORWARD;
-   42   2              centerLineDistance = 18;
-   43   2          }
-   44   1      }
+   38   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       397     ------
+  ecode size           =       396     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =         5     ------
-C251 COMPILER V5.60.0,  Block                                                              10/07/26  11:04:39  PAGE 2   
-
+  xdata size           =         3     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
+C251 COMPILER V5.60.0,  Block                                                              19/07/26  14:56:44  PAGE 2   
+
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------

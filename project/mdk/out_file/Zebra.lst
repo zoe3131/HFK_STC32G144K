@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Zebra                                                              10/07/26  14:49:18  PAGE 1   
+C251 COMPILER V5.60.0,  Zebra                                                              19/07/26  14:56:43  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Zebra
@@ -22,44 +22,40 @@ stmt  level    source
     9          static uint8 count, add = 1;
    10          extern uint8 outputImage[MT9V03X_H][MT9V03X_W];
    11          
-   12          
-   13          uint8 haveLine() {
-   14   1          int16 i = 0;
-   15   1          while (i < LBorderCount && LBorder[i].x > ZEBRA_TRIGGER_POS) {
-   16   2              if (findZebra(i)) return 1;
-   17   2              i += 5;
-   18   2          }
-   19   1          return !LBorderCount || LBorder[i].x > ZEBRA_TRIGGER_POS;
-   20   1      }
-   21          
-   22          void runZebra(uint8 have) {
-   23   1          centerLineDistance = 17;
-   24   1          alongLine(centerLine, centerLineCount, getDynamicAimPos());
-   25   1          if (count == 3) {
-   26   2              stop:
-   27   2              system_delay_ms(100);
-   28   2              handle = 1;
-   29   2              pwm_set_duty(PWMF_CH2_PA3, 0);
-   30   2              pwm_set_duty(PWMF_CH1_PA1, 0);
-   31   2              setSpeed = 0;
-   32   2          } else {
-   33   2              if (add) {
-   34   3                  count++;
-   35   3                  if (count == 3) goto stop;
-   36   3                  add = 0;
+   12          uint8 haveLine() {
+   13   1          int16 i = 0;
+   14   1          while (i < LBorderCount && LBorder[i].x > ZEBRA_TRIGGER_POS) {
+   15   2              if (findZebra(i)) return 1;
+   16   2              i += 5;
+   17   2          }
+   18   1          return !LBorderCount || LBorder[i].x > ZEBRA_TRIGGER_POS;
+   19   1      }
+   20          
+   21          void runZebra(uint8 have) {
+   22   1          centerLineDistance = 18;
+   23   1          alongLine(centerLine, centerLineCount, getDynamicAimPos());
+   24   1          if (count == 3) {
+   25   2              end:
+   26   2              system_delay_ms(100);
+   27   2              stop = 1;
+   28   2          } else {
+   29   2              if (add) {
+   30   3                  count++;
+   31   3                  if (count == 3) goto end;
+   32   3                  add = 0;
+   33   3              }
+   34   2              if (LBorderCount && !have && !haveLine()) {
+   35   3                  RUN_MODE = FORWARD;
+   36   3                  add = 1;
    37   3              }
-   38   2              if (LBorderCount && !have && !haveLine()) {
-   39   3                  RUN_MODE = FORWARD;
-   40   3                  add = 1;
-   41   3              }
-   42   2          }
-   43   1      }
+   38   2          }
+   39   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       265     ------
+  ecode size           =       233     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
@@ -67,12 +63,12 @@ Module Information          Static   Overlayable
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
-C251 COMPILER V5.60.0,  Zebra                                                              10/07/26  14:49:18  PAGE 2   
-
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------
+C251 COMPILER V5.60.0,  Zebra                                                              19/07/26  14:56:43  PAGE 2   
+
   huge data size       =    ------     ------
   const size           =    ------     ------
   hconst size          =         6     ------

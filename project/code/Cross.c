@@ -29,7 +29,7 @@ Point getCrossRStart() {
         pos.x = 80;
         pos.y = minMaxH;
     }
-    while (pos.x >= 8 && getImagePointFilterSelf(pos.x, pos.y) > crossThreshold || getImagePointFilterSelf(pos.x - 8, pos.y) > crossThreshold) pos.x--;
+    while (pos.x >= 8 && getImagePointFilterSelf(pos.x, pos.y) > crossThreshold || getImagePointFilterSelf(pos.x - 8, pos.y) > crossThreshold || getImagePointFilterSelf(pos.x - 3, pos.y) > crossThreshold) pos.x--;
     if (pos.x <= 7)
         pos.x = pos.y = 0;
     else
@@ -53,7 +53,7 @@ Point getCrossLStart() {
         pos.x = 80;
         pos.y = minMaxH;
     }
-    while (pos.x >= 8 && getImagePointFilterSelf(pos.x, pos.y) > crossThreshold || getImagePointFilterSelf(pos.x - 8, pos.y) > crossThreshold) pos.x--;
+    while (pos.x >= 8 && getImagePointFilterSelf(pos.x, pos.y) > crossThreshold || getImagePointFilterSelf(pos.x - 8, pos.y) > crossThreshold || getImagePointFilterSelf(pos.x - 3, pos.y) > crossThreshold) pos.x--;
     if (pos.x <= 7)
         pos.x = pos.y = 0;
     else
@@ -70,8 +70,8 @@ void runCross() {
     }
 #endif
     if (CROSS_MODE == CROSS_READY) {
-        gpio_set_level(IO_P90, 1);
-        if (centerLineCount && centerLineCount < 9) {
+        //gpio_set_level(IO_P90, 1);
+        if (centerLineCount && centerLineCount < 13) {
             crossThreshold = threshold;
             alongR = LBorderCount < RBorderCount;
             CROSS_MODE = CROSS_IN;
@@ -85,10 +85,10 @@ void runCross() {
         banUpdateThreshold = 1;
         if (alongR) {
             start = getCrossRStart();
-            getRBorder(border, start, &roadCount);
+            getRBorder(border, start, &roadCount, 0);
         } else {
             start = getCrossLStart();
-            getLBorder(border, start, &roadCount);
+            getLBorder(border, start, &roadCount, 0);
         }
         getGodRoadLine(border, roadCount);
         resampleRoad(border, &roadCount, 0, 3);
@@ -106,7 +106,7 @@ void runCross() {
         filterRoad(farCenterLine, farCenterLineCount);
         alongLine(farCenterLine, farCenterLineCount, getDynamicAimPos());
         if (centerLineCount > 20 && canEnd) {
-            canEnd = 0;
+            canEnd = minMaxH = 0;
             CROSS_MODE = CROSS_READY;
             RUN_MODE = FORWARD;
             gpio_set_level(IO_P90, 0);

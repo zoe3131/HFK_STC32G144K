@@ -5,17 +5,17 @@
 #include "Block.h"
 static uint8 added = 0;
 extern uint8 ALONG;
-static int16 fixedLCorner, fixedRCorner;
+static int16 fixedLCorner;
 extern int16 RUN_MODE, centerLineCount;
 extern Point centerLine[expRoadCount];
 
 uint8 canEnd() {
     int16 i;
     if (fixedLCorner) {
-        for (i = 0; i < RBorderCount && RBorder[i].x > 10; i += 10)
+        for (i = 0; i < RBorderCount && RBorder[i].x > 25; i += 5)
             if (mt9v03x_image[RBorder[i].x][RBorder[i].y - borderOffset[RBorder[i].x]] < blockThreshold) return 0;
     } else {
-        for (i = 0; i < LBorderCount && LBorder[i].x > 10; i += 10)
+        for (i = 0; i < LBorderCount && LBorder[i].x > 25; i += 5)
             if (mt9v03x_image[LBorder[i].x][LBorder[i].y + borderOffset[LBorder[i].x]] < blockThreshold) return 0;
     }
     return 1;
@@ -24,19 +24,13 @@ uint8 canEnd() {
 void runBlock(int16 LCorner, int16 RCorner) {
     gpio_set_level(IO_P90, 1);
     if (!added) {
-        fixedLCorner = LCorner;
-        fixedRCorner = RCorner;
+        fixedLCorner = (LCorner && !RCorner) || (LCorner < RCorner && LCorner && RCorner);
         added = 1;
     }
     ALONG = fixedLCorner ? ALONG_R : ALONG_L;
-    if (centerLineCount < 10)
-        smoothStop = 1;
-    else {
-        smoothStop = 0;
-        alongLine(centerLine, centerLineCount, 20);
-    }
+    alongLine(centerLine, centerLineCount, 15);
     if (canEnd()) {
-        added = smoothStop = 0;
+        added = 0;
         gpio_set_level(IO_P90, 0);
         RUN_MODE = FORWARD;
         centerLineDistance = 18;

@@ -329,9 +329,9 @@ void imu660rb_get_acc (void)
     uint8 dat[6];
 
     imu660rb_read_registers(IMU660RB_ACC_ADDRESS, dat, 6);
-    imu660rb_acc_x = (int16)(((uint16)dat[1]<<8 | dat[0]));
-    imu660rb_acc_y = (int16)(((uint16)dat[3]<<8 | dat[2]));
-    imu660rb_acc_z = (int16)(((uint16)dat[5]<<8 | dat[4]));
+    imu660rb_acc_x = (int16)(((uint16)dat[1]<<8 | dat[0])) + imu660rb_acc_x >> 1;
+    imu660rb_acc_y = (int16)(((uint16)dat[3]<<8 | dat[2])) + imu660rb_acc_y >> 1;
+    imu660rb_acc_z = (int16)(((uint16)dat[5]<<8 | dat[4])) + imu660rb_acc_z >> 1;
 }
 //-------------------------------------------------------------------------------------------------------------------
 // 函数简介     获取 IMU660RB 陀螺仪数据
@@ -346,9 +346,9 @@ void imu660rb_get_gyro (void)
     uint8 dat[6];
 
     imu660rb_read_registers(IMU660RB_GYRO_ADDRESS, dat, 6);
-    imu660rb_gyro_x = (int16)(((uint16)dat[1]<<8 | dat[0]));
-    imu660rb_gyro_y = (int16)(((uint16)dat[3]<<8 | dat[2]));
-    imu660rb_gyro_z = (int16)(((uint16)dat[5]<<8 | dat[4]));
+    imu660rb_gyro_x = (int16)(((uint16)dat[1]<<8 | dat[0])) + imu660rb_gyro_x >> 1;
+    imu660rb_gyro_y = (int16)(((uint16)dat[3]<<8 | dat[2])) + imu660rb_gyro_y >> 1;
+    imu660rb_gyro_z = (int16)(((uint16)dat[5]<<8 | dat[4])) + imu660rb_gyro_z >> 1;
 }
 
 //-------------------------------------------------------------------------------------------------------------------

@@ -11,10 +11,10 @@
 #define expRoadCount 100      //边线期望长度
 #define expThreshold 100
 #define ZEBRA_TRIGGER_POS 40
-#define targetPos 76
+#define targetPos 73
 
-void getLBorder(Point LRoad[], Point start, int16 *count);
-void getRBorder(Point RRoad[], Point start, int16 *count);
+void getLBorder(Point LRoad[], Point start, int16 *count, int8 delicate);
+void getRBorder(Point RRoad[], Point start, int16 *count, int8 delicate);
 void getCenterLineByLBorder(Point roadLine[], Point centerLine[], int16 count);
 void getCenterLineByRBorder(Point roadLine[], Point centerLine[], int16 count);
 void filterRoad(Point rodeLine[], int16 count);

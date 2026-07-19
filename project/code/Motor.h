@@ -16,11 +16,11 @@
 #define ALONG_L 88
 #define ALONG_R 99
 
-volatile extern int16 setSpeed, handle;
+volatile extern int16 setSpeed, handle, encoderL, encoderR;
 void motorInit(int16 c11, int16 c22, int16 c33,int16 am, int16 sp, int16 c66, int16 c77);
 void setServoDuty(int8 duty);
 void alongLine(Point roadLine[], int16 count, int16 aimPos);
 int8 getDynamicAimPos();
-extern int8 smoothStop;
 extern int16 enableDifSpeed;
+extern int8 stop;
 #endif //SEEKFREE_STC32G144K_100PIN_OPENSOURCE_LIBRARY_MOTOR_H

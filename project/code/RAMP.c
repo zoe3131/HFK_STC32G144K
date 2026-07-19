@@ -12,27 +12,23 @@ void runRamp() {
     Point tarPos[6];
     int16 i, j, k;
     gpio_set_level(IO_P90, 1);
-    if (pitch <= -8) {
+    if (pitch <= -5) {
         canEnd = 1;
-        setSpeed = 300;
+        setSpeed = 350;
     } else if (pitch > -2 && pitch < 2 && canEnd && dl1b_distance_mm > 500) {
         RUN_MODE = FORWARD;
-        centerLineDistance = 17;
+        wireless_uart_send_string("exit\r\n");
+        centerLineDistance = 18;
         canEnd = handle = 0;
-        canNotInRamp = 5;
+        canNotInRamp = 20;
         enableDifSpeed = 1;
         gpio_set_level(IO_P90, 0);
-        wireless_uart_send_string("exit\n");
     } else if (!canEnd) {
         handle = 1;
-        setSpeed = 150;
+        //wireless_uart_send_string("ramp\n");
+        setSpeed = 200;
         enableDifSpeed = 0;
     }
-    if (func_min(LBorderCount, RBorderCount) < 30) {
-        smoothStop = 1;
-        return;
-    }
-    smoothStop = 0;
     for (i = 0; i < LBorderCount; i++)
         if (LBorder[i].x == rampPos) break;
     for (j = 0; j < RBorderCount; j++)

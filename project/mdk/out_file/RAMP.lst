@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  RAMP                                                               10/07/26  11:04:39  PAGE 1   
+C251 COMPILER V5.60.0,  RAMP                                                               19/07/26  14:56:44  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE RAMP
@@ -25,61 +25,57 @@ stmt  level    source
    12   1          Point tarPos[6];
    13   1          int16 i, j, k;
    14   1          gpio_set_level(IO_P90, 1);
-   15   1          if (pitch <= -8) {
+   15   1          if (pitch <= -5) {
    16   2              canEnd = 1;
-   17   2              setSpeed = 300;
+   17   2              setSpeed = 350;
    18   2          } else if (pitch > -2 && pitch < 2 && canEnd && dl1b_distance_mm > 500) {
    19   2              RUN_MODE = FORWARD;
-   20   2              centerLineDistance = 17;
-   21   2              canEnd = handle = 0;
-   22   2              canNotInRamp = 5;
-   23   2              enableDifSpeed = 1;
-   24   2              gpio_set_level(IO_P90, 0);
-   25   2              wireless_uart_send_string("exit\n");
+   20   2              wireless_uart_send_string("exit\r\n");
+   21   2              centerLineDistance = 18;
+   22   2              canEnd = handle = 0;
+   23   2              canNotInRamp = 20;
+   24   2              enableDifSpeed = 1;
+   25   2              gpio_set_level(IO_P90, 0);
    26   2          } else if (!canEnd) {
    27   2              handle = 1;
-   28   2              setSpeed = 150;
-   29   2              enableDifSpeed = 0;
-   30   2          }
-   31   1          if (func_min(LBorderCount, RBorderCount) < 30) {
-   32   2              smoothStop = 1;
-   33   2              return;
-   34   2          }
-   35   1          smoothStop = 0;
-   36   1          for (i = 0; i < LBorderCount; i++)
-   37   1              if (LBorder[i].x == rampPos) break;
-   38   1          for (j = 0; j < RBorderCount; j++)
-   39   1              if (RBorder[j].x == rampPos) break;
-   40   1          if (LBorder[i].x != rampPos || RBorder[j].x != rampPos) return;
-   41   1          for (k = 0; k <= 5; k++) {
-   42   2              tarPos[k].x = rampPos;
-   43   2              tarPos[k].y = LBorder[i].y + RBorder[j].y >> 1;
-   44   2          }
-   45   1          getGodRoadLine(tarPos, 6);
-   46   1          alongLine(tarPos, 6, 5);
-   47   1      }
+   28   2              //wireless_uart_send_string("ramp\n");
+   29   2              setSpeed = 200;
+   30   2              enableDifSpeed = 0;
+   31   2          }
+   32   1          for (i = 0; i < LBorderCount; i++)
+   33   1              if (LBorder[i].x == rampPos) break;
+   34   1          for (j = 0; j < RBorderCount; j++)
+   35   1              if (RBorder[j].x == rampPos) break;
+   36   1          if (LBorder[i].x != rampPos || RBorder[j].x != rampPos) return;
+   37   1          for (k = 0; k <= 5; k++) {
+   38   2              tarPos[k].x = rampPos;
+   39   2              tarPos[k].y = LBorder[i].y + RBorder[j].y >> 1;
+   40   2          }
+   41   1          getGodRoadLine(tarPos, 6);
+   42   1          alongLine(tarPos, 6, 5);
+   43   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       440     ------
+  ecode size           =       405     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-C251 COMPILER V5.60.0,  RAMP                                                               10/07/26  11:04:39  PAGE 2   
-
   xdata size           =         2         12
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
+C251 COMPILER V5.60.0,  RAMP                                                               19/07/26  14:56:44  PAGE 2   
+
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =         6     ------
+  hconst size          =         7     ------
 End of Module Information.
 
 
