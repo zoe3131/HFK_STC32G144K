@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  LRound                                                             19/07/26  14:56:43  PAGE 1   
+C251 COMPILER V5.60.0,  LRound                                                             20/07/26  10:43:22  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE LRound
@@ -15,7 +15,7 @@ stmt  level    source
     3          //
     4          
     5          #include "LRound.h"
-*** WARNING C323 IN LINE 12 OF ..\code\Zebra.h: newline expected, extra characters found
+*** WARNING C323 IN LINE 13 OF ..\code\Zebra.h: newline expected, extra characters found
     6          
     7          #define ROUND_READY 1
     8          #define ROUND_START 2
@@ -38,7 +38,7 @@ stmt  level    source
    25   2              else if (LRoadCount > 10 && !LCorner && canStart) {
    26   3                  ROUND_MODE = ROUND_START;
    27   3                  ALONG = ALONG_L;
-   28   3                  centerLineDistance = 12;
+   28   3                  centerLineDistance = 13;
    29   3              }
    30   2          } else if (ROUND_MODE == ROUND_START) {
    31   2              gpio_set_level(IO_P90, 0);
@@ -47,7 +47,7 @@ stmt  level    source
    34   2              if (!RRoadCount)
    35   2                  canIn = 1;
    36   2              else if (RRoadCount > 10 && !RCorner && canIn) {
-   37   3                  centerLineDistance = 26;
+   37   3                  centerLineDistance = 27;
    38   3                  ROUND_MODE = ROUND_IN;
    39   3                  ALONG = ALONG_R;
    40   3              }
@@ -66,7 +66,7 @@ stmt  level    source
    53   3                  centerLineDistance = 18;
    54   3                  ROUND_MODE = ROUND_EXIT;
    55   3                  ALONG = ALONG_R;
-C251 COMPILER V5.60.0,  LRound                                                             19/07/26  14:56:43  PAGE 2   
+C251 COMPILER V5.60.0,  LRound                                                             20/07/26  10:43:22  PAGE 2   
 
    56   3              }
    57   2          } else if (ROUND_MODE == ROUND_EXIT) {

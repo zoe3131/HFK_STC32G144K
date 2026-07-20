@@ -36,11 +36,13 @@
 #include "zf_common_headfile.h"
 
 int16 LCorner, RCorner, s2, centerLineCount, RUN_MODE = ZEBRA, LRoadCount = expRoadCount, RRoadCount = expRoadCount;
-static int16 p, i, d, s1, am, borderInTriggerDistance, ab;
-uint8 borderIn, switch1, switch2, ALONG = ALONG_R, button, disEd;
+static int16 p, i, d, s1, imBtn, borderInTriggerDistance = 25, ab;
+uint8 borderIn, switch1, switch2, ALONG = ALONG_R, topBtn, bottomBtn;
 Point centerLine[expRoadCount], LRoad[expRoadCount], RRoad[expRoadCount], target;
 extern uint8 outputImage[MT9V03X_H][MT9V03X_W], canNotInRamp;
 static uint8 have, data_buffer[32], send_buff[32], findBorderIn;
+extern int16 currentDuty;
+int16 data i, j, pos;
 
 void loadRoad();
 
@@ -55,75 +57,150 @@ void main(void) {
     while (mt9v03x_init());
     while (dl1b_init());
     pit_ms_init(TIM6_PIT, 10, tof);
+#if (DEBUG_MODE)
     while (wireless_uart_init());
+#endif
     gpio_init(IO_PB1, GPI, 0, GPI_PULL_UP);
     gpio_init(IO_PB0, GPI, 0, GPI_PULL_UP);
+    gpio_init(IO_P02, GPI, 0, GPI_PULL_UP);
+    gpio_init(IO_P01, GPI, 0, GPI_PULL_UP);
     gpio_init(IO_P32, GPI, 0, GPI_PULL_UP);
-    //gpio_init(IO_P90, GPO, 0, GPO_PUSH_PULL); //·äÃùÆ÷
-    gpio_init(IO_P04, GPO, 0, GPO_PUSH_PULL); //Ê¾²¨Æ÷
+    gpio_init(IO_P90, GPO, 0, GPO_PUSH_PULL); //·äÃùÆ÷
+    //gpio_init(IO_P04, GPO, 0, GPO_PUSH_PULL); //Ê¾²¨Æ÷
     laserInit();
     displayBorderLineImage();
     while (1) {
         system_delay_ms(50);
 #if (DEBUG_MODE)
         if (wireless_uart_read_buffer(data_buffer, 32)) {
-            sscanf(data_buffer, "%d,%d,%d,%d,%d,%d,%d,%d", &p, &i, &d, &am, &s1, &s2, &ab, &borderInTriggerDistance);
+            sscanf(data_buffer, "%d,%d,%d,%d,%d,%d,%d", &p, &i, &d, &am, &s1, &s2, &ab);
             switch2 = gpio_get_level(IO_PB1);
             switch1 = gpio_get_level(IO_PB0);
             ips200_clear(RGB565_WHITE);
-            dismissLaser();
             motorInit(p, i, d, am, s1, s2, ab);
-            imuInit();
             break;
         }
 #else
         switch2 = gpio_get_level(IO_PB1);
         switch1 = gpio_get_level(IO_PB0);
-        button = gpio_get_level(IO_P32);
-        if (!switch1 && !switch2) {
-            ips200_show_string(0, MT9V03X_H + 10, "RUN_MODE: 1");
-            ips200_show_string(0, MT9V03X_H + 40, "TAT    ");
-        } else if (switch1 && !switch2) {
-            ips200_show_string(0, MT9V03X_H + 10, "RUN_MODE: 2");
-            ips200_show_string(0, MT9V03X_H + 40, "^_^    ");
-        } else if (!switch1 && switch2) {
-            ips200_show_string(0, MT9V03X_H + 10, "RUN_MODE: 3");
-            ips200_show_string(0, MT9V03X_H + 40, "^o^     ");
-        } else {
-            ips200_show_string(0, MT9V03X_H + 10, "RUN_MODE: 4");
-            ips200_show_string(0, MT9V03X_H + 40, "¦²(¡ã¡÷¡ã)  ");
+        topBtn = gpio_get_level(IO_P02);
+        bottomBtn = gpio_get_level(IO_P01);
+        imBtn = gpio_get_level(IO_P32);
+        if (!imBtn) {
+            while (1) {
+                if (mt9v03x_finish_flag) {
+                    loadRoad();
+                    for (i = 0; i < MT9V03X_H; i++)
+                        for (j = 0; j < MT9V03X_W; j++)
+                            outputImage[i][j] = 0;
+                    for (i = 0; i < centerLineCount; i++)
+                        outputImage[centerLine[i].x][centerLine[i].y] = 255;
+                    for (i = 0; i < LRoadCount; i++)
+                        outputImage[LRoad[i].x][LRoad[i].y] = 255;
+                    for (i = 0; i < RRoadCount; i++)
+                        outputImage[RRoad[i].x][RRoad[i].y] = 255;
+                    ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
+                    ips200_show_int16(0, MT9V03X_H + 1, LRoadCount);
+                    ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, RRoadCount);
+                    ips200_show_int16(0, MT9V03X_H + 20, LCorner);
+                    ips200_show_int16(MT9V03X_W, MT9V03X_H + 20, RCorner);
+                    ips200_show_int16(0, 300, RUN_MODE);
+                    mt9v03x_finish_flag = 0;
+                }
+            }
         }
-        if (!button) break;
+        if (!switch1 && !switch2) {
+            ips200_show_string(0, MT9V03X_H + 10, "T: SPEED 1");
+            ips200_show_string(0, MT9V03X_H + 40, "B: SPEED 2");
+            if (!topBtn) {
+                ips200_clear(RGB565_WHITE);
+                ips200_show_string(0, 130, "SELECT: 1");
+                system_delay_ms(500);
+                system_delay_ms(500);
+                motorInit(200, 0, 21, 4000, 270, 0, 0);
+                break;
+            }
+            if (!bottomBtn) {
+                ips200_clear(RGB565_WHITE);
+                ips200_show_string(0, 160, "SELECT: 2");
+                system_delay_ms(500);
+                system_delay_ms(500);
+                motorInit(200, 800, 22, 4000, 300, 0, 0);
+                break;
+            }
+        } else if (switch1 && !switch2) {
+            ips200_show_string(0, MT9V03X_H + 10, "T: SPEED 3");
+            ips200_show_string(0, MT9V03X_H + 40, "B: SPEED 4");
+            if (!topBtn) {
+                ips200_clear(RGB565_WHITE);
+                ips200_show_string(0, 130, "SELECT: 3");
+                system_delay_ms(500);
+                system_delay_ms(500);
+                motorInit(210, 900, 23, 4000, 320, 0, 0);
+                break;
+            }
+            if (!bottomBtn) {
+                ips200_clear(RGB565_WHITE);
+                ips200_show_string(0, 160, "SELECT: 4");
+                system_delay_ms(500);
+                system_delay_ms(500);
+                motorInit(220, 1000, 23, 4000, 340, 0, 0);
+                break;
+            }
+        } else if (!switch1 && switch2) {
+            ips200_show_string(0, MT9V03X_H + 10, "T: SPEED 5");
+            ips200_show_string(0, MT9V03X_H + 40, "B: SPEED 6");
+            if (!topBtn) {
+                ips200_clear(RGB565_WHITE);
+                ips200_show_string(0, 130, "SELECT: 5");
+                system_delay_ms(500);
+                system_delay_ms(500);
+                motorInit(230, 1000, 24, 4000, 360, 0, 0);
+                break;
+            }
+            if (!bottomBtn) {
+                ips200_clear(RGB565_WHITE);
+                ips200_show_string(0, 160, "SELECT: 6");
+                system_delay_ms(500);
+                system_delay_ms(500);
+                motorInit(240, 1000, 24, 4000, 380, 0, 0);
+                break;
+            }
+        } else {
+            ips200_show_string(0, MT9V03X_H + 10, "T: SPEED 7");
+            ips200_show_string(0, MT9V03X_H + 40, "B: SPEED 8");
+            if (!topBtn) {
+                ips200_clear(RGB565_WHITE);
+                ips200_show_string(0, 130, "SELECT: 7");
+                system_delay_ms(500);
+                system_delay_ms(500);
+                motorInit(250, 1000, 25, 4000, 450, 0, 0);
+                break;
+            }
+            if (!bottomBtn) {
+                ips200_clear(RGB565_WHITE);
+                ips200_show_string(0, 160, "SELECT: 8");
+                system_delay_ms(500);
+                system_delay_ms(500);
+                motorInit(260, 1000, 25, 4000, 500, 0, 0);
+                break;
+            }
+        }
 #endif
     }
-    // ips200_clear(RGB565_WHITE);
-#if (!DEBUG_MODE)
-    system_delay_ms(500);
-    system_delay_ms(500);
-    system_delay_ms(500);
-    borderInTriggerDistance = 30;
-    if (!switch1 && !switch2) {
-        motorInit(3000, 40, 1000, 1400, 250, 0, 0);
-    } else if (switch1 && !switch2) {
-        motorInit(3000, 40, 1000, 1800, 340, 0, 950);
-    } else if (!switch1 && switch2) {
-        motorInit(3000, 40, 1000, 2100, 370, 0, 950);
-    } else {
-        motorInit(3000, 40, 1000, 2500, 420, 0, 950);
-    }
-#endif
+    dismissLaser();
+    imuInit();
     if (DEBUG_MODE) RUN_MODE = FORWARD;
-    //system_delay_ms(500);
     // seekfree_assistant_interface_init(SEEKFREE_ASSISTANT_DEBUG_UART);
     // seekfree_assistant_camera_information_config(SEEKFREE_ASSISTANT_MT9V03X, outputImage, MT9V03X_W, MT9V03X_H);
     while (1) {
+#if (DEBUG_MODE)
         if (wireless_uart_read_buffer(data_buffer, 32)) {
             stop = 1;
             gpio_set_level(IO_P90, 0);
             break;
         }
-        // sprintf(send_buff, "pitch: %d\n", pitch);
-        // wireless_uart_send_buffer(send_buff, 32);
+#endif
         if (RUN_MODE == RAMP || (!canNotInRamp && (RUN_MODE == FORWARD || RUN_MODE == BLOCK) && pitch > 7)) {
             RUN_MODE = RAMP;
             //wireless_uart_send_string("RP\n");
@@ -135,9 +212,9 @@ void main(void) {
 #if (DEBUG_MODE)
             if (switch1) displayBorderLineImage();
 #endif
-            gpio_set_level(IO_P04, 1);
+            //gpio_set_level(IO_P04, 1);
             loadRoad();
-            gpio_set_level(IO_P04, 0);
+            // gpio_set_level(IO_P04, 0);
             if (target.y) startLaser(target.y);
             have = haveZebra();
             if (RUN_MODE == ZEBRA || have) {
@@ -175,31 +252,46 @@ void main(void) {
                 // wireless_uart_send_buffer(send_buff, 32);
             } else
                 alongLine(centerLine, centerLineCount, getDynamicAimPos());
-// #if(DEBUG_MODE)
-//             if (!disEd && RUN_MODE == L_ROUND) {
-//                 disEd = 1;
-//                 memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
-//                 for (i = 0; i < LBorderCount; i++)
-//                     outputImage[LBorder[i].x][LBorder[i].y] = 0;
-//                 for (i = 0; i < RBorderCount; i++)
-//                     outputImage[RBorder[i].x][RBorder[i].y] = 0;
-//                 ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, 0);
-//                 ips200_show_int16(0, MT9V03X_H + 20, LCorner);
-//                 ips200_show_int16(MT9V03X_W, MT9V03X_H + 20, RCorner);
-//                 ips200_show_int16(0, MT9V03X_H + 1, LRoadCount);
-//                 ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, RRoadCount);
-//                 ips200_show_int16(0, 300, RUN_MODE);
-//             } else if (RUN_MODE == FORWARD) disEd = 0;
-// #endif
             mt9v03x_finish_flag = 0;
         }
     }
 }
 
+int8 DTarget(int16 speed) {
+    if (speed < 340) return 0;
+    if (speed < 350) return 1;
+    if (speed < 360) return 2;
+    if (speed < 370) return 3;
+    if (speed < 380) return 4;
+    if (speed < 400) return 5;
+    if (speed < 420) return 6;
+    if (speed < 440) return 7;
+    if (speed < 460) return 8;
+    if (speed < 470) return 9;
+    if (speed < 480) return 10;
+    if (speed < 490) return 11;
+    return 12;
+}
+
+int8 DTargetR(int16 speed) {
+    if (speed < 350) return 0;
+    if (speed < 370) return 1;
+    return 2;
+}
+
+void findTarget() {
+    if (func_abs(currentDuty) > 15) {
+        target = findTargetByL(targetPos - DTargetR(currentSpeed) - func_min(func_abs(currentDuty) - 5, 30) / 5);
+        if (target.y && ((currentDuty > 0 && target.y >= 101) || (currentDuty < 0 && target.y <= 89))) return;
+        target = findTargetByL(targetPos - DTargetR(currentSpeed));
+        if (target.y && target.y < 101 && target.y > 89) return;
+        target = findTargetByL(targetPos - DTargetR(currentSpeed) + func_min(func_abs(currentDuty), 30) / 5);
+    } else target = findTargetByL(targetPos - DTarget(currentSpeed));
+}
+
 void loadRoad() {
-    int16 data i, j, pos;
     Point LStart = getLStart(), RStart = getRStart();
-    target = findTargetByL(targetPos);
+    findTarget();
     LRoadCount = expRoadCount, RRoadCount = expRoadCount;
     getLBorder(LRoad, LStart, &LRoadCount, 0);
     getRBorder(RRoad, RStart, &RRoadCount, 0);

@@ -11,7 +11,8 @@ const static int8 data dirFD[4][2] = {{-1, 0},{0, 1},{1, 0},{0, -1}},
     dirLD[4][2] = {{-1, -1},{-1, 1},{1,  1},{1,  -1}},
     dirRD[4][2] = {{-1, 1},{1,  1},{1,  -1},{-1, -1}};
 uint8 banUpdateThreshold = 0, LThreshold = expThreshold, RThreshold = expThreshold, threshold = expThreshold, centerLineDistance = 18, outputImage[MT9V03X_H][MT9V03X_W];
-const static uint8 reflection[120][188][2], data halfBlock = block / 2, data halfH = MT9V03X_H / 2, data halfW = MT9V03X_W / 2;
+const uint8 reflection[120][188][2];
+const uint8 static data halfBlock = block / 2, data halfH = MT9V03X_H / 2, data halfW = MT9V03X_W / 2;
 Point LBorder[expRoadCount], RBorder[expRoadCount];
 int16 LBorderCount, RBorderCount;
 extern uint8 switch2, switch1, canStartLaser;
@@ -123,11 +124,10 @@ uint8 findZebra(int16 pos) {
 // }
 
 Point findTargetByL(int16 i) {
-    int16 LStart, RStart, len = 80, ans, j, data absDuty;
+    int16 LStart, RStart, len = 80, ans, j;
     uint8 t = 119, b = 0, r = 0, l = 187, h, v, dh, dv;
     int8 data dt;
     Point pos, target[40], ret;
-    absDuty = func_abs(currentDuty);
     LStart = getLIndexStart(i);
     RStart = getRIndexStart(i);
     pos.x = i;
@@ -175,14 +175,6 @@ Point findTargetByL(int16 i) {
         }
 #endif
         if (dh >= 8 && dh <= 12 && dv >= 7 && dv <= 11) {
-            // outputImage[reflection[t + b >> 1][l + r >> 1][0]][reflection[t + b >> 1][l + r >> 1][1]] = 255;
-            // outputImage[reflection[v][r][0]][reflection[v][r][1]] = 255;
-            // outputImage[reflection[v][l][0]][reflection[v][l][1]] = 255;
-            // outputImage[reflection[b][h][0]][reflection[b][h][1]] = 255;
-            // outputImage[reflection[t][h][0]][reflection[t][h][1]] = 255;
-            //ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, 0);
-            // ips200_show_int16(0, MT9V03X_H + 1, ret.x);
-            // ips200_show_int16(0, MT9V03X_H + 15, ret.y);
             ret.x = reflection[v][h][0];
             ret.y = reflection[v][h][1];
             if (currentDuty >= 10) ret.y++;
@@ -191,26 +183,6 @@ Point findTargetByL(int16 i) {
             else if (currentDuty <= -20) ret.y--;
             if (currentDuty >= 30) ret.y++;
             else if (currentDuty <= -30) ret.y--;
-            if (absDuty >= 0 && absDuty < 10 && dt > 4) {
-                pos.y = 0;
-                return pos;
-            }
-            if (absDuty >= 10 && absDuty < 20 && dt > 3) {
-                pos.y = 0;
-                return pos;
-            }
-            if ((absDuty >= 20 && absDuty < 30 && ret.y < 104 && ret.y > 89 && dt > 2) || (currentDuty >= 20 && currentDuty < 30 && ((ret.y <= 89 && dt > 0) || (ret.y >= 104 && dt > 4))) || (currentDuty <= -20 && currentDuty > -30 && ((ret.y >= 104 && dt > 0) || (ret.y <= 89 && dt > 4)))) {
-                pos.y = 0;
-                return pos;
-            }
-            if ((absDuty >= 30 && absDuty < 40 && ret.y < 104 && ret.y > 89 && dt > 1) || (currentDuty >= 30 && currentDuty < 40 && ((ret.y <= 89 && dt > -2) || (ret.y >= 104 && dt > 7))) || (currentDuty <= -30 && currentDuty > -40 && ((ret.y >= 104 && dt > -2) || (ret.y <= 89 && dt > 7)))) {
-                pos.y = 0;
-                return pos;
-            }
-            if ((absDuty >= 40 && ret.y < 104 && ret.y > 89 && dt > 0) || (currentDuty >= 40 && ((ret.y <= 89 && dt > -5) || (ret.y >= 104 && dt > 9))) || (currentDuty <= -40 && ((ret.y >= 104 && dt > -5) || (ret.y <= 89 && dt > 9)))) {
-                pos.y = 0;
-                return pos;
-            }
 #if (DEBUG_MODE)
             if (switch2) {
                 memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
@@ -579,8 +551,8 @@ void displayGodImage() {
 void displayGodRoadLineImage() {
     uint16 RRoadCount = expRoadCount, LRoadCount = expRoadCount, i, j;
     Point RBorderList[expRoadCount], LBorderList[expRoadCount], RStart = getRStart(), LStart = getLStart();
-    getRBorder(RBorderList, RStart, &RRoadCount);
-    getLBorder(LBorderList, LStart, &LRoadCount);
+    getRBorder(RBorderList, RStart, &RRoadCount, 0);
+    getLBorder(LBorderList, LStart, &LRoadCount, 0);
     getGodRoadLine(RBorderList, RRoadCount);
     getGodRoadLine(LBorderList, LRoadCount);
 //    for (i = 0; i < MT9V03X_H; i++)
@@ -599,7 +571,7 @@ void displayGodRoadLineImage() {
     ips200_show_int16(MT9V03X_W - 5, MT9V03X_H + 1, RRoadCount);
 }
 
-const static uint8 reflection[120][188][2] = {
+const uint8 reflection[120][188][2] = {
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

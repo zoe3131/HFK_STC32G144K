@@ -25,7 +25,7 @@ void runLRound(int16 LCorner, int16 RCorner) {
         else if (LRoadCount > 10 && !LCorner && canStart) {
             ROUND_MODE = ROUND_START;
             ALONG = ALONG_L;
-            centerLineDistance = 12;
+            centerLineDistance = 13;
         }
     } else if (ROUND_MODE == ROUND_START) {
         gpio_set_level(IO_P90, 0);
@@ -34,7 +34,7 @@ void runLRound(int16 LCorner, int16 RCorner) {
         if (!RRoadCount)
             canIn = 1;
         else if (RRoadCount > 10 && !RCorner && canIn) {
-            centerLineDistance = 26;
+            centerLineDistance = 27;
             ROUND_MODE = ROUND_IN;
             ALONG = ALONG_R;
         }

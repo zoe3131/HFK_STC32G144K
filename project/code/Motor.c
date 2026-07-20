@@ -16,9 +16,9 @@ const int16 tani[33];
 extern int16 RUN_MODE;
 extern uint8 switch1, borderIn, ALONG;
 static uint8 DEVICE_H = 18, send_buff[32];
-int8 FD, stop, smoothStop;
+int8 slow, stop, smoothStop;
 int16 R, c1, c2, c3, c4, c5, c6, c7, LSetSpeed, RSetSpeed, enableDifSpeed = 1, ct2 = 0;
-int16 currentDuty, longc = 300, LPWM, RPWM;
+int16 currentDuty, longc = 300, LPWM, currentSpeed;
 
 typedef struct {
     int16 Kp;
@@ -78,8 +78,7 @@ static void pitHandler() {
     encoderL = encoder_get_count(PWMC_ENCODER) << 1;
     encoder_clear_count(PWMA_ENCODER);
     encoder_clear_count(PWMC_ENCODER);
-    if (stop || (RUN_MODE != ZEBRA && mt9v03x_image[84][95] < threshold && mt9v03x_image[88][47] < threshold && mt9v03x_image[87][141] < threshold && mt9v03x_image[75][94] < threshold)) {
-        if (!stop) wireless_uart_send_string("danger\r\n");
+    if (stop || (RUN_MODE != ZEBRA && mt9v03x_image[84][95] < threshold && mt9v03x_image[88][47] < threshold && mt9v03x_image[87][141] < threshold && mt9v03x_image[75][120] < threshold && mt9v03x_image[74][64] < threshold)) {
         stop = 1;
         pwm_set_duty(PWME_CH3P_PA4, steerMid);
         pwm_set_duty(motorPwmR, motorPIDCalculate(&motorRPID, 0, encoderR));
@@ -88,7 +87,9 @@ static void pitHandler() {
         pwm_set_duty(pressPwmR, 0);
     } else {
         pwm_set_duty(PWME_CH3P_PA4, steerMid + steerPIDCalculate(&steerPid, duty));
-        if (borderIn && encoderL + encoderR >> 1 > 420) setSpeed = 100;
+        currentSpeed = encoderR + encoderL >> 1;
+        slow = !borderIn ? 1 : currentSpeed <= 350 ? 0 : slow;
+        if (borderIn && currentSpeed > 400 && slow) setSpeed = 200;
         if (dl1b_distance_mm < 400 && RUN_MODE == FORWARD) setSpeed = 200;
         RSetSpeed = setSpeed + (!R || !enableDifSpeed ? 0 : setSpeed * 8 / R);
         LSetSpeed = setSpeed - (!R || !enableDifSpeed ? 0 : setSpeed * 8 / R);
@@ -120,8 +121,7 @@ void alongLine(Point roadLine[], int16 count, int16 aimPos) {
 }
 
 void setServoDuty(int8 d) {
-    int16 data t, ts, r;
-    //d = c4;
+    int16 data t, r, ts;
     currentDuty = (int16) d * c1 / 100;
     t = tani[func_limit_ab(func_abs(currentDuty), 0, 32)];
 #if (DEBUG_MODE)
@@ -130,17 +130,15 @@ void setServoDuty(int8 d) {
     r = !t ? 0 : 20000 / t;
     if (borderIn) ts = func_min(c5, 400);
     else ts = c5;
-    ts = c5;
     if (!handle)
         setSpeed = !r ? ts : func_limit(sqrt_int(r * (uint32) c4), ts);
-    else setSpeed = func_min(setSpeed, !r ? c5 : func_limit(sqrt_int(r * (uint32) c4), c5));
     R = d < 0 ? -r : r;
     duty = (int16) d * 12;
 }
 
 int8 getDynamicAimPos() {
     int16 speed = encoderR + encoderL >> 1;
-    return c6;
+    return c3;
 }
 
 void motorInit(int16 c11, int16 c22, int16 c33, int16 c44, int16 c55, int16 c66, int16 c77) {
@@ -152,8 +150,8 @@ void motorInit(int16 c11, int16 c22, int16 c33, int16 c44, int16 c55, int16 c66,
     c6 = c66;
     c7 = c77;
     PIDInit(&steerPid, 3,
-             c1, 0, c2, 2,
-             398);
+             c1, 0, 50, 2,
+             408);
     PIDInit(&motorLPID, 0,
             3000, 50, 50, 0,
             10000);
@@ -165,8 +163,9 @@ void motorInit(int16 c11, int16 c22, int16 c33, int16 c44, int16 c55, int16 c66,
     gpio_init(motorDirL, GPO, 1, GPO_PUSH_PULL);
     pwm_init(motorPwmR, 17000, 0);
     pwm_init(motorPwmL, 17000, 0);
-    pwm_init(pressPwmR, 50, c7);
-    pwm_init(pressPwmL, 50, c7);
+    pwm_init(pressPwmR, 50, c2);
+    pwm_init(pressPwmL, 50, c2);
+    system_delay_ms(500);
     // 在50Hz的控制频率下，无刷电调转速 0%   为 500
     // 在50Hz的控制频率下，无刷电调转速 20%  为 600
     // 在50Hz的控制频率下，无刷电调转速 40%  为 700
@@ -183,7 +182,8 @@ const int16 tani[33] = {0,
                         17,  35,  52,  70,  87,  105, 123, 141, 158, 176,
                         194, 213, 231, 249, 268, 287, 306, 325, 344, 364,
                         384, 404, 424, 445, 466, 488, 510, 532, 554, 577, 600, 628};
-//200,50,5,4200,280,22,0,20           73
-//210,50,5,4200,320,23,800,20
-//225,50,5,4200,360,24,900,20
-//250,50,5,4200,400,25,950,20
+//200,50,5,4000,280,22,0,20
+//220,50,5,4000,320,23,800,20
+//240,50,5,4000,360,24,900,20
+//260,50,5,4000,400,25,950,20
+//350 可保持当前靶阈值不变

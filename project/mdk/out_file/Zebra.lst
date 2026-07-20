@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Zebra                                                              19/07/26  14:56:43  PAGE 1   
+C251 COMPILER V5.60.0,  Zebra                                                              20/07/26  10:43:22  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Zebra
@@ -15,7 +15,7 @@ stmt  level    source
     3          //
     4          
     5          #include "Zebra.h"
-*** WARNING C323 IN LINE 12 OF ..\code\Zebra.h: newline expected, extra characters found
+*** WARNING C323 IN LINE 13 OF ..\code\Zebra.h: newline expected, extra characters found
     6          
     7          extern Point centerLine[expRoadCount];
     8          extern int16 centerLineCount, RUN_MODE, LCorner, RCorner;
@@ -34,28 +34,30 @@ stmt  level    source
    21          void runZebra(uint8 have) {
    22   1          centerLineDistance = 18;
    23   1          alongLine(centerLine, centerLineCount, getDynamicAimPos());
-   24   1          if (count == 3) {
+   24   1          if (count == runTurn + 1) {
    25   2              end:
-   26   2              system_delay_ms(100);
-   27   2              stop = 1;
-   28   2          } else {
-   29   2              if (add) {
-   30   3                  count++;
-   31   3                  if (count == 3) goto end;
-   32   3                  add = 0;
-   33   3              }
-   34   2              if (LBorderCount && !have && !haveLine()) {
-   35   3                  RUN_MODE = FORWARD;
-   36   3                  add = 1;
-   37   3              }
-   38   2          }
-   39   1      }
+   26   2              handle = 1;
+   27   2              setSpeed = 400;
+   28   2              system_delay_ms(130);
+   29   2              stop = 1;
+   30   2          } else {
+   31   2              if (add) {
+   32   3                  count++;
+   33   3                  if (count == runTurn + 1) goto end;
+   34   3                  add = 0;
+   35   3              }
+   36   2              if (LBorderCount && !have && !haveLine()) {
+   37   3                  RUN_MODE = FORWARD;
+   38   3                  add = 1;
+   39   3              }
+   40   2          }
+   41   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       233     ------
+  ecode size           =       253     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
@@ -65,10 +67,10 @@ Module Information          Static   Overlayable
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
+C251 COMPILER V5.60.0,  Zebra                                                              20/07/26  10:43:22  PAGE 2   
+
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------
-C251 COMPILER V5.60.0,  Zebra                                                              19/07/26  14:56:43  PAGE 2   
-
   huge data size       =    ------     ------
   const size           =    ------     ------
   hconst size          =         6     ------

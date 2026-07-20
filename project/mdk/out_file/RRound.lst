@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  RRound                                                             19/07/26  14:56:43  PAGE 1   
+C251 COMPILER V5.60.0,  RRound                                                             20/07/26  10:43:22  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE RRound
@@ -15,7 +15,7 @@ stmt  level    source
     3          //
     4          
     5          #include "RRound.h"
-*** WARNING C323 IN LINE 12 OF ..\code\Zebra.h: newline expected, extra characters found
+*** WARNING C323 IN LINE 13 OF ..\code\Zebra.h: newline expected, extra characters found
     6          
     7          #define ROUND_READY 1
     8          #define ROUND_START 2
@@ -66,7 +66,7 @@ stmt  level    source
    53   2              if (!LCorner && LRoadCount > 25 && LRoad[LRoadCount - 1].y > 55) {
    54   3                  centerLineDistance = 18;
    55   3                  ROUND_MODE = ROUND_EXIT;
-C251 COMPILER V5.60.0,  RRound                                                             19/07/26  14:56:43  PAGE 2   
+C251 COMPILER V5.60.0,  RRound                                                             20/07/26  10:43:22  PAGE 2   
 
    56   3                  ALONG = ALONG_L;
    57   3              }

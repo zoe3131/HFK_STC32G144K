@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Motor                                                              19/07/26  14:56:42  PAGE 1   
+C251 COMPILER V5.60.0,  Motor                                                              20/07/26  10:43:22  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Motor
@@ -14,7 +14,7 @@ stmt  level    source
     2          // Created by 31663 on 2026/3/27.
     3          //
     4          #include "Motor.h"
-*** WARNING C323 IN LINE 12 OF ..\code\Zebra.h: newline expected, extra characters found
+*** WARNING C323 IN LINE 13 OF ..\code\Zebra.h: newline expected, extra characters found
     5          
     6          #define pressPwmL PWMF_CH2_PA3
     7          #define pressPwmR PWMF_CH1_PA1
@@ -29,9 +29,9 @@ stmt  level    source
    16          extern int16 RUN_MODE;
    17          extern uint8 switch1, borderIn, ALONG;
    18          static uint8 DEVICE_H = 18, send_buff[32];
-   19          int8 FD, stop, smoothStop;
+   19          int8 slow, stop, smoothStop;
    20          int16 R, c1, c2, c3, c4, c5, c6, c7, LSetSpeed, RSetSpeed, enableDifSpeed = 1, ct2 = 0;
-   21          int16 currentDuty, longc = 300, LPWM, RPWM;
+   21          int16 currentDuty, longc = 300, LPWM, currentSpeed;
    22          
    23          typedef struct {
    24              int16 Kp;
@@ -66,7 +66,7 @@ stmt  level    source
    53   1          p_term = (int32) pid->Kp * error;
    54   1          d_term = (int32) pid->Kd * (error - pid->last_error);
    55   1          att_term = (int32) pid->attitude_coeff * imu660rb_gyro_z;
-C251 COMPILER V5.60.0,  Motor                                                              19/07/26  14:56:42  PAGE 2   
+C251 COMPILER V5.60.0,  Motor                                                              20/07/26  10:43:22  PAGE 2   
 
    56   1          pid->last_error = error;
    57   1          pid_output = (p_term + d_term + att_term) / 100;
@@ -94,125 +94,125 @@ stmt  level    source
    79   1          encoder_clear_count(PWMA_ENCODER);
    80   1          encoder_clear_count(PWMC_ENCODER);
    81   1          if (stop || (RUN_MODE != ZEBRA && mt9v03x_image[84][95] < threshold && mt9v03x_image[88][47] < thresh
-             -old && mt9v03x_image[87][141] < threshold && mt9v03x_image[75][94] < threshold)) {
-   82   2              if (!stop) wireless_uart_send_string("danger\r\n");
-   83   2              stop = 1;
-   84   2              pwm_set_duty(PWME_CH3P_PA4, steerMid);
-   85   2              pwm_set_duty(motorPwmR, motorPIDCalculate(&motorRPID, 0, encoderR));
-   86   2              pwm_set_duty(motorPwmL, motorPIDCalculate(&motorLPID, 0, encoderL));
-   87   2              pwm_set_duty(pressPwmL, 0);
-   88   2              pwm_set_duty(pressPwmR, 0);
-   89   2          } else {
-   90   2              pwm_set_duty(PWME_CH3P_PA4, steerMid + steerPIDCalculate(&steerPid, duty));
-   91   2              if (borderIn && encoderL + encoderR >> 1 > 420) setSpeed = 100;
-   92   2              if (dl1b_distance_mm < 400 && RUN_MODE == FORWARD) setSpeed = 200;
-   93   2              RSetSpeed = setSpeed + (!R || !enableDifSpeed ? 0 : setSpeed * 8 / R);
-   94   2              LSetSpeed = setSpeed - (!R || !enableDifSpeed ? 0 : setSpeed * 8 / R);
-   95   2              // if (longc > 150) RSetSpeed = LSetSpeed = c4;
-   96   2              // else RSetSpeed = LSetSpeed = c5;
-   97   2              pwm_set_duty(motorPwmR, motorPIDCalculate(&motorRPID, RSetSpeed, encoderR));
-   98   2              pwm_set_duty(motorPwmL, motorPIDCalculate(&motorLPID, LSetSpeed, encoderL));
-   99   2          }
-  100   1      }
-  101          
-  102          void up() {
-  103   1          sprintf(send_buff, "speed: %d,%d\n", encoderL, encoderR);
-  104   1          if (!stop) wireless_uart_send_buffer(send_buff, 32);
-  105   1      }
-  106          
-  107          void alongLine(Point roadLine[], int16 count, int16 aimPos) {
-  108   1          int16 pos, dx, dy;
-  109   1          int8 d;
-  110   1          if (count <= 5) return;
-  111   1          pos = func_limit_ab(aimPos, 5, count - 2);
-  112   1          dx = MT9V03X_H - roadLine[pos].x + DEVICE_H;
-  113   1          dy = 94 - roadLine[pos].y;
-  114   1          d = atan2_int(2 * DEVICE_H * dy, dx * dx + dy * dy);
-  115   1      #if (DEBUG_MODE)
-  116   1          if (switch1)
-  117   1              ips200_draw_point(roadLine[pos].y, roadLine[pos].x + MT9V03X_H + 40, RGB565_RED);
-  118   1      #endif
-  119   1           setServoDuty(func_limit(d, 32));
-  120   1      }
-C251 COMPILER V5.60.0,  Motor                                                              19/07/26  14:56:42  PAGE 3   
+             -old && mt9v03x_image[87][141] < threshold && mt9v03x_image[75][120] < threshold && mt9v03x_image[74][64] < threshold)) {
+   82   2              stop = 1;
+   83   2              pwm_set_duty(PWME_CH3P_PA4, steerMid);
+   84   2              pwm_set_duty(motorPwmR, motorPIDCalculate(&motorRPID, 0, encoderR));
+   85   2              pwm_set_duty(motorPwmL, motorPIDCalculate(&motorLPID, 0, encoderL));
+   86   2              pwm_set_duty(pressPwmL, 0);
+   87   2              pwm_set_duty(pressPwmR, 0);
+   88   2          } else {
+   89   2              pwm_set_duty(PWME_CH3P_PA4, steerMid + steerPIDCalculate(&steerPid, duty));
+   90   2              currentSpeed = encoderR + encoderL >> 1;
+   91   2              slow = !borderIn ? 1 : currentSpeed <= 350 ? 0 : slow;
+   92   2              if (borderIn && currentSpeed > 400 && slow) setSpeed = 200;
+   93   2              if (dl1b_distance_mm < 400 && RUN_MODE == FORWARD) setSpeed = 200;
+   94   2              RSetSpeed = setSpeed + (!R || !enableDifSpeed ? 0 : setSpeed * 8 / R);
+   95   2              LSetSpeed = setSpeed - (!R || !enableDifSpeed ? 0 : setSpeed * 8 / R);
+   96   2              // if (longc > 150) RSetSpeed = LSetSpeed = c4;
+   97   2              // else RSetSpeed = LSetSpeed = c5;
+   98   2              pwm_set_duty(motorPwmR, motorPIDCalculate(&motorRPID, RSetSpeed, encoderR));
+   99   2              pwm_set_duty(motorPwmL, motorPIDCalculate(&motorLPID, LSetSpeed, encoderL));
+  100   2          }
+  101   1      }
+  102          
+  103          void up() {
+  104   1          sprintf(send_buff, "speed: %d,%d\n", encoderL, encoderR);
+  105   1          if (!stop) wireless_uart_send_buffer(send_buff, 32);
+  106   1      }
+  107          
+  108          void alongLine(Point roadLine[], int16 count, int16 aimPos) {
+  109   1          int16 pos, dx, dy;
+  110   1          int8 d;
+  111   1          if (count <= 5) return;
+  112   1          pos = func_limit_ab(aimPos, 5, count - 2);
+  113   1          dx = MT9V03X_H - roadLine[pos].x + DEVICE_H;
+  114   1          dy = 94 - roadLine[pos].y;
+  115   1          d = atan2_int(2 * DEVICE_H * dy, dx * dx + dy * dy);
+  116   1      #if (DEBUG_MODE)
+                   if (switch1)
+                       ips200_draw_point(roadLine[pos].y, roadLine[pos].x + MT9V03X_H + 40, RGB565_RED);
+               #endif
+  120   1           setServoDuty(func_limit(d, 32));
+C251 COMPILER V5.60.0,  Motor                                                              20/07/26  10:43:22  PAGE 3   
 
-  121          
-  122          void setServoDuty(int8 d) {
-  123   1          int16 data t, ts, r;
-  124   1          //d = c4;
+  121   1      }
+  122          
+  123          void setServoDuty(int8 d) {
+  124   1          int16 data t, r, ts;
   125   1          currentDuty = (int16) d * c1 / 100;
   126   1          t = tani[func_limit_ab(func_abs(currentDuty), 0, 32)];
   127   1      #if (DEBUG_MODE)
-  128   1          if (switch1) ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 20, currentDuty);
-  129   1      #endif
+                   if (switch1) ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 20, currentDuty);
+               #endif
   130   1          r = !t ? 0 : 20000 / t;
   131   1          if (borderIn) ts = func_min(c5, 400);
   132   1          else ts = c5;
-  133   1          ts = c5;
-  134   1          if (!handle)
-  135   1              setSpeed = !r ? ts : func_limit(sqrt_int(r * (uint32) c4), ts);
-  136   1          else setSpeed = func_min(setSpeed, !r ? c5 : func_limit(sqrt_int(r * (uint32) c4), c5));
-  137   1          R = d < 0 ? -r : r;
-  138   1          duty = (int16) d * 12;
-  139   1      }
-  140          
-  141          int8 getDynamicAimPos() {
-  142   1          int16 speed = encoderR + encoderL >> 1;
-  143   1          return c6;
-  144   1      }
-  145          
-  146          void motorInit(int16 c11, int16 c22, int16 c33, int16 c44, int16 c55, int16 c66, int16 c77) {
-  147   1          c1 = c11;
-  148   1          c2 = c22;
-  149   1          c3 = c33;
-  150   1          c4 = c44;
-  151   1          c5 = c55;
-  152   1          c6 = c66;
-  153   1          c7 = c77;
-  154   1          PIDInit(&steerPid, 3,
-  155   1                   c1, 0, c2, 2,
-  156   1                   398);
-  157   1          PIDInit(&motorLPID, 0,
-  158   1                  3000, 50, 50, 0,
-  159   1                  10000);
-  160   1          PIDInit(&motorRPID, 1,
-  161   1                  3000, 50, 50, 0,
-  162   1                  10000);
-  163   1          pwm_init(PWME_CH3P_PA4, 200, steerMid);
-  164   1          gpio_init(motorDirR, GPO, 1, GPO_PUSH_PULL);
-  165   1          gpio_init(motorDirL, GPO, 1, GPO_PUSH_PULL);
-  166   1          pwm_init(motorPwmR, 17000, 0);
-  167   1          pwm_init(motorPwmL, 17000, 0);
-  168   1          pwm_init(pressPwmR, 50, c7);
-  169   1          pwm_init(pressPwmL, 50, c7);
-  170   1          // 在50Hz的控制频率下，无刷电调转速 0%   为 500
-  171   1          // 在50Hz的控制频率下，无刷电调转速 20%  为 600
-  172   1          // 在50Hz的控制频率下，无刷电调转速 40%  为 700
-  173   1          // 在50Hz的控制频率下，无刷电调转速 60%  为 800
-  174   1          // 在50Hz的控制频率下，无刷电调转速 80%  为 900
-  175   1          // 在50Hz的控制频率下，无刷电调转速 100% 为 1000
-  176   1          encoder_quad_init(PWMA_ENCODER, PWMA_ENCODER_CH1P_P60, PWMA_ENCODER_CH2P_P62);
-  177   1          encoder_quad_init(PWMC_ENCODER, PWMC_ENCODER_CH1P_P40, PWMC_ENCODER_CH2P_P42);
-  178   1          pit_ms_init(TIM1_PIT, 5, pitHandler);
-  179   1          //pit_ms_init(TIM3_PIT, 5, up);
-  180   1      }
-  181          
-  182          const int16 tani[33] = {0,
-  183                                  17,  35,  52,  70,  87,  105, 123, 141, 158, 176,
-  184                                  194, 213, 231, 249, 268, 287, 306, 325, 344, 364,
-  185                                  384, 404, 424, 445, 466, 488, 510, 532, 554, 577, 600, 628};
-  186          //200,50,5,4200,280,22,0,20           73
-C251 COMPILER V5.60.0,  Motor                                                              19/07/26  14:56:42  PAGE 4   
+  133   1          if (!handle)
+  134   1              setSpeed = !r ? ts : func_limit(sqrt_int(r * (uint32) c4), ts);
+  135   1          R = d < 0 ? -r : r;
+  136   1          duty = (int16) d * 12;
+  137   1      }
+  138          
+  139          int8 getDynamicAimPos() {
+  140   1          int16 speed = encoderR + encoderL >> 1;
+  141   1          return c3;
+  142   1      }
+  143          
+  144          void motorInit(int16 c11, int16 c22, int16 c33, int16 c44, int16 c55, int16 c66, int16 c77) {
+  145   1          c1 = c11;
+  146   1          c2 = c22;
+  147   1          c3 = c33;
+  148   1          c4 = c44;
+  149   1          c5 = c55;
+  150   1          c6 = c66;
+  151   1          c7 = c77;
+  152   1          PIDInit(&steerPid, 3,
+  153   1                   c1, 0, 50, 2,
+  154   1                   408);
+  155   1          PIDInit(&motorLPID, 0,
+  156   1                  3000, 50, 50, 0,
+  157   1                  10000);
+  158   1          PIDInit(&motorRPID, 1,
+  159   1                  3000, 50, 50, 0,
+  160   1                  10000);
+  161   1          pwm_init(PWME_CH3P_PA4, 200, steerMid);
+  162   1          gpio_init(motorDirR, GPO, 1, GPO_PUSH_PULL);
+  163   1          gpio_init(motorDirL, GPO, 1, GPO_PUSH_PULL);
+  164   1          pwm_init(motorPwmR, 17000, 0);
+  165   1          pwm_init(motorPwmL, 17000, 0);
+  166   1          pwm_init(pressPwmR, 50, c2);
+  167   1          pwm_init(pressPwmL, 50, c2);
+  168   1          system_delay_ms(500);
+  169   1          // 在50Hz的控制频率下，无刷电调转速 0%   为 500
+  170   1          // 在50Hz的控制频率下，无刷电调转速 20%  为 600
+  171   1          // 在50Hz的控制频率下，无刷电调转速 40%  为 700
+  172   1          // 在50Hz的控制频率下，无刷电调转速 60%  为 800
+  173   1          // 在50Hz的控制频率下，无刷电调转速 80%  为 900
+  174   1          // 在50Hz的控制频率下，无刷电调转速 100% 为 1000
+  175   1          encoder_quad_init(PWMA_ENCODER, PWMA_ENCODER_CH1P_P60, PWMA_ENCODER_CH2P_P62);
+  176   1          encoder_quad_init(PWMC_ENCODER, PWMC_ENCODER_CH1P_P40, PWMC_ENCODER_CH2P_P42);
+  177   1          pit_ms_init(TIM1_PIT, 5, pitHandler);
+  178   1          //pit_ms_init(TIM3_PIT, 5, up);
+  179   1      }
+  180          
+  181          const int16 tani[33] = {0,
+  182                                  17,  35,  52,  70,  87,  105, 123, 141, 158, 176,
+  183                                  194, 213, 231, 249, 268, 287, 306, 325, 344, 364,
+  184                                  384, 404, 424, 445, 466, 488, 510, 532, 554, 577, 600, 628};
+  185          //200,50,5,4000,280,22,0,20
+  186          //220,50,5,4000,320,23,800,20
+C251 COMPILER V5.60.0,  Motor                                                              20/07/26  10:43:22  PAGE 4   
 
-  187          //210,50,5,4200,320,23,800,20
-  188          //225,50,5,4200,360,24,900,20
-  189          //250,50,5,4200,400,25,950,20
+  187          //240,50,5,4000,360,24,900,20
+  188          //260,50,5,4000,400,25,950,20
+  189          //350 可保持当前靶阈值不变
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      3562     ------
+  ecode size           =      3156     ------
   data size            =         2     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
@@ -226,7 +226,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =       137     ------
+  hconst size          =       128     ------
 End of Module Information.
 
 

@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  RAMP                                                               19/07/26  14:56:44  PAGE 1   
+C251 COMPILER V5.60.0,  RAMP                                                               20/07/26  10:43:23  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE RAMP
@@ -15,67 +15,63 @@ stmt  level    source
     3          //
     4          
     5          #include "RAMP.h"
-*** WARNING C323 IN LINE 12 OF ..\code\Zebra.h: newline expected, extra characters found
+*** WARNING C323 IN LINE 13 OF ..\code\Zebra.h: newline expected, extra characters found
     6          
     7          extern int16 RUN_MODE;
-    8          extern uint8 outputImage[MT9V03X_H][MT9V03X_W];
-    9          uint8 canEnd, canNotInRamp;
-   10          
-   11          void runRamp() {
-   12   1          Point tarPos[6];
-   13   1          int16 i, j, k;
-   14   1          gpio_set_level(IO_P90, 1);
-   15   1          if (pitch <= -5) {
-   16   2              canEnd = 1;
-   17   2              setSpeed = 350;
-   18   2          } else if (pitch > -2 && pitch < 2 && canEnd && dl1b_distance_mm > 500) {
-   19   2              RUN_MODE = FORWARD;
-   20   2              wireless_uart_send_string("exit\r\n");
-   21   2              centerLineDistance = 18;
-   22   2              canEnd = handle = 0;
-   23   2              canNotInRamp = 20;
-   24   2              enableDifSpeed = 1;
-   25   2              gpio_set_level(IO_P90, 0);
-   26   2          } else if (!canEnd) {
-   27   2              handle = 1;
-   28   2              //wireless_uart_send_string("ramp\n");
-   29   2              setSpeed = 200;
-   30   2              enableDifSpeed = 0;
-   31   2          }
-   32   1          for (i = 0; i < LBorderCount; i++)
-   33   1              if (LBorder[i].x == rampPos) break;
-   34   1          for (j = 0; j < RBorderCount; j++)
-   35   1              if (RBorder[j].x == rampPos) break;
-   36   1          if (LBorder[i].x != rampPos || RBorder[j].x != rampPos) return;
-   37   1          for (k = 0; k <= 5; k++) {
-   38   2              tarPos[k].x = rampPos;
-   39   2              tarPos[k].y = LBorder[i].y + RBorder[j].y >> 1;
-   40   2          }
-   41   1          getGodRoadLine(tarPos, 6);
-   42   1          alongLine(tarPos, 6, 5);
-   43   1      }
+    8          extern Point centerLine[expRoadCount], LRoad[expRoadCount], RRoad[expRoadCount];
+    9          extern int16 centerLineCount, LRoadCount, RRoadCount;
+   10          extern const uint8 reflection[120][188][2];
+   11          uint8 canEnd, canNotInRamp;
+   12          
+   13          void runRamp() {
+   14   1          int8 data i;
+   15   1          gpio_set_level(IO_P90, 1);
+   16   1          centerLineDistance = 18;
+   17   1          if (pitch <= -5) {
+   18   2              canEnd = 1;
+   19   2              setSpeed = 350;
+   20   2          } else if (pitch > -2 && pitch < 2 && canEnd && dl1b_distance_mm > 500) {
+   21   2              RUN_MODE = FORWARD;
+   22   2              //wireless_uart_send_string("exit\r\n");
+   23   2              canEnd = handle = 0;
+   24   2              canNotInRamp = 50;
+   25   2              enableDifSpeed = 1;
+   26   2              gpio_set_level(IO_P90, 0);
+   27   2          } else if (!canEnd) {
+   28   2              handle = 1;
+   29   2              //wireless_uart_send_string("ramp\n");
+   30   2              setSpeed = 200;
+   31   2              enableDifSpeed = 0;
+   32   2          }
+   33   1          centerLineCount = func_min(LRoadCount, RRoadCount);
+   34   1          for (i = 0; i < centerLineCount; i++) {
+   35   2              centerLine[i].x = LRoad[i].x + RRoad[i].x >> 1;
+   36   2              centerLine[i].y = LRoad[i].y + RRoad[i].y >> 1;
+   37   2          }
+   38   1          if (func_abs(pitch) > 3) alongLine(centerLine, centerLineCount, 10);
+   39   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       405     ------
+  ecode size           =       358     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =         2         12
+  xdata size           =         2     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
-C251 COMPILER V5.60.0,  RAMP                                                               19/07/26  14:56:44  PAGE 2   
-
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------
+C251 COMPILER V5.60.0,  RAMP                                                               20/07/26  10:43:23  PAGE 2   
+
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =         7     ------
+  hconst size          =    ------     ------
 End of Module Information.
 
 

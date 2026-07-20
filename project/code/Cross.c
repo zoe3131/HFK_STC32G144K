@@ -110,7 +110,6 @@ void runCross() {
             CROSS_MODE = CROSS_READY;
             RUN_MODE = FORWARD;
             gpio_set_level(IO_P90, 0);
-            wireless_uart_send_string("exit\r\n");
         }
 #if (DEBUG_MODE)
         if (switch2) {

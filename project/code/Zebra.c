@@ -21,14 +21,16 @@ uint8 haveLine() {
 void runZebra(uint8 have) {
     centerLineDistance = 18;
     alongLine(centerLine, centerLineCount, getDynamicAimPos());
-    if (count == 3) {
+    if (count == runTurn + 1) {
         end:
-        system_delay_ms(100);
+        handle = 1;
+        setSpeed = 400;
+        system_delay_ms(130);
         stop = 1;
     } else {
         if (add) {
             count++;
-            if (count == 3) goto end;
+            if (count == runTurn + 1) goto end;
             add = 0;
         }
         if (LBorderCount && !have && !haveLine()) {

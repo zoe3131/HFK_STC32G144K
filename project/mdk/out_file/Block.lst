@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Block                                                              19/07/26  14:56:44  PAGE 1   
+C251 COMPILER V5.60.0,  Block                                                              20/07/26  10:43:23  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Block
@@ -15,7 +15,7 @@ stmt  level    source
     3          //
     4          
     5          #include "Block.h"
-*** WARNING C323 IN LINE 12 OF ..\code\Zebra.h: newline expected, extra characters found
+*** WARNING C323 IN LINE 13 OF ..\code\Zebra.h: newline expected, extra characters found
     6          static uint8 added = 0;
     7          extern uint8 ALONG;
     8          static int16 fixedLCorner;
@@ -67,7 +67,7 @@ Module Information          Static   Overlayable
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
-C251 COMPILER V5.60.0,  Block                                                              19/07/26  14:56:44  PAGE 2   
+C251 COMPILER V5.60.0,  Block                                                              20/07/26  10:43:23  PAGE 2   
 
   far data size        =    ------     ------
   huge data size       =    ------     ------
