@@ -7,9 +7,8 @@
 #include "zf_common_headfile.h"
 
 #define block 5               //局域二值化边长
-#define cap 5                 //去噪
+#define cap 6                //去噪   5
 #define expRoadCount 100      //边线期望长度
-#define expThreshold 100
 #define ZEBRA_TRIGGER_POS 40
 #define targetPos 78
 

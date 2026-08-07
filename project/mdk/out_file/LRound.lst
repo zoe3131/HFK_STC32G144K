@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  LRound                                                             20/07/26  10:43:22  PAGE 1   
+C251 COMPILER V5.60.0,  LRound                                                             24/07/26  15:31:30  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE LRound
@@ -32,7 +32,7 @@ stmt  level    source
    19   1          if (ROUND_MODE == ROUND_READY) {
    20   2              borderIn = 1;
    21   2              gpio_set_level(IO_P90, 1);
-   22   2              alongLine(centerLine, centerLineCount, getDynamicAimPos());
+   22   2              alongLine(centerLine, centerLineCount, getAimPos());
    23   2              if (!LRoadCount)
    24   2                  canStart = 1;
    25   2              else if (LRoadCount > 10 && !LCorner && canStart) {
@@ -43,7 +43,7 @@ stmt  level    source
    30   2          } else if (ROUND_MODE == ROUND_START) {
    31   2              gpio_set_level(IO_P90, 0);
    32   2              ALONG = ALONG_L;
-   33   2              alongLine(centerLine, centerLineCount, getDynamicAimPos());
+   33   2              alongLine(centerLine, centerLineCount, getAimPos());
    34   2              if (!RRoadCount)
    35   2                  canIn = 1;
    36   2              else if (RRoadCount > 10 && !RCorner && canIn) {
@@ -53,7 +53,7 @@ stmt  level    source
    40   3              }
    41   2          } else if (ROUND_MODE == ROUND_IN) {
    42   2              ALONG = ALONG_R;
-   43   2              alongLine(centerLine, centerLineCount, getDynamicAimPos());
+   43   2              alongLine(centerLine, centerLineCount, getAimPos());
    44   2              if (RCorner > 3 && centerLineCount < 11 && centerLineCount) {
    45   3                  centerLineDistance = 11;
    46   3                  ROUND_MODE = ROUND_END;
@@ -66,7 +66,7 @@ stmt  level    source
    53   3                  centerLineDistance = 18;
    54   3                  ROUND_MODE = ROUND_EXIT;
    55   3                  ALONG = ALONG_R;
-C251 COMPILER V5.60.0,  LRound                                                             20/07/26  10:43:22  PAGE 2   
+C251 COMPILER V5.60.0,  LRound                                                             24/07/26  15:31:30  PAGE 2   
 
    56   3              }
    57   2          } else if (ROUND_MODE == ROUND_EXIT) {

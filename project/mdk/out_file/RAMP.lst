@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  RAMP                                                               20/07/26  10:43:23  PAGE 1   
+C251 COMPILER V5.60.0,  RAMP                                                               24/07/26  15:31:30  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE RAMP
@@ -67,7 +67,7 @@ Module Information          Static   Overlayable
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------
-C251 COMPILER V5.60.0,  RAMP                                                               20/07/26  10:43:23  PAGE 2   
+C251 COMPILER V5.60.0,  RAMP                                                               24/07/26  15:31:30  PAGE 2   
 
   huge data size       =    ------     ------
   const size           =    ------     ------

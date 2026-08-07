@@ -10,7 +10,7 @@ const static int8 data dirF[4][2] = {{-2, 0},{0, 2},{2, 0},{0, -2}},
 const static int8 data dirFD[4][2] = {{-1, 0},{0, 1},{1, 0},{0, -1}},
     dirLD[4][2] = {{-1, -1},{-1, 1},{1,  1},{1,  -1}},
     dirRD[4][2] = {{-1, 1},{1,  1},{1,  -1},{-1, -1}};
-uint8 banUpdateThreshold = 0, LThreshold = expThreshold, RThreshold = expThreshold, threshold = expThreshold, centerLineDistance = 18, outputImage[MT9V03X_H][MT9V03X_W];
+uint8 banUpdateThreshold = 0, LThreshold, RThreshold, threshold, centerLineDistance = 18, outputImage[MT9V03X_H][MT9V03X_W];
 const uint8 reflection[120][188][2];
 const uint8 static data halfBlock = block / 2, data halfH = MT9V03X_H / 2, data halfW = MT9V03X_W / 2;
 Point LBorder[expRoadCount], RBorder[expRoadCount];
@@ -135,10 +135,10 @@ Point findTargetByL(int16 i) {
     if (LStart < 0) LStart = 0;
     if (RStart > 187) RStart = 187;
 #if (DEBUG_MODE)
-    if (switch2) {
-        ips200_draw_point(LStart, i, RGB565_RED);
-        ips200_draw_point(RStart, i, RGB565_RED);
-    }
+    // if (switch2) {
+    //     ips200_draw_point(LStart, i, RGB565_RED);
+    //     ips200_draw_point(RStart, i, RGB565_RED);
+    // }
 #endif
     for (ans = LStart + 2, RStart--;ans < RStart; ans++) {
         if (mt9v03x_image[i][ans] < threshold && check(i, ans - 2)) {
@@ -148,9 +148,9 @@ Point findTargetByL(int16 i) {
     }
     if (pos.y) {
 #if (DEBUG_MODE)
-        if (switch2) {
-            ips200_draw_point(pos.y, i, RGB565_RED);
-        }
+        // if (switch2) {
+        //     ips200_draw_point(pos.y, i, RGB565_RED);
+        // }
 #endif
         banUpdateThreshold = 1;
         getRBorder(target, pos, &len, 1);
@@ -167,12 +167,12 @@ Point findTargetByL(int16 i) {
         dh = reflection[v][r][1] - reflection[v][l][1];
         dv = reflection[b][h][0] - reflection[t][h][0];
 #if (DEBUG_MODE)
-        if (switch2) {
-            ips200_show_int16(188, 120, dt);
-            ips200_show_int16(0, MT9V03X_H + 1, dh);
-            ips200_show_int16(0, MT9V03X_H + 16, dv);
-            ips200_show_int16(0, MT9V03X_H + 32, currentDuty);
-        }
+        // if (switch2) {
+        //     ips200_show_int16(188, 120, dt);
+        //     ips200_show_int16(0, MT9V03X_H + 1, dh);
+        //     ips200_show_int16(0, MT9V03X_H + 16, dv);
+        //     ips200_show_int16(0, MT9V03X_H + 32, currentDuty);
+        // }
 #endif
         if (dh >= 8 && dh <= 12 && dv >= 7 && dv <= 11) {
             ret.x = reflection[v][h][0];
@@ -184,21 +184,21 @@ Point findTargetByL(int16 i) {
             if (currentDuty >= 30) ret.y++;
             else if (currentDuty <= -30) ret.y--;
 #if (DEBUG_MODE)
-            if (switch2) {
-                memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
-                ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, 0);
-                ips200_draw_point(h, v, RGB565_RED);
-            }
+            // if (switch2) {
+            //     memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
+            //     ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, 0);
+            //     ips200_draw_point(h, v, RGB565_RED);
+            // }
 #endif
             return ret;
         }
     }
 #if (DEBUG_MODE)
-    if (switch2) {
-        memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
-        ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, 0);
-        ips200_draw_point(h, v, RGB565_RED);
-    }
+    // if (switch2) {
+    //     memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
+    //     ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, 0);
+    //     ips200_draw_point(h, v, RGB565_RED);
+    // }
 #endif
     ret.y = 0;
     return ret;

@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Zebra                                                              20/07/26  10:43:22  PAGE 1   
+C251 COMPILER V5.60.0,  Zebra                                                              24/07/26  15:31:30  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Zebra
@@ -33,7 +33,7 @@ stmt  level    source
    20          
    21          void runZebra(uint8 have) {
    22   1          centerLineDistance = 18;
-   23   1          alongLine(centerLine, centerLineCount, getDynamicAimPos());
+   23   1          alongLine(centerLine, centerLineCount, getAimPos());
    24   1          if (count == runTurn + 1) {
    25   2              end:
    26   2              handle = 1;
@@ -67,7 +67,7 @@ Module Information          Static   Overlayable
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
-C251 COMPILER V5.60.0,  Zebra                                                              20/07/26  10:43:22  PAGE 2   
+C251 COMPILER V5.60.0,  Zebra                                                              24/07/26  15:31:30  PAGE 2   
 
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------

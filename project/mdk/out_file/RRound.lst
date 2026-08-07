@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  RRound                                                             20/07/26  10:43:22  PAGE 1   
+C251 COMPILER V5.60.0,  RRound                                                             24/07/26  15:31:29  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE RRound
@@ -33,7 +33,7 @@ stmt  level    source
    20   1          if (ROUND_MODE == ROUND_READY) {
    21   2              borderIn = 1;
    22   2              gpio_set_level(IO_P90, 1);
-   23   2              alongLine(centerLine, centerLineCount, getDynamicAimPos());
+   23   2              alongLine(centerLine, centerLineCount, getAimPos());
    24   2              if (!RRoadCount)
    25   2                  canStart = 1;
    26   2              else if (RRoadCount > 10 && !RCorner && canStart) {
@@ -44,7 +44,7 @@ stmt  level    source
    31   2          } else if (ROUND_MODE == ROUND_START) {
    32   2              gpio_set_level(IO_P90, 0);
    33   2              ALONG = ALONG_R;
-   34   2              alongLine(centerLine, centerLineCount, getDynamicAimPos());
+   34   2              alongLine(centerLine, centerLineCount, getAimPos());
    35   2              if (!LRoadCount)
    36   2                  canIn = 1;
    37   2              else if (LRoadCount > 20 && !LCorner && canIn) {
@@ -54,8 +54,8 @@ stmt  level    source
    41   3              }
    42   2          } else if (ROUND_MODE == ROUND_IN) {
    43   2              ALONG = ALONG_L;
-   44   2              alongLine(centerLine, centerLineCount, getDynamicAimPos());
-   45   2              if (LCorner > 3 && centerLineCount < 9 && centerLineCount) {
+   44   2              alongLine(centerLine, centerLineCount, getAimPos());
+   45   2              if (LCorner > 3 && centerLineCount < 11 && centerLineCount) {
    46   3                  centerLineDistance = 11;
    47   3                  ROUND_MODE = ROUND_END;
    48   3                  ALONG = ALONG_R;
@@ -66,13 +66,13 @@ stmt  level    source
    53   2              if (!LCorner && LRoadCount > 25 && LRoad[LRoadCount - 1].y > 55) {
    54   3                  centerLineDistance = 18;
    55   3                  ROUND_MODE = ROUND_EXIT;
-C251 COMPILER V5.60.0,  RRound                                                             20/07/26  10:43:22  PAGE 2   
+C251 COMPILER V5.60.0,  RRound                                                             24/07/26  15:31:29  PAGE 2   
 
    56   3                  ALONG = ALONG_L;
    57   3              }
    58   2          } else if (ROUND_MODE == ROUND_EXIT) {
    59   2              ALONG = ALONG_L;
-   60   2              alongLine(centerLine, centerLineCount, getDynamicAimPos());
+   60   2              alongLine(centerLine, centerLineCount, getAimPos());
    61   2              if (!RRoadCount)
    62   2                  canFinish = 1;
    63   2              else if (RRoadCount > 10 && canFinish) {

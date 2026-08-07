@@ -20,7 +20,7 @@ uint8 haveLine() {
 
 void runZebra(uint8 have) {
     centerLineDistance = 18;
-    alongLine(centerLine, centerLineCount, getDynamicAimPos());
+    alongLine(centerLine, centerLineCount, getAimPos());
     if (count == runTurn + 1) {
         end:
         handle = 1;

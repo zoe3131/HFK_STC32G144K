@@ -20,7 +20,7 @@ void runRRound(int16 LCorner, int16 RCorner) {
     if (ROUND_MODE == ROUND_READY) {
         borderIn = 1;
         gpio_set_level(IO_P90, 1);
-        alongLine(centerLine, centerLineCount, getDynamicAimPos());
+        alongLine(centerLine, centerLineCount, getAimPos());
         if (!RRoadCount)
             canStart = 1;
         else if (RRoadCount > 10 && !RCorner && canStart) {
@@ -31,7 +31,7 @@ void runRRound(int16 LCorner, int16 RCorner) {
     } else if (ROUND_MODE == ROUND_START) {
         gpio_set_level(IO_P90, 0);
         ALONG = ALONG_R;
-        alongLine(centerLine, centerLineCount, getDynamicAimPos());
+        alongLine(centerLine, centerLineCount, getAimPos());
         if (!LRoadCount)
             canIn = 1;
         else if (LRoadCount > 20 && !LCorner && canIn) {
@@ -41,8 +41,8 @@ void runRRound(int16 LCorner, int16 RCorner) {
         }
     } else if (ROUND_MODE == ROUND_IN) {
         ALONG = ALONG_L;
-        alongLine(centerLine, centerLineCount, getDynamicAimPos());
-        if (LCorner > 3 && centerLineCount < 9 && centerLineCount) {
+        alongLine(centerLine, centerLineCount, getAimPos());
+        if (LCorner > 3 && centerLineCount < 11 && centerLineCount) {
             centerLineDistance = 11;
             ROUND_MODE = ROUND_END;
             ALONG = ALONG_R;
@@ -57,7 +57,7 @@ void runRRound(int16 LCorner, int16 RCorner) {
         }
     } else if (ROUND_MODE == ROUND_EXIT) {
         ALONG = ALONG_L;
-        alongLine(centerLine, centerLineCount, getDynamicAimPos());
+        alongLine(centerLine, centerLineCount, getAimPos());
         if (!RRoadCount)
             canFinish = 1;
         else if (RRoadCount > 10 && canFinish) {

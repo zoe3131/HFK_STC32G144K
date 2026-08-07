@@ -29,7 +29,7 @@ Point getCrossRStart() {
         pos.x = 80;
         pos.y = minMaxH;
     }
-    while (pos.x >= 8 && getImagePointFilterSelf(pos.x, pos.y) > crossThreshold || getImagePointFilterSelf(pos.x - 8, pos.y) > crossThreshold || getImagePointFilterSelf(pos.x - 3, pos.y) > crossThreshold) pos.x--;
+    while (pos.x >= 8 && (getImagePointFilterSelf(pos.x, pos.y) > crossThreshold || getImagePointFilterSelf(pos.x - 8, pos.y) > crossThreshold)) pos.x--;
     if (pos.x <= 7)
         pos.x = pos.y = 0;
     else
@@ -53,7 +53,7 @@ Point getCrossLStart() {
         pos.x = 80;
         pos.y = minMaxH;
     }
-    while (pos.x >= 8 && getImagePointFilterSelf(pos.x, pos.y) > crossThreshold || getImagePointFilterSelf(pos.x - 8, pos.y) > crossThreshold || getImagePointFilterSelf(pos.x - 3, pos.y) > crossThreshold) pos.x--;
+    while (pos.x >= 8 && (getImagePointFilterSelf(pos.x, pos.y) > crossThreshold || getImagePointFilterSelf(pos.x - 8, pos.y) > crossThreshold)) pos.x--;
     if (pos.x <= 7)
         pos.x = pos.y = 0;
     else
@@ -67,16 +67,17 @@ void runCross() {
     if (switch2) {
         ips200_show_int16(0, MT9V03X_H + 1, LBorderCount);
         ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, RBorderCount);
+        ips200_show_int16(MT9V03X_W / 2, MT9V03X_H + 1, centerLineCount);
     }
 #endif
     if (CROSS_MODE == CROSS_READY) {
         //gpio_set_level(IO_P90, 1);
         if (centerLineCount && centerLineCount < 13) {
-            crossThreshold = threshold;
+            crossThreshold = threshold + mt9v03x_image[80][94] >> 1;
             alongR = LBorderCount < RBorderCount;
             CROSS_MODE = CROSS_IN;
         }
-        alongLine(centerLine, centerLineCount, getDynamicAimPos());
+        alongLine(centerLine, centerLineCount, getAimPos());
     } else if (CROSS_MODE == CROSS_IN) {
         Point border[expRoadCount], farCenterLine[expRoadCount];
         int16 roadCount = expRoadCount, farCenterLineCount, corner, i, j;
@@ -104,7 +105,7 @@ void runCross() {
         farCenterLine[corner].y = MT9V03X_W / 2 - 3;
         resampleRoad(farCenterLine, &farCenterLineCount, corner, 2);
         filterRoad(farCenterLine, farCenterLineCount);
-        alongLine(farCenterLine, farCenterLineCount, getDynamicAimPos());
+        alongLine(farCenterLine, farCenterLineCount, getAimPos());
         if (centerLineCount > 20 && canEnd) {
             canEnd = minMaxH = 0;
             CROSS_MODE = CROSS_READY;
@@ -119,9 +120,9 @@ void runCross() {
                 for (j = 0; j < MT9V03X_W; j++)
                     outputImage[i][j] = 0;
             for (i = 0; i < farCenterLineCount; i++)
-                outputImage[farCenterLine[i].x][farCenterLine[i].y] = 255;
+                outputImage[func_limit_ab(farCenterLine[i].x, 0, 119)][func_limit_ab(farCenterLine[i].y, 0, 187)] = 255;
             for (i = 0; i < roadCount; i++)
-                outputImage[border[i].x][border[i].y] = 255;
+                outputImage[func_limit_ab(border[i].x, 0, 119)][func_limit_ab(border[i].y, 0, 187)] = 255;
             ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
         }
 #endif

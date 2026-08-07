@@ -8,6 +8,6 @@
 #include "zf_common_headfile.h"
 
 void runZebra(uint8 have);
-#define runTurn 1
+#define runTurn 5
 
 #endif; //SEEKFREE_STC32G144K_100PIN_OPENSOURCE_LIBRARY_ZEBRA_H

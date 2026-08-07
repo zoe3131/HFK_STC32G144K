@@ -39,7 +39,7 @@ int16 LCorner, RCorner, s2, centerLineCount, RUN_MODE = ZEBRA, LRoadCount = expR
 static int16 p, i, d, s1, imBtn, borderInTriggerDistance = 25, ab;
 uint8 borderIn, switch1, switch2, ALONG = ALONG_R, topBtn, bottomBtn;
 Point centerLine[expRoadCount], LRoad[expRoadCount], RRoad[expRoadCount], target;
-extern uint8 outputImage[MT9V03X_H][MT9V03X_W], canNotInRamp;
+extern uint8 outputImage[MT9V03X_H][MT9V03X_W], canNotInRamp, LThreshold, RThreshold, threshold;
 static uint8 have, data_buffer[32], send_buff[32], findBorderIn;
 extern int16 currentDuty;
 int16 data i, j, pos;
@@ -68,16 +68,17 @@ void main(void) {
     gpio_init(IO_P90, GPO, 0, GPO_PUSH_PULL); //·äÃùÆ÷
     //gpio_init(IO_P04, GPO, 0, GPO_PUSH_PULL); //Ê¾²¨Æ÷
     laserInit();
+    LThreshold = RThreshold = threshold = mt9v03x_image[80][94] + mt9v03x_image[107][94] >> 1;
     displayBorderLineImage();
     while (1) {
         system_delay_ms(50);
 #if (DEBUG_MODE)
         if (wireless_uart_read_buffer(data_buffer, 32)) {
-            sscanf(data_buffer, "%d,%d,%d,%d,%d,%d,%d", &p, &i, &d, &am, &s1, &s2, &ab);
+            sscanf(data_buffer, "%d,%d,%d,%d,%d,%d", &p, &i, &d, &s1, &s2, &ab);
             switch2 = gpio_get_level(IO_PB1);
             switch1 = gpio_get_level(IO_PB0);
             ips200_clear(RGB565_WHITE);
-            motorInit(p, i, d, am, s1, s2, ab);
+            motorInit(p, i, d, s1, s2, ab, 0);
             break;
         }
 #else
@@ -90,6 +91,7 @@ void main(void) {
             while (1) {
                 if (mt9v03x_finish_flag) {
                     loadRoad();
+                    displayBinarizationImage();
                     for (i = 0; i < MT9V03X_H; i++)
                         for (j = 0; j < MT9V03X_W; j++)
                             outputImage[i][j] = 0;
@@ -117,7 +119,7 @@ void main(void) {
                 ips200_show_string(0, 130, "SELECT: 1");
                 system_delay_ms(500);
                 system_delay_ms(500);
-                motorInit(200, 0, 21, 4000, 270, 0, 0);
+                motorInit(260, 1000, 26, 4500, 520, 0, 0);
                 break;
             }
             if (!bottomBtn) {
@@ -251,7 +253,7 @@ void main(void) {
                 // sprintf(send_buff, "L_ROUND: %d,%d\n", LRoadCount, RRoadCount);
                 // wireless_uart_send_buffer(send_buff, 32);
             } else
-                alongLine(centerLine, centerLineCount, getDynamicAimPos());
+                alongLine(centerLine, centerLineCount, getAimPos());
             mt9v03x_finish_flag = 0;
         }
     }
@@ -324,7 +326,7 @@ void loadRoad() {
         else borderIn = 0;
     }
     if (LCorner) {
-        if (LCorner <= 3) LCorner = 0;
+        if (LCorner < 3) LCorner = 0;
         else if (LCorner < 15 && RUN_MODE == FORWARD && LRoad[func_limit_ab(LCorner + 3, 0, LRoadCount - 1)].y > LRoad[LCorner].y) {
             RUN_MODE = BLOCK;
             ALONG = ALONG_R;
@@ -333,7 +335,7 @@ void loadRoad() {
         LRoadCount = LCorner;
     }
     if (RCorner) {
-        if (RCorner <= 3) RCorner = 0;
+        if (RCorner < 3) RCorner = 0;
         else if (RCorner < 15 && RUN_MODE == FORWARD && RRoad[RCorner].y > RRoad[func_limit_ab(RCorner + 3, 0, RRoadCount - 1)].y) {
             RUN_MODE = BLOCK;
             ALONG = ALONG_L;
@@ -387,3 +389,26 @@ uint8 haveZebra() {
     if (LBorder[i].x > ZEBRA_TRIGGER_POS) return 0;
     return findZebra(i);
 }
+
+/*¡¡¡¡©³©·¡¡¡¡©³©·
+   ¡¡¡¡©³©¿©ß©¥©¥©¥©¿©ß©·
+   ¡¡¡¡©§¡¡¡¡¡¡¡¡¡¡¡¡¡¡ ©§ ¡¡
+   ¡¡¡¡©§¡¡¡¡¡¡©¥¡¡¡¡¡¡ ©§
+   ¡¡¡¡©§¡¡£¾¡¡¡¡¡¡£¼©§
+   ¡¡¡¡©§¡¡¡¡¡¡¡¡¡¡¡¡¡¡ ©§
+   ¡¡¡¡©§ . ¡Ð¡¡..©§
+   ¡¡¡¡©§¡¡¡¡¡¡¡¡¡¡¡¡¡¡ ©§
+   ¡¡¡¡©»©¥©·¡¡¡¡¡¡©³©¥©¿
+     ¡¡¡¡¡¡¡¡©§¡¡¡¡¡¡©§¡¡Guardian beasts, protect me; bad luck, stay away!¡¡¡¡¡¡¡¡¡¡
+     ¡¡¡¡¡¡¡¡©§¡¡¡¡¡¡©§  ÉñÊÞ»¤Ìå£¬Ë®ÄæÍËÉ¢£¡
+     ¡¡¡¡¡¡¡¡©§¡¡¡¡¡¡©§¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡
+     ¡¡¡¡¡¡¡¡©§¡¡¡¡¡¡©§ ¡¡¡¡¡¡¡¡¡¡¡¡
+     ¡¡¡¡¡¡¡¡©§¡¡¡¡¡¡©§
+     ¡¡¡¡¡¡¡¡©§¡¡¡¡¡¡©§¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡
+     ¡¡¡¡¡¡¡¡©§¡¡¡¡¡¡©»©¥©¥©¥©·
+     ¡¡¡¡¡¡¡¡©§¡¡¡¡¡¡¡¡¡¡¡¡¡¡©Ç©·
+     ¡¡¡¡¡¡¡¡©§¡¡¡¡¡¡¡¡¡¡¡¡¡¡©³©¿
+     ¡¡¡¡¡¡¡¡©»©·©·©³©¥©×©·©³©¿
+      ¡¡¡¡¡¡¡¡¡¡©§©Ï©Ï¡¡©§©Ï©Ï
+      ¡¡¡¡¡¡¡¡¡¡©»©ß©¿¡¡©»©ß©¿
+ */
