@@ -58,31 +58,38 @@ void main(void) {
     // gpio_init(IO_P04, GPO, 0, GPO_PUSH_PULL); // 已删除激光使能引脚
     // laserInit(); // 已删除激光初始化
     
-    LThreshold = RThreshold = threshold = mt9v03x_image[80][94] + mt9v03x_image[107][94] >> 1;
+    LThreshold = RThreshold = threshold = mt9v03x_image[80][94] + mt9v03x_image[107][94] >> 1; 
+    //所以车一开机，它会先看看车头正前方的地面，默认这里是白色的赛道。
+    然后记住这个亮度，把这个亮度作为“标准值”，去判断整张图片。比这个值亮的是白赛道，暗的是黑边线。这叫动态阈值。
+    //发车的时候，千万要把车放在白色的赛道上，别放在黑线（路障、斑马线）上。
+    
     displayBorderLineImage();
+    //把车“看”到的画面，画到你的 IPS 屏幕上
     
     while (1) {
         system_delay_ms(50);
-#if (DEBUG_MODE)
-        if (wireless_uart_read_buffer(data_buffer, 32)) {
-            sscanf(data_buffer, "%d,%d,%d,%d,%d,%d", &p, &i, &d, &s1, &s2, &ab);
-            switch2 = gpio_get_level(IO_PB1);
+#if (DEBUG_MODE)  //电脑的无线串口调试
+        if (wireless_uart_read_buffer(data_buffer, 32)) {   
+            sscanf(data_buffer, "%d,%d,%d,%d,%d,%d", &p, &i, &d, &s1, &s2, &ab);  //在电脑上写下数据，读取电脑发送的数据
+            switch2 = gpio_get_level(IO_PB1);   //读取拨码开关的状态，为下面的做准备
             switch1 = gpio_get_level(IO_PB0);
-            ips200_clear(RGB565_WHITE);
-            motorInit(p, i, d, s1, s2, ab, 0);
+            ips200_clear(RGB565_WHITE);  //清屏
+            motorInit(p, i, d, s1, s2, ab, 0);  //设置参数
             break;
         }
-#else
-        switch2 = gpio_get_level(IO_PB1);
+#else   //这段不是上面的电脑调参，是物理调参
+        switch2 = gpio_get_level(IO_PB1);   //下面的四个按键组合成8个速度选择
         switch1 = gpio_get_level(IO_PB0);
         topBtn = gpio_get_level(IO_P02);
         bottomBtn = gpio_get_level(IO_P01);
-        imBtn = gpio_get_level(IO_P32);
-        if (!imBtn) {
+        imBtn = gpio_get_level(IO_P32);  //图像查看按键
+        if (!imBtn) {     //图像查看，它把摄像头拍到的赛道、车算出来的左边界、右边界、中线全都画在屏幕上给你看。
+                            并且屏幕上还会显示 LRoadCount（左边界找了多少点）、LCorner（左边是不是有拐角）等等数据。
+                             你按了这个键，车就不跑了，你可以对着屏幕，看看车“眼里”的赛道长啥样，判断车找线找得对不对。
             while (1) {
-                if (mt9v03x_finish_flag) {
-                    loadRoad();
-                    displayBinarizationImage();
+                if (mt9v03x_finish_flag) {    //照了一个图像
+                    loadRoad();      //对图像做处理
+                    displayBinarizationImage();   //把识别到的中线、边线画到一张空白图上
                     for (i = 0; i < MT9V03X_H; i++)
                         for (j = 0; j < MT9V03X_W; j++)
                             outputImage[i][j] = 0;
@@ -92,8 +99,8 @@ void main(void) {
                         outputImage[LRoad[i].x][LRoad[i].y] = 255;
                     for (i = 0; i < RRoadCount; i++)
                         outputImage[RRoad[i].x][RRoad[i].y] = 255;
-                    ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);
-                    ips200_show_int16(0, MT9V03X_H + 1, LRoadCount);
+                    ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);  //显示到屏幕上
+                    ips200_show_int16(0, MT9V03X_H + 1, LRoadCount);    //把边线数量、拐角状态显示在屏幕上
                     ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, RRoadCount);
                     ips200_show_int16(0, MT9V03X_H + 20, LCorner);
                     ips200_show_int16(MT9V03X_W, MT9V03X_H + 20, RCorner);
