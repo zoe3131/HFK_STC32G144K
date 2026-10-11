@@ -71,7 +71,7 @@ void main(void) {
 #if (DEBUG_MODE)  //电脑的无线串口调试
         if (wireless_uart_read_buffer(data_buffer, 32)) {   
             sscanf(data_buffer, "%d,%d,%d,%d,%d,%d", &p, &i, &d, &s1, &s2, &ab);  //在电脑上写下数据，读取电脑发送的数据
-            switch2 = gpio_get_level(IO_PB1);   //读取拨码开关的状态，为下面的做准备
+            switch2 = gpio_get_level(IO_PB1);   //读取拨码开关的状态，为下面在串口调试下是否展示图像做准备
             switch1 = gpio_get_level(IO_PB0);
             ips200_clear(RGB565_WHITE);  //清屏
             motorInit(p, i, d, s1, s2, ab, 0);  //设置参数
@@ -90,15 +90,15 @@ void main(void) {
                 if (mt9v03x_finish_flag) {    //照了一个图像
                     loadRoad();      //对图像做处理
                     displayBinarizationImage();   //把识别到的中线、边线画到一张空白图上
-                    for (i = 0; i < MT9V03X_H; i++)
-                        for (j = 0; j < MT9V03X_W; j++)
-                            outputImage[i][j] = 0;
+                    for (i = 0; i < MT9V03X_H; i++)   //MT9V03X_H图像的高度
+                        for (j = 0; j < MT9V03X_W; j++)     //MT9V03X_W图像的宽度
+                            outputImage[i][j] = 0;          //将图像所在的矩阵清零
                     for (i = 0; i < centerLineCount; i++)
-                        outputImage[centerLine[i].x][centerLine[i].y] = 255;
+                        outputImage[centerLine[i].x][centerLine[i].y] = 255;    //描点，描中心线    //注意centerLine[i].x的x指的是中心线的行高，y就是列宽
                     for (i = 0; i < LRoadCount; i++)
-                        outputImage[LRoad[i].x][LRoad[i].y] = 255;
+                        outputImage[LRoad[i].x][LRoad[i].y] = 255;             //描左边界
                     for (i = 0; i < RRoadCount; i++)
-                        outputImage[RRoad[i].x][RRoad[i].y] = 255;
+                        outputImage[RRoad[i].x][RRoad[i].y] = 255;             //描右边界
                     ips200_displayimage03x(outputImage, MT9V03X_W, MT9V03X_H, 0, MT9V03X_H + 40);  //显示到屏幕上
                     ips200_show_int16(0, MT9V03X_H + 1, LRoadCount);    //把边线数量、拐角状态显示在屏幕上
                     ips200_show_int16(MT9V03X_W, MT9V03X_H + 1, RRoadCount);
@@ -210,35 +210,39 @@ void main(void) {
         if (mt9v03x_finish_flag) {      //图像处理
             // memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
             // seekfree_assistant_camera_send();
-#if (DEBUG_MODE)
-            if (switch1) displayBorderLineImage();
+#if (DEBUG_MODE)                   
+            if (switch1) displayBorderLineImage();  //调试模式下展示图象
 #endif
             //gpio_set_level(IO_P04, 1);
-            loadRoad();
+            loadRoad();        //核心图像处理，找边线、算中线     
             // gpio_set_level(IO_P04, 0);
             // if (target.y) startLaser(target.y); // 已删除打靶触发逻辑
             
-            have = haveZebra();
-            if (RUN_MODE == ZEBRA || have) {
+            have = haveZebra();  //判断是不是斑马线
+            if (RUN_MODE == ZEBRA || have) {    //进入状态机模式
                 RUN_MODE = ZEBRA;
                 //wireless_uart_send_string("ZB¥n");
                 // sprintf(send_buff, "ZEBRA: %d,%d¥n", LRoadCount, RRoadCount);
                 // wireless_uart_send_buffer(send_buff, 32);
                 runZebra(have);
-            } else if (RUN_MODE == BLOCK) {
+            } else if (RUN_MODE == BLOCK) {         //如果刚才在 loadRoad() 里判断出前方有障碍物，且状态已经变成了 BLOCK，就调用 runBlock() 绕过去   
                 runBlock(LCorner, RCorner);
                 // sprintf(send_buff, "BLOCK: %d,%d¥n", LRoadCount, RRoadCount);
                 // wireless_uart_send_buffer(send_buff, 32);
             } else if (RUN_MODE == CROSS ||
                        (RUN_MODE == FORWARD && ((RCorner && RRoadCount > 2) || (LCorner && LRoadCount > 2)) && LRoadCount < 14 &&
-                        RRoadCount < 14)) {
+                        RRoadCount < 14)) {     //这也是一个“双重判断”。如果状态是十字，就继续走十字逻辑。
+
+如果当前是普通前进（FORWARD），但发现左右两边都有拐角（LCorner 和 RCorner），且两边边线的点数都很短（< 14，这意味着赛道突然变宽，两边都没线了，典型的十字特征），那就进入十字模式
                 RUN_MODE = CROSS;
                 // sprintf(send_buff, "CROSS: %d,%d¥n", LRoadCount, RRoadCount);
                 // wireless_uart_send_buffer(send_buff, 32);
                 runCross();
             } else if (RUN_MODE == R_ROUND ||
                        (RUN_MODE == FORWARD && LRoad[37].x < 20 && RCorner && LRoadCount > 37 && RRoadCount < 11)) {
-                RUN_MODE = R_ROUND;
+                RUN_MODE = R_ROUND;         //如果当前是右环岛状态，就继续。
+
+如果是普通前进，发现左侧边线第37个点的位置特别靠上（LRoad[37].x < 20），且右边有拐角，且左边线条很长、右边线条很短，说明车正在从右侧切入环岛。
                 borderIn = 1;
                 //wireless_uart_send_string("RR¥n");
                 runRRound(LCorner, RCorner);
@@ -246,13 +250,13 @@ void main(void) {
                 // wireless_uart_send_buffer(send_buff, 32);
             } else if (RUN_MODE == L_ROUND ||
                        (RUN_MODE == FORWARD && RRoad[37].x < 20 && LCorner && RRoadCount > 37 && LRoadCount < 11)) {
-                RUN_MODE = L_ROUND;
+                RUN_MODE = L_ROUND;          //左环岛
                 borderIn = 1;
                 runLRound(LCorner, RCorner);
                 //wireless_uart_send_string("LR¥n");
                 // sprintf(send_buff, "L_ROUND: %d,%d¥n", LRoadCount, RRoadCount);
                 // wireless_uart_send_buffer(send_buff, 32);
-            } else
+            } else           //啥也不是就沿着中线走
                 alongLine(centerLine, centerLineCount, getAimPos());
             mt9v03x_finish_flag = 0;
         }
