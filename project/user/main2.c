@@ -75,7 +75,7 @@ void main(void) {
             switch1 = gpio_get_level(IO_PB0);
             ips200_clear(RGB565_WHITE);  //清屏
             motorInit(p, i, d, s1, s2, ab, 0);  //设置参数
-            break;
+            break;    //执行 break 后，程序立刻跳出这个选参数的 while(1) 循环，进入下面真正跑车的主循环。车就冲出去了！
         }
 #else   //这段不是上面的电脑调参，是物理调参
         switch2 = gpio_get_level(IO_PB1);   //下面的四个按键组合成8个速度选择
@@ -109,10 +109,10 @@ void main(void) {
                 }
             }
         }
-        if (!switch1 && !switch2) {
-            ips200_show_string(0, MT9V03X_H + 10, "T: SPEED 1");
+        if (!switch1 && !switch2) {              //switch1和switch2控制第一层if语句       
+            ips200_show_string(0, MT9V03X_H + 10, "T: SPEED 1");   // MT9V03X_H 是图像的高度宏定义
             ips200_show_string(0, MT9V03X_H + 40, "B: SPEED 2");
-            if (!topBtn) {
+            if (!topBtn) {                      //选速度1
                 ips200_clear(RGB565_WHITE);
                 ips200_show_string(0, 130, "SELECT: 1");
                 system_delay_ms(500);
@@ -120,7 +120,7 @@ void main(void) {
                 motorInit(260, 1000, 26, 4500, 520, 0, 0);
                 break;
             }
-            if (!bottomBtn) {
+            if (!bottomBtn) {                //选速度2
                 ips200_clear(RGB565_WHITE);
                 ips200_show_string(0, 160, "SELECT: 2");
                 system_delay_ms(500);
@@ -128,7 +128,7 @@ void main(void) {
                 motorInit(200, 800, 22, 4000, 300, 0, 0);
                 break;
             }
-        } else if (switch1 && !switch2) {
+        } else if (switch1 && !switch2) {      
             ips200_show_string(0, MT9V03X_H + 10, "T: SPEED 3");
             ips200_show_string(0, MT9V03X_H + 40, "B: SPEED 4");
             if (!topBtn) {
@@ -137,7 +137,7 @@ void main(void) {
                 system_delay_ms(500);
                 system_delay_ms(500);
                 motorInit(210, 900, 23, 4000, 320, 0, 0);
-                break;
+                break;     //执行 break 后，程序立刻跳出这个选参数的 while(1) 循环，进入下面真正跑车的主循环。车就冲出去了！
             }
             if (!bottomBtn) {
                 ips200_clear(RGB565_WHITE);
@@ -189,25 +189,25 @@ void main(void) {
 #endif
     }
     // dismissLaser(); // 已删除关闭激光操作
-    imuInit();
-    if (DEBUG_MODE) RUN_MODE = FORWARD;
+    imuInit();       //这两行代码出现在发车菜单结束（你按下了按键，执行了 break）、准备进入主循环之前
+    if (DEBUG_MODE) RUN_MODE = FORWARD;  //专门为调试环节准备的，默认小车初始状态是直走
     // seekfree_assistant_interface_init(SEEKFREE_ASSISTANT_DEBUG_UART);
     // seekfree_assistant_camera_information_config(SEEKFREE_ASSISTANT_MT9V03X, outputImage, MT9V03X_W, MT9V03X_H);
     
     while (1) {
 #if (DEBUG_MODE)
-        if (wireless_uart_read_buffer(data_buffer, 32)) {
+        if (wireless_uart_read_buffer(data_buffer, 32)) {     //这是你的“遥控急停按钮”。 如果你用蓝牙发了任意数据过去，车就会把 stop 设为 1，并给某个引脚（IO_P90）拉低电平（可能是切断电机电源），然后 break 跳出循环，车就停了。
             stop = 1;
             gpio_set_level(IO_P90, 0);
             break;
         }
 #endif
-        if (RUN_MODE == RAMP || (!canNotInRamp && (RUN_MODE == FORWARD || RUN_MODE == BLOCK) && pitch > 7)) {
+        if (RUN_MODE == RAMP || (!canNotInRamp && (RUN_MODE == FORWARD || RUN_MODE == BLOCK) && pitch > 7)) {  //这段代码在所有图像处理之前执行。判断是不是坡道
             RUN_MODE = RAMP;
             //wireless_uart_send_string("RP¥n");
             runRamp();
         }
-        if (mt9v03x_finish_flag) {
+        if (mt9v03x_finish_flag) {      //图像处理
             // memcpy(outputImage, mt9v03x_image, MT9V03X_IMAGE_SIZE);
             // seekfree_assistant_camera_send();
 #if (DEBUG_MODE)
