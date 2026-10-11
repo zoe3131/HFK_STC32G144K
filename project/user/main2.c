@@ -25,11 +25,11 @@
 
 // ==================== 全局变量 ====================
 int16 LCorner, RCorner, s2, centerLineCount, RUN_MODE = ZEBRA, LRoadCount = expRoadCount, RRoadCount = expRoadCount;
-static int16 p, i, d, s1, imBtn, borderInTriggerDistance = 25, ab;
-uint8 borderIn, switch1, switch2, ALONG = ALONG_R, topBtn, bottomBtn;
+static int16 p, i, d, s1, imBtn, borderInTriggerDistance = 25, ab;         //两个速度限制。s1 是直道最高速，s2 是弯道降速后的目标速度  //LCorner / RCorner：左边/右边有没有急弯？0=没有，大于0就是弯道的具体位置
+uint8 borderIn, switch1, switch2, ALONG = ALONG_R, topBtn, bottomBtn;       
 Point centerLine[expRoadCount], LRoad[expRoadCount], RRoad[expRoadCount]; // 已删除 target 变量
-extern uint8 outputImage[MT9V03X_H][MT9V03X_W], canNotInRamp, LThreshold, RThreshold, threshold;
-static uint8 have, data_buffer[32], send_buff[32], findBorderIn;
+extern uint8 outputImage[MT9V03X_H][MT9V03X_W], canNotInRamp, LThreshold, RThreshold, threshold;         //outputImage：屏幕显示的图像矩阵（外部），canNotInRamp：是否禁止进坡道（外部）
+static uint8 have, data_buffer[32], send_buff[32], findBorderIn;      //borderIn / borderInTriggerDistance = 25 / findBorderIn：用来辅助判断环岛的“边界侵入”逻辑。当边线扭曲超过25个像素，且标志位触发时，borderIn 会变1，告诉车“注意，前面路况复杂（大概率是环岛入口）”
 extern int16 currentDuty;
 int16 i, j, pos; // 修正了原代码中 `int16 data i, j, pos;` 的语法错误
 
